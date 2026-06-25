@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Council - Demo Output</title>
+  <style>
+    :root {
+      --ink: #182033;
+      --muted: #5e6878;
+      --paper: #f5f7fb;
+      --panel: #ffffff;
+      --line: #d8deea;
+      --blue: #2d6cdf;
+      --green: #1f8a68;
+      --gold: #a87800;
+      --red: #b34a4a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    main {
+      width: min(1120px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 34px;
+      box-shadow: 0 20px 70px rgba(24, 32, 51, 0.1);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: start;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 4vw, 52px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+    .mode {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--muted);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .question {
+      margin: 24px 0;
+      padding: 18px;
+      border-left: 6px solid var(--blue);
+      background: #f9fbff;
+      color: var(--ink);
+      font-size: 21px;
+      line-height: 1.35;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #fff;
+    }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+    .metric strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 34px;
+      line-height: 1;
+    }
+    .metric:nth-child(1) { border-top: 6px solid var(--blue); }
+    .metric:nth-child(2) { border-top: 6px solid var(--green); }
+    .metric:nth-child(3) { border-top: 6px solid var(--gold); }
+    .metric:nth-child(4) { border-top: 6px solid var(--red); }
+    .synthesis {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 18px;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      background: #fff;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 16px;
+    }
+    code {
+      display: block;
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 6px;
+      background: #f4f6fa;
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 14px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    @media (max-width: 860px) {
+      header { flex-direction: column; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .synthesis { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      main { padding: 22px; }
+      .metrics { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Fixture Demo Output</h1>
+      <div class="mode">offline / simulated</div>
+    </header>
+
+    <section class="question" aria-label="Demo question">
+      What are the tradeoffs between single-agent and multi-agent verification for AI-assisted decision making?
+    </section>
+
+    <section class="metrics" aria-label="Report metrics">
+      <article class="metric">
+        <span>Agents</span>
+        <strong>4</strong>
+      </article>
+      <article class="metric">
+        <span>Verified Claims</span>
+        <strong>12</strong>
+      </article>
+      <article class="metric">
+        <span>Average Confidence</span>
+        <strong>0.87</strong>
+      </article>
+      <article class="metric">
+        <span>Unresolved Claims</span>
+        <strong>0</strong>
+      </article>
+    </section>
+
+    <section class="synthesis">
+      <article class="panel">
+        <h2>Final Synthesis Excerpt</h2>
+        <p>A small team should start with a single strong agent when speed, simplicity, and low coordination cost matter. For high-stakes research or AI-assisted decisions, The Council pattern is stronger because it separates independent answers, peer critique, claim checks, and final synthesis.</p>
+      </article>
+      <article class="panel">
+        <h2>Generated Reports</h2>
+        <p>Relative output paths for public docs and demos:</p>
+        <code>sample_outputs/latest_fixture_report.json</code>
+        <code>sample_outputs/latest_fixture_report.md</code>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

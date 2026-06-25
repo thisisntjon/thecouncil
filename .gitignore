@@ -1,0 +1,62 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+*credential*
+*credentials*
+*secret*
+*token*
+!scripts/secret_scan.mjs
+
+# Local databases and private/generated state
+*.db
+*.sqlite
+*.sqlite3
+*.log
+logs/
+runs/
+generated-runs/
+private/
+
+# Dependencies and virtual environments
+node_modules/
+**/node_modules/
+.venv/
+venv/
+env/
+
+# Python cache/test output
+__pycache__/
+**/__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# JS build/cache output
+dist/
+build/
+.next/
+.cache/
+coverage/
+
+# Local OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Large/private research data and archives
+archive/
+research/*-data/
+research/**/results*.json
+research/**/claims*.json
+*.tar
+*.tar.gz
+*.zip

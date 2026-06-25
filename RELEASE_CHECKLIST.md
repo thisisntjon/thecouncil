@@ -1,0 +1,22 @@
+# Release Checklist
+
+- [x] Secret scan passes.
+- [x] `.env` removed.
+- [x] `.env.example` placeholders only.
+- [x] No work/customer/employer data found in fixture assets.
+- [x] Public fixture data only for the official demo path.
+- [~] License reviewed; human comfort with publishing the MIT-style license still needed.
+- [x] README complete.
+- [x] Demo command works.
+- [x] Tests pass.
+- [x] MCP stub self-test passes.
+- [x] Video script under 5 minutes.
+- [x] Kaggle writeup under 2,500 words.
+- [x] Screenshot/cover assets ready.
+- [x] Private project link ready: `https://github.com/thisisntjon/thecouncil`
+- [ ] YouTube link still needed.
+- [ ] Kaggle submission still needed.
+- [~] Kaggle reviewer access to the private repo still needs a decision.
+- [~] Client build attempted; dependencies are not installed in this copy, so the UI build was not verified.
+- [~] Final screenshots/GIF still need human capture from the public-safe helper pages.
+- [~] Optional live mode is documented as opt-in; decide whether to mention it briefly or omit it from the public demo.

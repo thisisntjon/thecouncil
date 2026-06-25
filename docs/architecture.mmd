@@ -1,0 +1,17 @@
+flowchart TD
+    A["User question"] --> B["Security helper: redact and classify input"]
+    B --> C["Council Agent 1: Architect"]
+    B --> D["Council Agent 2: Skeptic"]
+    B --> E["Council Agent 3: Operator"]
+    B --> F["Council Agent 4: Researcher"]
+    C --> G["Peer critique"]
+    D --> G
+    E --> G
+    F --> G
+    G --> H["Hidden Verification Swarm"]
+    H --> I["Extract fixture claims"]
+    I --> J["Check local fixture evidence"]
+    J --> K["Confidence and disagreement summary"]
+    K --> L["Final synthesis"]
+    L --> M["JSON and Markdown audit report"]
+    H --> N["MCP stub read-only tools"]

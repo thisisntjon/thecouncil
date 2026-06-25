@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shadow Council</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-deep: #07080c;
+      --bg-panel: #0d0f14;
+      --bg-card: #12151c;
+      --border: #1e2230;
+      --border-bright: #2d3548;
+      --text: #c8ccd8;
+      --text-dim: #5a6077;
+      --text-bright: #eef0f6;
+      --verified: #00e676;
+      --refuted: #ff1744;
+      --partial: #ffab00;
+      --unverifiable: #546e7a;
+      --investigating: #448aff;
+      --accent: #448aff;
+      --model-claude: #D97706;
+      --model-gpt: #10B981;
+      --model-gemini: #3B82F6;
+      --model-grok: #EF4444;
+    }
+
+    body {
+      background: var(--bg-deep);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top Bar ──────────────────────────────── */
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .top-bar-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-bright);
+    }
+
+    .top-bar-stats {
+      display: flex;
+      gap: 20px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .stat-value { color: var(--text-bright); font-weight: 600; }
+    .stat-verified { color: var(--verified); }
+    .stat-refuted { color: var(--refuted); }
+
+    .connection-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--verified);
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .connection-dot.disconnected { background: var(--refuted); }
+
+    /* ── Activity Bar ─────────────────────────── */
+
+    .activity-bar {
+      padding: 8px 24px;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .activity-cursor {
+      color: var(--accent);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    @keyframes redPulse {
+      0%, 100% { box-shadow: 0 0 0 rgba(255,23,68,0); }
+      50% { box-shadow: 0 0 12px rgba(255,23,68,0.4); }
+    }
+
+    /* ── Main Layout ──────────────────────────── */
+
+    .main-layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Left Panel: Leaderboard ──────────────── */
+
+    .left-panel {
+      width: 260px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .panel-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+
+    .leaderboard-entry {
+      padding: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .leaderboard-entry.leader {
+      border-color: var(--border-bright);
+    }
+
+    .lb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .lb-model {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lb-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+
+    .lb-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .lb-score {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .lb-bar-track {
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .lb-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+
+    .lb-breakdown {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      display: flex;
+      gap: 8px;
+    }
+
+    .lb-breakdown .v { color: var(--verified); }
+    .lb-breakdown .r { color: var(--refuted); }
+    .lb-breakdown .p { color: var(--partial); }
+    .lb-breakdown .u { color: var(--unverifiable); }
+
+    /* ── Center Panel: Verification Log ────────── */
+
+    .center-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      min-width: 0;
+    }
+
+    .question-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .question-header {
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .question-header:hover { background: rgba(0,0,0,0.4); }
+
+    .q-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      margin-right: 10px;
+    }
+
+    .q-text {
+      font-size: 0.85rem;
+      color: var(--text-bright);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .q-status {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .q-status.complete { background: rgba(0,230,118,0.12); color: var(--verified); border: 1px solid rgba(0,230,118,0.25); }
+    .q-status.investigating { background: rgba(68,138,255,0.12); color: var(--investigating); border: 1px solid rgba(68,138,255,0.25); animation: pulse 2s ease infinite; }
+    .q-status.extracting_claims { background: rgba(255,171,0,0.12); color: var(--partial); border: 1px solid rgba(255,171,0,0.25); animation: pulse 2s ease infinite; }
+    .q-status.error { background: rgba(255,23,68,0.12); color: var(--refuted); border: 1px solid rgba(255,23,68,0.25); }
+    .q-status.queued { background: rgba(255,255,255,0.05); color: var(--text-dim); border: 1px solid var(--border); }
+    .q-status.improving { background: rgba(68,138,255,0.12); color: var(--accent); border: 1px solid rgba(68,138,255,0.25); }
+    .q-status.cross_checking { background: rgba(68,138,255,0.12); color: var(--accent); border: 1px solid rgba(68,138,255,0.25); }
+    .q-status.synthesizing { background: rgba(0,230,118,0.12); color: var(--verified); border: 1px solid rgba(0,230,118,0.25); animation: pulse 2s ease infinite; }
+    .q-status.reporting { background: rgba(0,230,118,0.12); color: var(--verified); border: 1px solid rgba(0,230,118,0.25); }
+
+    .question-body { padding: 0; }
+
+    .synthesis-section {
+      margin: 12px;
+      padding: 16px;
+      background: rgba(0, 230, 118, 0.04);
+      border: 1px solid rgba(0, 230, 118, 0.3);
+      border-radius: 6px;
+    }
+
+    .synthesis-header {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--verified);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .synthesis-answer {
+      font-size: 0.85rem;
+      color: var(--text-bright);
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    .synthesis-citations {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(0, 230, 118, 0.15);
+    }
+
+    .synthesis-citation {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      padding: 3px 0;
+      display: flex;
+      gap: 6px;
+    }
+
+    .synthesis-citation-num {
+      color: var(--verified);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .synthesis-citation a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .synthesis-citation a:hover { color: var(--text-bright); }
+
+    .claim-row {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .claim-row:last-child { border-bottom: none; }
+
+    .claim-row.refuted {
+      background: rgba(255,23,68,0.04);
+      animation: redPulse 3s ease 1;
+    }
+
+    .claim-text-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .claim-model-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      padding: 1px 5px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .verdict-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .verdict-badge.supported { background: rgba(0,230,118,0.12); color: var(--verified); border: 1px solid rgba(0,230,118,0.2); }
+    .verdict-badge.refuted { background: rgba(255,23,68,0.12); color: var(--refuted); border: 1px solid rgba(255,23,68,0.2); }
+    .verdict-badge.partially_supported { background: rgba(255,171,0,0.12); color: var(--partial); border: 1px solid rgba(255,171,0,0.2); }
+    .verdict-badge.unverifiable { background: rgba(84,110,122,0.15); color: var(--unverifiable); border: 1px solid rgba(84,110,122,0.2); }
+    .verdict-badge.investigating { background: rgba(68,138,255,0.12); color: var(--investigating); border: 1px solid rgba(68,138,255,0.2); animation: pulse 1.5s ease infinite; }
+    .verdict-badge.pending { background: rgba(255,255,255,0.04); color: var(--text-dim); border: 1px solid var(--border); }
+
+    .claim-reasoning {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+      padding-left: 32px;
+      line-height: 1.4;
+    }
+
+    .claim-sources {
+      margin-top: 3px;
+      padding-left: 32px;
+    }
+
+    .claim-source-link {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--accent);
+      text-decoration: none;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .claim-source-link:hover { color: var(--text-bright); }
+
+    /* ── Right Panel: Intel Feed ───────────────── */
+
+    .right-panel {
+      width: 300px;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .intel-section {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .intel-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .intel-content {
+      font-size: 0.78rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .intel-content.empty { color: var(--text-dim); font-style: italic; }
+
+    .feed-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+    }
+
+    .feed-entry {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      display: flex;
+      gap: 6px;
+    }
+
+    .feed-time { color: var(--text-dim); flex-shrink: 0; }
+    .feed-msg { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .feed-entry.verified .feed-msg { color: var(--verified); }
+    .feed-entry.refuted .feed-msg { color: var(--refuted); }
+    .feed-entry.question .feed-msg { color: var(--accent); }
+
+    /* ── Bottom Bar: Progress ──────────────────── */
+
+    .bottom-bar {
+      padding: 10px 24px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .progress-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .progress-nodes {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .progress-node {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+    }
+
+    .progress-node .node-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+
+    .progress-node.empty .node-dot { background: var(--border-bright); }
+    .progress-node.active .node-dot { background: var(--investigating); animation: pulse 1s ease infinite; }
+    .progress-node.complete .node-dot { background: var(--verified); }
+    .progress-node.error .node-dot { background: var(--refuted); }
+
+    .progress-connector {
+      width: 24px; height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Empty State ──────────────────────────── */
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-dim);
+      text-align: center;
+      padding: 40px;
+    }
+
+    .empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .empty-subtitle {
+      font-size: 0.8rem;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+
+    /* ── Scrollbar ────────────────────────────── */
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span class="top-bar-title">The Shadow Council</span>
+      <span id="connectionDot" class="connection-dot"></span>
+    </div>
+    <div class="top-bar-stats">
+      <span>Q: <span class="stat-value" id="statQuestions">0</span></span>
+      <span>CLAIMS: <span class="stat-value" id="statClaims">0</span></span>
+      <span>VERIFIED: <span class="stat-verified" id="statVerified">0</span></span>
+      <span>CAUGHT: <span class="stat-refuted" id="statRefuted">0</span></span>
+    </div>
+  </div>
+
+  <!-- Activity Bar -->
+  <div class="activity-bar">
+    <span class="activity-cursor">&gt;</span>
+    <span id="activityText">Standing by. Waiting for questions from The Council...</span>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+
+    <!-- Left Panel: Model Leaderboard -->
+    <div class="left-panel">
+      <div class="panel-title">Model Accuracy</div>
+      <div id="leaderboard">
+        <div class="empty-state" style="height: auto; padding: 20px;">
+          <div style="font-size: 0.75rem;">No data yet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Panel: Verification Log -->
+    <div class="center-panel" id="centerPanel">
+      <div class="panel-title">Verification Log</div>
+      <div id="verificationLog">
+        <div class="empty-state">
+          <div class="empty-icon">&#128752;</div>
+          <div class="empty-title">Standing By</div>
+          <div class="empty-subtitle">The Shadow Council is ready. Questions from The Council will appear here as they arrive.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Intel Feed -->
+    <div class="right-panel">
+      <!-- Intel Highlights -->
+      <div class="intel-section">
+        <div class="intel-title">&#127919; Biggest Catch</div>
+        <div class="intel-content empty" id="intelCatch">Awaiting data...</div>
+      </div>
+      <div class="intel-section">
+        <div class="intel-title">&#129309; Strongest Consensus</div>
+        <div class="intel-content empty" id="intelConsensus">Awaiting data...</div>
+      </div>
+      <div class="intel-section">
+        <div class="intel-title">&#128123; Hallucination Watch</div>
+        <div class="intel-content empty" id="intelHallucination">Awaiting data...</div>
+      </div>
+
+      <!-- Live Feed -->
+      <div class="intel-section" style="border-bottom: none; padding-bottom: 4px;">
+        <div class="intel-title">Live Feed</div>
+      </div>
+      <div class="feed-container" id="feedContainer"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar: Progress Timeline -->
+  <div class="bottom-bar">
+    <span class="progress-label">Progress</span>
+    <div class="progress-nodes" id="progressNodes">
+      <span style="color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;">No questions yet</span>
+    </div>
+  </div>
+
+<script>
+// ── State ───────────────────────────────────────────────────
+
+const MODEL_COLORS = {
+  claude: '#D97706', gpt: '#10B981', gemini: '#3B82F6', grok: '#EF4444',
+};
+const MODEL_NAMES = {
+  claude: 'Claude', gpt: 'GPT-5.2', gemini: 'Gemini', grok: 'Grok',
+};
+
+const state = {
+  questions: {},        // Full question data indexed by question_number
+  cumulativeScores: {}, // { model_id: { total, verified, refuted, partial, unverifiable } }
+  expandedQuestion: null,
+};
+
+// ── DOM Helpers ─────────────────────────────────────────────
+
+function $(id) { return document.getElementById(id); }
+
+function formatTime() {
+  return new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function addFeedEntry(msg, type = '') {
+  const feed = $('feedContainer');
+  const entry = document.createElement('div');
+  entry.className = `feed-entry ${type}`;
+  entry.innerHTML = `<span class="feed-time">${formatTime()}</span><span class="feed-msg">${msg}</span>`;
+  feed.insertBefore(entry, feed.firstChild);
+  // Keep max 100 entries
+  while (feed.children.length > 100) feed.removeChild(feed.lastChild);
+}
+
+function setActivity(text) {
+  $('activityText').textContent = text;
+}
+
+// ── Stats Update ────────────────────────────────────────────
+
+function updateStats() {
+  const questions = Object.values(state.questions);
+  $('statQuestions').textContent = questions.length;
+
+  let totalClaims = 0, totalVerified = 0, totalRefuted = 0;
+  questions.forEach(q => {
+    Object.values(q.claims || {}).forEach(arr => { totalClaims += arr.length; });
+    Object.values(q.verifications || {}).forEach(v => {
+      if (v.verdict === 'supported') totalVerified++;
+      if (v.verdict === 'refuted') totalRefuted++;
+    });
+  });
+
+  $('statClaims').textContent = totalClaims;
+  $('statVerified').textContent = totalVerified;
+  $('statRefuted').textContent = totalRefuted;
+}
+
+// ── Leaderboard ─────────────────────────────────────────────
+
+function updateLeaderboard() {
+  // Recalculate cumulative scores
+  const cumulative = {};
+  Object.values(state.questions).forEach(q => {
+    if (!q.scores) return;
+    Object.entries(q.scores).forEach(([modelId, s]) => {
+      if (!cumulative[modelId]) cumulative[modelId] = { total: 0, verified: 0, refuted: 0, partial: 0, unverifiable: 0 };
+      const c = cumulative[modelId];
+      c.total += s.total_claims || 0;
+      c.verified += s.verified || 0;
+      c.refuted += s.refuted || 0;
+      c.partial += s.partially_supported || 0;
+      c.unverifiable += s.unverifiable || 0;
+    });
+  });
+
+  const sorted = Object.entries(cumulative)
+    .map(([id, c]) => ({
+      id,
+      ...c,
+      score: c.total > 0 ? Math.round(((c.verified + c.partial * 0.5) / c.total) * 1000) / 10 : 0,
+    }))
+    .sort((a, b) => b.score - a.score);
+
+  if (sorted.length === 0) return;
+
+  const lb = $('leaderboard');
+  lb.innerHTML = '';
+
+  sorted.forEach((entry, i) => {
+    const color = MODEL_COLORS[entry.id] || '#888';
+    const name = MODEL_NAMES[entry.id] || entry.id;
+    const scoreColor = entry.score >= 80 ? 'var(--verified)' : entry.score >= 50 ? 'var(--partial)' : 'var(--refuted)';
+
+    const div = document.createElement('div');
+    div.className = `leaderboard-entry${i === 0 ? ' leader' : ''}`;
+    div.innerHTML = `
+      <div class="lb-header">
+        <div class="lb-model">
+          <div class="lb-dot" style="background: ${color}; box-shadow: 0 0 6px ${color};"></div>
+          <span class="lb-name" style="color: ${color};">${name}</span>
+        </div>
+        <span class="lb-score" style="color: ${scoreColor};">${entry.score}%</span>
+      </div>
+      <div class="lb-bar-track">
+        <div class="lb-bar-fill" style="width: ${entry.score}%; background: ${scoreColor};"></div>
+      </div>
+      <div class="lb-breakdown">
+        <span class="v">${entry.verified}&#10003;</span>
+        <span class="r">${entry.refuted}&#10007;</span>
+        <span class="p">${entry.partial}~</span>
+        <span class="u">${entry.unverifiable}?</span>
+        <span>/ ${entry.total}</span>
+      </div>
+    `;
+    lb.appendChild(div);
+  });
+}
+
+// ── Verification Log ────────────────────────────────────────
+
+function renderQuestionBlock(qNum) {
+  const q = state.questions[qNum];
+  if (!q) return;
+
+  let block = document.getElementById(`qblock-${qNum}`);
+  const isNew = !block;
+
+  if (isNew) {
+    // Clear empty state
+    const emptyState = $('verificationLog').querySelector('.empty-state');
+    if (emptyState) emptyState.remove();
+
+    block = document.createElement('div');
+    block.id = `qblock-${qNum}`;
+    block.className = 'question-block';
+    $('verificationLog').appendChild(block);
+  }
+
+  const expanded = state.expandedQuestion === qNum;
+  const statusLabel = q.status.replace(/_/g, ' ');
+
+  // Count verdicts for summary
+  const verdicts = Object.values(q.verifications || {});
+  const vCount = verdicts.filter(v => v.verdict === 'supported').length;
+  const rCount = verdicts.filter(v => v.verdict === 'refuted').length;
+  const totalClaims = Object.values(q.claims || {}).flat().length;
+  const summary = totalClaims > 0 ? ` | ${vCount}&#10003; ${rCount}&#10007; / ${totalClaims}` : '';
+
+  let bodyHTML = '';
+  if (expanded) {
+    // Verified answer at the top (if available)
+    if (q.synthesis) {
+      let citationsHTML = '';
+      if (q.synthesis.citations && q.synthesis.citations.length > 0) {
+        citationsHTML = '<div class="synthesis-citations">' +
+          q.synthesis.citations.map(c => {
+            const sourceLink = c.source?.url
+              ? `<a href="${c.source.url}" target="_blank" rel="noopener">${c.source.title || c.source.url}</a>`
+              : (c.source?.title || 'N/A');
+            return `<div class="synthesis-citation"><span class="synthesis-citation-num">[${c.index}]</span><span>${c.claim}</span> &mdash; ${sourceLink}</div>`;
+          }).join('') + '</div>';
+      }
+      bodyHTML += `
+        <div class="synthesis-section">
+          <div class="synthesis-header">&#9989; Verified Answer</div>
+          <div class="synthesis-answer">${q.synthesis.answer}</div>
+          ${citationsHTML}
+        </div>
+      `;
+    }
+
+    // Build claim list per model
+    Object.entries(q.claims || {}).forEach(([modelId, claims]) => {
+      const color = MODEL_COLORS[modelId] || '#888';
+      const name = MODEL_NAMES[modelId] || modelId;
+
+      claims.forEach(claim => {
+        const v = (q.verifications || {})[claim.id];
+        const verdict = v?.verdict || 'pending';
+        const confidence = v?.confidence ? `${Math.round(v.confidence * 100)}%` : '';
+
+        let verdictBadge = '';
+        if (verdict === 'supported') verdictBadge = '<span class="verdict-badge supported">&#10003; Supported</span>';
+        else if (verdict === 'refuted') verdictBadge = '<span class="verdict-badge refuted">&#10007; Refuted</span>';
+        else if (verdict === 'partially_supported') verdictBadge = '<span class="verdict-badge partially_supported">~ Partial</span>';
+        else if (verdict === 'unverifiable') verdictBadge = '<span class="verdict-badge unverifiable">? Unverifiable</span>';
+        else if (verdict === 'investigating') verdictBadge = '<span class="verdict-badge investigating">&#8987; Investigating</span>';
+        else verdictBadge = '<span class="verdict-badge pending">&hellip; Pending</span>';
+
+        let reasoningHTML = v?.reasoning ? `<div class="claim-reasoning">${v.reasoning}</div>` : '';
+        let sourcesHTML = '';
+        if (v?.sources && v.sources.length > 0) {
+          sourcesHTML = '<div class="claim-sources">' +
+            v.sources.slice(0, 2).map(s =>
+              s.url ? `<a class="claim-source-link" href="${s.url}" target="_blank" rel="noopener">&nearr; ${s.title || s.url}</a>` : ''
+            ).join('') + '</div>';
+        }
+
+        bodyHTML += `
+          <div class="claim-row ${verdict === 'refuted' ? 'refuted' : ''}">
+            <div class="claim-text-row">
+              <span class="claim-model-tag" style="background: ${color}22; color: ${color}; border: 1px solid ${color}44;">${name}</span>
+              <span style="flex: 1; color: var(--text);">${claim.text}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; padding-left: 32px;">
+              ${verdictBadge}
+              ${confidence ? `<span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--text-dim);">${confidence}</span>` : ''}
+            </div>
+            ${reasoningHTML}
+            ${sourcesHTML}
+          </div>
+        `;
+      });
+    });
+  }
+
+  block.innerHTML = `
+    <div class="question-header" onclick="toggleQuestion(${qNum})">
+      <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
+        <span class="q-num">Q${qNum}</span>
+        <span class="q-text">${q.question}</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text-dim);">${summary}</span>
+        <span class="q-status ${q.status}">${statusLabel}</span>
+      </div>
+    </div>
+    ${expanded ? `<div class="question-body">${bodyHTML || '<div style="padding: 16px; color: var(--text-dim); font-size: 0.8rem;">Extracting claims...</div>'}</div>` : ''}
+  `;
+}
+
+function toggleQuestion(qNum) {
+  state.expandedQuestion = state.expandedQuestion === qNum ? null : qNum;
+  // Re-render all question blocks
+  Object.keys(state.questions).forEach(num => renderQuestionBlock(parseInt(num)));
+}
+
+// ── Intel Updates ───────────────────────────────────────────
+
+function updateIntel() {
+  // Collect cross-check results
+  let catch_ = null, consensus = null, hallucination = null;
+
+  Object.values(state.questions).forEach(q => {
+    if (!q.crossCheck) return;
+    if (q.crossCheck.biggest_catch && q.crossCheck.biggest_catch !== 'Cross-check inconclusive') {
+      catch_ = q.crossCheck.biggest_catch;
+    }
+    if (q.crossCheck.strongest_consensus) {
+      consensus = q.crossCheck.strongest_consensus;
+    }
+    if (q.crossCheck.hallucination_watch && q.crossCheck.hallucination_watch !== 'Unable to determine') {
+      hallucination = q.crossCheck.hallucination_watch;
+    }
+  });
+
+  const catchEl = $('intelCatch');
+  catchEl.textContent = catch_ || 'Awaiting data...';
+  catchEl.className = `intel-content${catch_ ? '' : ' empty'}`;
+
+  const consEl = $('intelConsensus');
+  consEl.textContent = consensus || 'Awaiting data...';
+  consEl.className = `intel-content${consensus ? '' : ' empty'}`;
+
+  const hallEl = $('intelHallucination');
+  hallEl.textContent = hallucination || 'Awaiting data...';
+  hallEl.className = `intel-content${hallucination ? '' : ' empty'}`;
+}
+
+// ── Progress Timeline ───────────────────────────────────────
+
+function updateProgress() {
+  const nodes = $('progressNodes');
+  const questions = Object.values(state.questions).sort((a, b) => a.question_number - b.question_number);
+
+  if (questions.length === 0) {
+    nodes.innerHTML = '<span style="color: var(--text-dim); font-family: \'IBM Plex Mono\', monospace; font-size: 0.7rem;">No questions yet</span>';
+    return;
+  }
+
+  nodes.innerHTML = questions.map((q, i) => {
+    let nodeClass = 'empty';
+    if (q.status === 'complete') nodeClass = 'complete';
+    else if (q.status === 'error') nodeClass = 'error';
+    else if (q.status !== 'queued') nodeClass = 'active';
+
+    const connector = i < questions.length - 1 ? '<div class="progress-connector"></div>' : '';
+    return `
+      <div class="progress-node ${nodeClass}">
+        <div class="node-dot"></div>
+        <span style="color: var(--text-dim);">Q${q.question_number}</span>
+      </div>
+      ${connector}
+    `;
+  }).join('');
+}
+
+// ── SSE Connection ──────────────────────────────────────────
+
+function connect() {
+  const events = new EventSource('/api/stream');
+
+  events.onopen = () => {
+    $('connectionDot').className = 'connection-dot';
+    addFeedEntry('Connected to Shadow Council server', '');
+  };
+
+  events.onerror = () => {
+    $('connectionDot').className = 'connection-dot disconnected';
+    addFeedEntry('Connection lost. Reconnecting...', 'refuted');
+  };
+
+  events.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    handleEvent(data);
+  };
+}
+
+function handleEvent(data) {
+  switch (data.type) {
+    case 'init':
+      (data.questions || []).forEach(q => {
+        state.questions[q.question_number] = q;
+        // Ensure synthesis is preserved from init data
+        if (q.synthesis) state.questions[q.question_number].synthesis = q.synthesis;
+        // Auto-expand latest
+        state.expandedQuestion = q.question_number;
+        renderQuestionBlock(q.question_number);
+      });
+      updateStats();
+      updateLeaderboard();
+      updateIntel();
+      updateProgress();
+      if (data.questions?.length > 0) {
+        setActivity(`Loaded ${data.questions.length} question(s) from server state.`);
+      }
+      break;
+
+    case 'question_received':
+      state.questions[data.question_number] = {
+        question_number: data.question_number,
+        question: data.question,
+        status: 'queued',
+        claims: {},
+        verifications: {},
+        consensus: null,
+        crossCheck: null,
+        scores: null,
+        improvement: [],
+      };
+      state.expandedQuestion = data.question_number;
+      renderQuestionBlock(data.question_number);
+      updateStats();
+      updateProgress();
+      setActivity(`Q${data.question_number} received: "${data.question.slice(0, 60)}..."`);
+      addFeedEntry(`Q${data.question_number}: "${data.question.slice(0, 50)}..."`, 'question');
+      break;
+
+    case 'status_change': {
+      const q = state.questions[data.question_number];
+      if (q) {
+        q.status = data.status;
+        renderQuestionBlock(data.question_number);
+        updateProgress();
+        setActivity(`Q${data.question_number}: ${data.status.replace(/_/g, ' ')}...`);
+        addFeedEntry(`Q${data.question_number}: ${data.status.replace(/_/g, ' ')}`, '');
+      }
+      break;
+    }
+
+    case 'claims_extracted': {
+      const q = state.questions[data.question_number];
+      if (q) {
+        if (!q.claims) q.claims = {};
+        q.claims[data.model_id] = data.claims;
+        renderQuestionBlock(data.question_number);
+        updateStats();
+        addFeedEntry(`Q${data.question_number}: ${data.claim_count} claims from ${data.model_name}`, '');
+        setActivity(`Q${data.question_number}: Extracted ${data.claim_count} claims from ${data.model_name}`);
+      }
+      break;
+    }
+
+    case 'consensus_result':
+      addFeedEntry(`Q${data.question_number}: Consensus — ${data.agreed_count} agreed, ${data.disagreed_count} disagreed, ${data.unique_count} unique`, '');
+      break;
+
+    case 'investigation_started': {
+      const q = state.questions[data.question_number];
+      if (q) {
+        if (!q.verifications) q.verifications = {};
+        q.verifications[data.claim_id] = { verdict: 'investigating', confidence: 0, reasoning: '' };
+        renderQuestionBlock(data.question_number);
+        setActivity(`Q${data.question_number}: Investigating "${data.claim_text.slice(0, 50)}..."`);
+      }
+      break;
+    }
+
+    case 'investigation_complete': {
+      const q = state.questions[data.question_number];
+      if (q) {
+        if (!q.verifications) q.verifications = {};
+        q.verifications[data.claim_id] = {
+          verdict: data.verdict,
+          confidence: data.confidence,
+          reasoning: data.reasoning,
+          sources: data.sources || [],
+        };
+        renderQuestionBlock(data.question_number);
+        updateStats();
+
+        const verdictEmoji = data.verdict === 'supported' ? '&#10003;' : data.verdict === 'refuted' ? '&#10007;' : '~';
+        const feedType = data.verdict === 'refuted' ? 'refuted' : data.verdict === 'supported' ? 'verified' : '';
+        addFeedEntry(`${verdictEmoji} ${data.claim_id}: ${data.verdict} (${Math.round(data.confidence * 100)}%)`, feedType);
+
+        const done = Object.values(q.verifications).filter(v => v.verdict !== 'investigating').length;
+        const total = Object.values(q.claims || {}).flat().length;
+        setActivity(`Q${data.question_number}: Verified ${done}/${total} claims...`);
+      }
+      break;
+    }
+
+    case 'cross_check_complete': {
+      const q = state.questions[data.question_number];
+      if (q) {
+        q.crossCheck = data;
+        updateIntel();
+        addFeedEntry(`Q${data.question_number}: Cross-check complete`, '');
+      }
+      break;
+    }
+
+    case 'scores': {
+      const q = state.questions[data.question_number];
+      if (q) {
+        q.scores = data.scores;
+        updateLeaderboard();
+        addFeedEntry(`Q${data.question_number}: Scores updated`, '');
+      }
+      break;
+    }
+
+    case 'synthesis': {
+      const q = state.questions[data.question_number];
+      if (q) {
+        q.synthesis = { answer: data.answer, citations: data.citations };
+        renderQuestionBlock(data.question_number);
+        addFeedEntry(`Q${data.question_number}: Verified answer synthesized (${data.citations?.length || 0} citations)`, 'verified');
+        setActivity(`Q${data.question_number}: Verified answer ready`);
+      }
+      break;
+    }
+
+    case 'improvement_result':
+      addFeedEntry(`Q${data.question_number}: ${data.claim_id} improved: ${data.old_verdict} -> ${data.new_verdict}`, 'verified');
+      break;
+
+    case 'pipeline_complete': {
+      const q = state.questions[data.question_number];
+      if (q) {
+        q.status = 'complete';
+        renderQuestionBlock(data.question_number);
+        updateProgress();
+        const secs = data.duration_ms ? (data.duration_ms / 1000).toFixed(1) : '?';
+        setActivity(`Q${data.question_number} complete in ${secs}s`);
+        addFeedEntry(`Q${data.question_number}: Pipeline complete (${secs}s)`, 'verified');
+      }
+      break;
+    }
+
+    case 'heartbeat':
+      break;
+  }
+}
+
+// ── Initialize ──────────────────────────────────────────────
+
+connect();
+</script>
+</body>
+</html>

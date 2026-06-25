@@ -1,0 +1,22 @@
+{
+  "name": "the-council-capstone",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The Council: Multi-Agent Verification Swarm capstone demo with offline fixture mode.",
+  "scripts": {
+    "demo:fixture": "node demo_fixture.mjs",
+    "test": "node tests/capstone_smoke.mjs",
+    "test:smoke": "node tests/capstone_smoke.mjs",
+    "secret:scan": "node scripts/secret_scan.mjs",
+    "mcp:stub": "node mcp/server_stub.mjs",
+    "mcp:self-test": "node mcp/server_stub.mjs --self-test",
+    "build:client": "npm --prefix client run build"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@google/generative-ai": "^0.21.0",
+    "openai": "^4.73.1",
+    "dotenv": "^16.4.5"
+  }
+}
