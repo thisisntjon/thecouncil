@@ -12,6 +12,8 @@ Single AI answers can be fast but opaque. For high-impact research or AI-assiste
 
 The Council separates answer generation from verification. Four Council agents answer independently, peer critique exposes weak assumptions, a hidden verification swarm checks claims against fixture evidence, and final synthesis produces an answer with confidence and an audit trail.
 
+The project intentionally "slices the elephant": generation, critique, verification, and synthesis are separate roles instead of one monolithic prompt. That keeps context smaller, makes each step easier to inspect, and gives the final answer a visible trajectory.
+
 ## Why Agents Are Needed
 
 Verification is not one behavior. Generation, critique, claim extraction, evidence checking, and synthesis each require a different role. Splitting those roles makes the process more auditable than asking one model to answer and then self-grade.
@@ -26,6 +28,8 @@ npm run demo:fixture
 
 It is simulated and public-safe. It does not call live providers, require keys, perform web search, or read private files.
 
+The expected behavior is also captured as a durable Gherkin-style spec in `specs/verification.feature`.
+
 The recommended question is:
 
 > What are the tradeoffs between single-agent and multi-agent verification for AI-assisted decision making?
@@ -38,6 +42,7 @@ The recommended question is:
 - Agent skills: `skills/council-verification/SKILL.md`
 - MCP: read-only MCP-style fixture stub in `mcp/server_stub.mjs`
 - Evaluation: JSON/Markdown audit export with verified claims and confidence summary
+- Spec-driven development: `specs/verification.feature` documents the behavioral contract
 
 ## Safety and Privacy Design
 

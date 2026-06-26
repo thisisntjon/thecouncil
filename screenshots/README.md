@@ -16,8 +16,10 @@ Do not include:
 - customer/work/employer data
 - private messages, resumes, legal files, or screenshots from unrelated projects
 
-Optional additional screenshots:
+Recommended final screenshots:
 
-1. Fixture demo command output.
-2. Generated JSON/Markdown audit report.
-3. Existing Council UI showing independent answers and verification swarm labels, only if no private data is visible.
+1. `cover.html`: title, one-sentence pitch, and Council pipeline.
+2. `architecture.html`: user question, redaction/risk check, four agents, peer critique, hidden verification, confidence, and audit export.
+3. `demo-output.html`: public-safe fixture report summary with agent count, verified claim count, confidence, synthesis excerpt, and relative report paths.
+
+Optional additional screenshot: terminal output from `npm run demo:fixture`, cropped so only the command result and relative project content are visible.

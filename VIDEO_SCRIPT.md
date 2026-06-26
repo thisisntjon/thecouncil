@@ -1,6 +1,6 @@
 # Video Script
 
-Target length: 5 minutes or less. Estimated read time: about 3.5 to 4 minutes.
+Target length: 5 minutes or less. Estimated read time: about 3 to 3.5 minutes.
 
 ## 0:00-0:20 - Problem and Hook
 
@@ -17,6 +17,8 @@ Show `screenshots/cover.html`.
 Show `screenshots/architecture.html` or `ARCHITECTURE.md`.
 
 "The stages are input redaction, four independent answers, peer critique, hidden claim verification, confidence summary, final synthesis, and audit export. The capstone demo uses offline fixture mode, so no API keys, paid calls, or live provider accounts are required."
+
+"The important course idea here is that this is not just a chatbot. The model-like answer is surrounded by a harness: redaction, role separation, tool boundaries, verification, and export."
 
 ## 1:25-3:05 - Fixture Demo
 
@@ -43,7 +45,7 @@ Say:
 
 Show `SECURITY_AND_PRIVACY.md`, `COURSE_CONCEPTS.md`, `screenshots/demo-output.html`, and the report audit trail.
 
-"The default path is no-key. `.env` files are ignored, examples use placeholders, input redaction catches common sensitive patterns, and the fixture tool allowlist keeps the demo bounded. The report gives reviewers a concrete audit trail: agent answers, critiques, verified claims, confidence, and final synthesis."
+"The default path is no-key. `.env` files are ignored, examples use placeholders, input redaction catches common sensitive patterns, and the fixture tool allowlist keeps the demo bounded. The JSON report gives reviewers a trajectory-style audit trail: agent answers, critiques, verified claims, confidence, and final synthesis. The Markdown report is the human-readable review layer."
 
 ## 4:10-4:45 - Impact, Limitations, Next Steps
 

@@ -8,13 +8,13 @@ AI assistants often return one polished answer even when the question is ambiguo
 
 ## Solution
 
-The Council is a multi-agent verification pattern. Four Council agents answer the same question independently. They then peer-review each other for strengths, weaknesses, and revision needs. A hidden Verification Swarm extracts claims, checks them against fixture evidence, assigns confidence, and passes those results into final synthesis.
+The Council is a multi-agent verification pattern. Four Council agents answer the same question independently. They then peer-review each other for strengths, weaknesses, and revision needs. A hidden Verification Swarm extracts claims, checks them against fixture evidence, assigns confidence, and passes those results into final synthesis. The project is intentionally more than a chatbot: the value is the model-plus-harness design around redaction, role separation, tool boundaries, and audit export.
 
 For this capstone, the default demo is a no-key fixture mode. It simulates the workflow with public-safe local data, so reviewers can reproduce the architecture without paid provider calls, live search, or private credentials.
 
 ## Why Multi-Agent Verification Matters
 
-More agents do not automatically mean better answers. The value comes from role separation and traceability. One role generates, another critiques, another extracts claims, another verifies evidence, and the final synthesis preserves uncertainty. This makes overconfidence easier to inspect because the report shows what was supported, what was only partially supported, and what would need more review.
+More agents do not automatically mean better answers. The value comes from role separation and traceability. The workflow slices the task into generation, critique, claim extraction, evidence checking, and synthesis instead of relying on one monolithic prompt. This makes overconfidence easier to inspect because the report shows what was supported, what was only partially supported, and what would need more review.
 
 ## Architecture
 
@@ -44,6 +44,8 @@ npm run demo:fixture
 
 The command prints the final synthesis and writes JSON/Markdown reports under `sample_outputs/`. The report includes the four agent answers, peer critiques, 12 verified claims, average confidence, unresolved-claim handling, and an audit trail.
 
+The JSON report acts as a trajectory-style audit trail, while the Markdown report is a plain-language review artifact for human sign-off.
+
 ## Course Concepts
 
 - Agent / multi-agent system: four Council agents, peer critique, hidden verification swarm, final synthesis
@@ -52,6 +54,7 @@ The command prints the final synthesis and writes JSON/Markdown reports under `s
 - Agent skills: `skills/council-verification/SKILL.md`
 - MCP: `mcp/server_stub.mjs` exposes read-only fixture tools for the demo
 - Evaluation and audit trail: JSON/Markdown exports show claims, verdicts, confidence, and final synthesis
+- Spec-driven behavior: `specs/verification.feature` captures the fixture flow as a durable behavioral contract
 
 ## Security and Privacy
 
@@ -65,4 +68,4 @@ The fixture demo proves the workflow shape, not live model quality. The MCP impl
 
 The main lesson is that agentic reliability comes from process design, not agent count alone. Independent answers help, but the strongest part is the chain of critique, claim-level verification, confidence reporting, and uncertainty preservation.
 
-Approximate word count: 554
+Approximate word count: 616

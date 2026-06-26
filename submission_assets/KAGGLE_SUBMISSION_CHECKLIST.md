@@ -10,9 +10,9 @@
 - [x] README includes no-key quickstart.
 - [x] Fixture mode is clearly labeled simulated/offline.
 - [x] MCP stub is described as a stub, not a production SDK server.
-- [x] Private GitHub URL ready: `https://github.com/thisisntjon/thecouncil`
+- [~] Public GitHub link still needed: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`.
 - [~] Human license comfort still needed.
-- [~] Decide how Kaggle reviewers should access the private repo, if required.
+- [~] Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
 - [~] Capture final screenshots/GIF from `screenshots/`.
 - [ ] Add YouTube/video URL.
 - [ ] Paste final writeup into Kaggle.
@@ -23,5 +23,5 @@
 - Cover image from `screenshots/cover.html`
 - Architecture image from `screenshots/architecture.html`
 - Demo summary image from `screenshots/demo-output.html`
-- Private GitHub repository link: `https://github.com/thisisntjon/thecouncil`
+- Public GitHub repository link: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`
 - YouTube/video demo link

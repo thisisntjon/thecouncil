@@ -68,6 +68,8 @@ See `ARCHITECTURE.md` and `docs/architecture.mmd`.
 - Agent skills: `skills/council-verification/SKILL.md`
 - MCP: small read-only MCP-style fixture stub at `mcp/server_stub.mjs`
 - Evaluation / audit trail: JSON/Markdown report, verified claims, confidence summary, unresolved claims
+- Spec-driven behavior: `specs/verification.feature`
+- Operational readiness: `QUALITY_OF_LIFE_BASELINE.md` maps the fixture demo to practical run/debug/safety features
 
 See `COURSE_CONCEPTS.md`.
 

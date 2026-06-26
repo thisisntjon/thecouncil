@@ -13,10 +13,10 @@
 - [x] Video script under 5 minutes.
 - [x] Kaggle writeup under 2,500 words.
 - [x] Screenshot/cover assets ready.
-- [x] Private project link ready: `https://github.com/thisisntjon/thecouncil`
+- [~] Public GitHub link still needed: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`.
 - [ ] YouTube link still needed.
 - [ ] Kaggle submission still needed.
-- [~] Kaggle reviewer access to the private repo still needs a decision.
+- [~] Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
 - [~] Client build attempted; dependencies are not installed in this copy, so the UI build was not verified.
 - [~] Final screenshots/GIF still need human capture from the public-safe helper pages.
 - [~] Optional live mode is documented as opt-in; decide whether to mention it briefly or omit it from the public demo.

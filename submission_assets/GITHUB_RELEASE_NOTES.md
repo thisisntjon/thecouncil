@@ -4,7 +4,7 @@
 
 This capstone release packages The Council as a public-safe, no-key, reproducible multi-agent verification demo.
 
-Repository: `https://github.com/thisisntjon/thecouncil`
+Repository: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`
 
 ## Highlights
 

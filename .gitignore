@@ -22,6 +22,7 @@ logs/
 runs/
 generated-runs/
 private/
+_private_course_alignment/
 
 # Dependencies and virtual environments
 node_modules/

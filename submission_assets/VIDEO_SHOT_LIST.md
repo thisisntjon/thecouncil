@@ -24,4 +24,5 @@ Target length: under 5 minutes.
 
 6. Close
    - State the limitation: fixture mode demonstrates architecture, not live model quality.
-   - Mention next steps: official MCP SDK server, richer evidence sets, one-click fixture UI.
+   - Use one short course-concepts line: The Council demonstrates multi-agent role separation, tool boundaries, security, reproducibility, agent skills, and auditability.
+   - Mention next steps only if there is time: official MCP SDK server, richer evidence sets, one-click fixture UI.

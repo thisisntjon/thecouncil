@@ -6,9 +6,11 @@ Review date: 2026-06-25
 
 Safe to publish: conditional.
 
-The code/docs are prepared for a private GitHub capstone release after final human review of the license and after the user captures public-safe screenshots/GIFs from the helper pages. Kaggle submission still needs the final YouTube/video link and a decision about reviewer access to the private repository.
+The code/docs are prepared for a Council-only capstone release after final human review of the license and after the user captures public-safe screenshots/GIFs from the helper pages. Kaggle submission still needs the final YouTube/video link and a final public repo/access decision.
 
-Private project URL: `https://github.com/thisisntjon/thecouncil`
+Public GitHub link: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`
+
+Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
 
 ## Findings
 
@@ -26,7 +28,7 @@ Private project URL: `https://github.com/thisisntjon/thecouncil`
 - Confirm license comfort.
 - Capture screenshots or a short GIF from `screenshots/cover.html`, `screenshots/architecture.html`, and `screenshots/demo-output.html`.
 - Decide whether optional live-provider instructions should remain in the public README or be reduced further.
-- Decide how Kaggle reviewers should access the private GitHub repository, if required.
+- Decide the final public repo or Kaggle-confirmed access method.
 - Add final YouTube/video link.
 - Submit to Kaggle.
 

@@ -4,7 +4,9 @@ Project: The Council: Multi-Agent Verification Swarm
 
 Track: Freestyle
 
-Private GitHub URL: `https://github.com/thisisntjon/thecouncil`
+Public GitHub link: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`
+
+Repo access note: Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
 
 Short pitch: The Council turns one AI answer into a transparent deliberation: multiple agents answer independently, critique each other, trigger a hidden verification swarm, and produce an evidence-backed final response with an audit trail.
 

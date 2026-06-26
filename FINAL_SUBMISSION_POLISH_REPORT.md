@@ -79,17 +79,17 @@ HTML screenshot pages are dependency-free and use only public-safe fixture conte
 - Human license comfort is still required.
 - Final screenshots or GIFs still need to be captured from the public-safe helper pages.
 - Optional live-provider instructions are present but clearly marked opt-in; decide if you want to keep or reduce them.
-- Private GitHub link is ready: `https://github.com/thisisntjon/thecouncil`
+- Public GitHub link still needed: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`.
 - YouTube/video link is still needed.
 - Kaggle submission still needs to be created.
-- Kaggle reviewer access to the private repository still needs a decision.
+- Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
 - Local machine path search for public docs returned no matches after sanitizing the conversion report.
 
 ## Exact Next Steps
 
 1. Review `LICENSE` and `LICENSE_REVIEW.md` and confirm you are comfortable publishing.
 2. Open the three files in `screenshots/` and capture public-safe PNGs or a short GIF.
-3. Use `https://github.com/thisisntjon/thecouncil` as the private project link.
+3. Add the final public repo link or Kaggle-confirmed access method.
 4. Record the video using `VIDEO_SCRIPT.md` and `submission_assets/VIDEO_SHOT_LIST.md`.
-5. Add the GitHub and YouTube links to the Kaggle submission, and decide how reviewers should access the private repository if required.
+5. Add the GitHub and YouTube links to the Kaggle submission.
 6. Paste `KAGGLE_WRITEUP_DRAFT.md` into Kaggle and submit.

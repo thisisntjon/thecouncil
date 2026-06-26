@@ -2,7 +2,7 @@
   "project": "The Council: Multi-Agent Verification Swarm",
   "mode": "fixture",
   "simulated": true,
-  "generatedAt": "2026-06-25T22:35:33.397Z",
+  "generatedAt": "2026-06-26T01:31:09.259Z",
   "question": "What are the tradeoffs between single-agent and multi-agent verification for AI-assisted decision making?",
   "inputRisk": {
     "level": "low",
