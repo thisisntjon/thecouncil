@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ROOT } from "../lib/fixtureCouncil.mjs";
+import { resolveKey } from "../lib/providerKeys.mjs";
 
 const PLACEHOLDER_VALUES = new Set([
   "",
@@ -30,7 +31,7 @@ function readEnvFile(filePath) {
 }
 
 function hasRealValue(env, key) {
-  const value = env[key] || process.env[key] || "";
+  const value = resolveKey(env, key) || process.env[key] || "";
   return !PLACEHOLDER_VALUES.has(value.trim());
 }
 

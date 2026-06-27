@@ -1,0 +1,188 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Design tokens ──────────────────────────────────────────
+   Clean, credible "research / dev tool" system (Linear / Vercel /
+   shadcn / Google AI Studio). Neutral zinc/slate ramp + a single
+   restrained indigo accent. No neon, no glows. */
+
+:root {
+  --radius: 0.625rem;
+
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(240 10% 9%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(240 10% 9%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(240 10% 9%);
+  --primary: hsl(239 84% 60%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(240 5% 96%);
+  --secondary-foreground: hsl(240 6% 10%);
+  --muted: hsl(240 5% 96%);
+  --muted-foreground: hsl(240 4% 44%);
+  --accent: hsl(240 5% 95%);
+  --accent-foreground: hsl(240 6% 10%);
+  --destructive: hsl(0 72% 51%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(240 6% 90%);
+  --input: hsl(240 6% 90%);
+  --ring: hsl(239 84% 60%);
+
+  /* Per-model identity (chips/dots only) */
+  --model-claude: #d97706;
+  --model-gpt: #10b981;
+  --model-gemini: #3b82f6;
+  --model-grok: #ef4444;
+
+  /* Verdict semantics */
+  --verdict-supported: #059669;
+  --verdict-partial: #d97706;
+  --verdict-refuted: #e11d48;
+  --verdict-unknown: #71717a;
+}
+
+.dark {
+  --background: hsl(240 10% 4%);
+  --foreground: hsl(0 0% 98%);
+  --card: hsl(240 9% 6.5%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(240 9% 7%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(239 84% 67%);
+  --primary-foreground: hsl(240 10% 6%);
+  --secondary: hsl(240 5% 13%);
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: hsl(240 5% 12%);
+  --muted-foreground: hsl(240 5% 64%);
+  --accent: hsl(240 5% 15%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 72% 55%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 6% 16%);
+  --input: hsl(240 6% 20%);
+  --ring: hsl(239 84% 67%);
+
+  --model-claude: #f59e0b;
+  --model-gpt: #34d399;
+  --model-gemini: #60a5fa;
+  --model-grok: #f87171;
+
+  --verdict-supported: #34d399;
+  --verdict-partial: #fbbf24;
+  --verdict-refuted: #fb7185;
+  --verdict-unknown: #a1a1aa;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-claude: var(--model-claude);
+  --color-gpt: var(--model-gpt);
+  --color-gemini: var(--model-gemini);
+  --color-grok: var(--model-grok);
+
+  --color-supported: var(--verdict-supported);
+  --color-partial: var(--verdict-partial);
+  --color-refuted: var(--verdict-refuted);
+  --color-unknown: var(--verdict-unknown);
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    margin: 0;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background-color: color-mix(in oklab, var(--primary) 24%, transparent);
+  }
+}
+
+/* Subtle scrollbars for scroll regions */
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent;
+}
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--muted-foreground) 30%, transparent);
+  border-radius: 9999px;
+}
+
+/* Markdown prose (answer/synthesis bodies) */
+.prose-council {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--foreground);
+}
+.prose-council p { margin: 0 0 0.75rem; }
+.prose-council p:last-child { margin-bottom: 0; }
+.prose-council ul,
+.prose-council ol { margin: 0.5rem 0; padding-left: 1.4em; }
+.prose-council li { margin-bottom: 0.25rem; }
+.prose-council strong { font-weight: 650; color: var(--foreground); }
+.prose-council a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+.prose-council h1,
+.prose-council h2,
+.prose-council h3 {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+}
+.prose-council code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: var(--muted);
+  padding: 0.1em 0.4em;
+  border-radius: var(--radius-sm);
+}
+.prose-council pre {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+.prose-council pre code { background: none; padding: 0; }

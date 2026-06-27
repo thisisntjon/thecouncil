@@ -2,14 +2,15 @@
   "project": "The Council: Multi-Agent Verification Swarm",
   "mode": "fixture",
   "simulated": true,
-  "fixture": "fixtures/council_fixture.json",
-  "label": "Offline simulated fixture for public capstone demo",
-  "generatedAt": "2026-06-27T02:51:17.978Z",
-  "question": "What are the tradeoffs between single-agent and multi-agent verification for AI-assisted decision making?",
+  "fixture": "fixtures/car_wash_fixture.json",
+  "scenarioId": "car_wash_50m",
+  "label": "Offline simulated fixture for weighted practical-reasoning demo",
+  "generatedAt": "2026-06-27T19:14:43.282Z",
+  "question": "I want to wash my car. The car wash is 50 meters away. Should I walk or drive?",
   "inputRisk": {
     "level": "low",
     "warnings": [],
-    "redactedPreview": "What are the tradeoffs between single-agent and multi-agent verification for AI-assisted decision making?"
+    "redactedPreview": "I want to wash my car. The car wash is 50 meters away. Should I walk or drive?"
   },
   "toolAllowlist": [
     "load_fixture",
@@ -27,293 +28,329 @@
   ],
   "agents": [
     {
-      "id": "architect",
-      "name": "Architect Agent",
-      "role": "Systems thinker",
-      "answer": "A single powerful agent is faster and easier to operate, but it concentrates failure modes. A multi-agent council adds coordination cost, yet creates useful friction: independent answers, critique, claim extraction, and evidence checks make overconfident answers easier to catch.",
+      "id": "intent_framer",
+      "name": "Intent Framer",
+      "role": "Interprets what task the user is actually trying to complete",
+      "roleWeight": 0.25,
+      "answer": "The likely goal is not just personal travel over 50 meters; it is getting the car washed. If the user wants the actual car washed at that facility, the car needs to be involved in the trip.",
       "claimIds": [
-        "c1",
-        "c2",
-        "c3"
+        "cw1",
+        "cw5"
       ]
     },
     {
-      "id": "skeptic",
-      "name": "Skeptic Agent",
-      "role": "Failure-mode reviewer",
-      "answer": "Multi-agent systems can look rigorous while simply multiplying the same model bias. They help only when agents have separated roles, independent context, explicit verification tasks, and an audit trail that records disagreement instead of hiding it.",
+      "id": "physical_logistics",
+      "name": "Physical Logistics Analyst",
+      "role": "Checks whether the proposed action physically accomplishes the goal",
+      "roleWeight": 0.35,
+      "answer": "For a stationary car wash, the car must be at the wash location. Walking the person there does not bring the car, so driving the car is the practical choice for the actual wash.",
       "claimIds": [
-        "c4",
-        "c5",
-        "c6"
+        "cw2",
+        "cw4"
       ]
     },
     {
-      "id": "operator",
-      "name": "Operator Agent",
-      "role": "Practical delivery lead",
-      "answer": "For small teams, a single agent is usually the minimum viable path. Use a council only for high-stakes research, policy, security, or decisions where a wrong answer is costly. The best compromise is an offline fixture demo plus optional live mode.",
+      "id": "practical_operator",
+      "name": "Practical Operator",
+      "role": "Weighs convenience, distance, and normal execution",
+      "roleWeight": 0.25,
+      "answer": "Fifty meters is very walkable for a person, so walking is sensible for checking the line or paying. But if the plan is to wash the car now, driving 50 meters directly completes the task.",
       "claimIds": [
-        "c7",
-        "c8",
-        "c9"
+        "cw3",
+        "cw5"
       ]
     },
     {
-      "id": "researcher",
-      "name": "Research Agent",
-      "role": "Evidence and evaluation lead",
-      "answer": "The strongest design is not 'more agents' by itself. It is a staged process: independent generation, peer critique, claim decomposition, evidence checking, confidence scoring, and final synthesis with unresolved claims preserved.",
+      "id": "ambiguity_skeptic",
+      "name": "Ambiguity Skeptic",
+      "role": "Preserves caveats and hidden assumptions",
+      "roleWeight": 0.15,
+      "answer": "The recommendation depends on missing context: whether the car is already at the wash, whether the car can be driven safely and legally, and whether the user only wants to inspect the location.",
       "claimIds": [
-        "c10",
-        "c11",
-        "c12"
+        "cw5",
+        "cw6"
       ]
     }
   ],
-  "swarmRoles": [],
+  "swarmRoles": [
+    {
+      "id": "claim_atomizer",
+      "name": "Claim Atomizer",
+      "checks": "Splits each role answer into atomic claims."
+    },
+    {
+      "id": "scenario_fact_verifier",
+      "name": "Scenario-Fact Verifier",
+      "checks": "Confirms facts stated by the prompt: car wash distance and user's stated goal."
+    },
+    {
+      "id": "goal_applicability_verifier",
+      "name": "Goal-Applicability Verifier",
+      "checks": "Distinguishes claims that help complete the wash from claims that only help personal travel."
+    },
+    {
+      "id": "physical_constraint_verifier",
+      "name": "Physical-Constraint Verifier",
+      "checks": "Checks whether walking moves the car to the wash."
+    },
+    {
+      "id": "weighted_decision_aggregator",
+      "name": "Weighted Decision Aggregator",
+      "checks": "Combines verdict, confidence, role weight, claim weight, and option effect."
+    }
+  ],
+  "scenarioInterpretation": {
+    "likelyIntent": "The user wants to get the car washed at a nearby stationary car wash.",
+    "primaryRecommendation": "drive",
+    "ambiguity": "Walking is reasonable only if the user wants to inspect, pay, ask a question, or if the car is already at the wash."
+  },
   "peerReviews": [
     {
-      "reviewer": "architect",
-      "target": "skeptic",
-      "score": 88,
-      "strength": "Correctly warns that agent count is not the same as reliability.",
-      "weakness": "Could offer a more concrete operating model.",
-      "wouldRevise": true
-    },
-    {
-      "reviewer": "skeptic",
-      "target": "operator",
-      "score": 82,
-      "strength": "Grounded in practical team constraints.",
-      "weakness": "Risks underplaying high-stakes reliability needs.",
-      "wouldRevise": false
-    },
-    {
-      "reviewer": "operator",
-      "target": "researcher",
+      "reviewer": "intent_framer",
+      "target": "physical_logistics",
       "score": 94,
-      "strength": "Gives an actionable staged workflow.",
-      "weakness": "Needs cost and latency caveats.",
+      "strength": "Correctly identifies the physical requirement that the car must reach the wash.",
+      "weakness": "Should state the hidden assumption that the wash is stationary.",
       "wouldRevise": true
     },
     {
-      "reviewer": "researcher",
-      "target": "architect",
+      "reviewer": "physical_logistics",
+      "target": "practical_operator",
+      "score": 86,
+      "strength": "Keeps the short walking distance in view.",
+      "weakness": "Could overvalue personal convenience if the task is the actual wash.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "practical_operator",
+      "target": "ambiguity_skeptic",
       "score": 90,
-      "strength": "Balances architecture and failure modes.",
-      "weakness": "Should distinguish simulated fixture evidence from live web evidence.",
+      "strength": "Preserves the cases where walking is the right answer.",
+      "weakness": "Needs a clear default recommendation after listing caveats.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "ambiguity_skeptic",
+      "target": "intent_framer",
+      "score": 88,
+      "strength": "Frames the likely intent as task completion.",
+      "weakness": "Should avoid treating the likely intent as certain.",
       "wouldRevise": true
     }
   ],
   "verifiedClaims": [
     {
-      "id": "c1",
-      "text": "Single-agent systems are faster and simpler to operate.",
+      "id": "cw1",
+      "text": "The user likely wants to get the car washed, not merely travel personally to the car wash location.",
       "verdict": "supported",
-      "confidence": 0.9,
+      "confidence": 0.91,
       "evidence": [
         {
-          "id": "e2",
-          "title": "Fixture operations note",
-          "summary": "Small teams should prefer the simplest workflow unless the decision is high-impact or auditability is required.",
-          "source": "fixtures/council_fixture.json"
+          "id": "cw_e2",
+          "title": "Prompt fact: intended task",
+          "summary": "The user says they want to wash their car.",
+          "source": "fixtures/car_wash_fixture.json"
         }
       ],
-      "reasoning": "A simpler single-agent workflow has fewer moving parts and less coordination overhead."
+      "reasoning": "The user states the task as washing the car, so task completion is the likely intent.",
+      "roleId": "intent_framer",
+      "claimType": "intent",
+      "roleWeight": 0.25,
+      "claimWeight": 0.9,
+      "supports": {
+        "drive": 0.8,
+        "walk": 0.1
+      },
+      "appliesWhen": [
+        "actual_wash"
+      ]
     },
     {
-      "id": "c2",
-      "text": "Single-agent systems concentrate failure modes in one model response.",
-      "verdict": "supported",
-      "confidence": 0.84,
-      "evidence": [
-        {
-          "id": "e1",
-          "title": "Fixture architecture note",
-          "summary": "Separate roles reduce correlated review failures only when the process forces independent answers and explicit checks.",
-          "source": "fixtures/council_fixture.json"
-        }
-      ],
-      "reasoning": "One model response can carry unchecked errors unless another process reviews it."
-    },
-    {
-      "id": "c3",
-      "text": "Multi-agent councils add coordination cost.",
-      "verdict": "supported",
-      "confidence": 0.88,
-      "evidence": [
-        {
-          "id": "e2",
-          "title": "Fixture operations note",
-          "summary": "Small teams should prefer the simplest workflow unless the decision is high-impact or auditability is required.",
-          "source": "fixtures/council_fixture.json"
-        }
-      ],
-      "reasoning": "Councils require orchestration, review, and synthesis stages."
-    },
-    {
-      "id": "c4",
-      "text": "Multi-agent systems can multiply shared model bias if roles are not separated.",
-      "verdict": "supported",
-      "confidence": 0.81,
-      "evidence": [
-        {
-          "id": "e1",
-          "title": "Fixture architecture note",
-          "summary": "Separate roles reduce correlated review failures only when the process forces independent answers and explicit checks.",
-          "source": "fixtures/council_fixture.json"
-        }
-      ],
-      "reasoning": "Agents with the same context or model family can share blind spots."
-    },
-    {
-      "id": "c5",
-      "text": "Independent context and explicit verification tasks improve multi-agent value.",
-      "verdict": "supported",
-      "confidence": 0.86,
-      "evidence": [
-        {
-          "id": "e1",
-          "title": "Fixture architecture note",
-          "summary": "Separate roles reduce correlated review failures only when the process forces independent answers and explicit checks.",
-          "source": "fixtures/council_fixture.json"
-        }
-      ],
-      "reasoning": "Explicit role separation makes the review process more useful."
-    },
-    {
-      "id": "c6",
-      "text": "An audit trail should preserve disagreement.",
-      "verdict": "supported",
-      "confidence": 0.93,
-      "evidence": [
-        {
-          "id": "e4",
-          "title": "Fixture audit note",
-          "summary": "A trustworthy final answer should show supported, refuted, and unresolved claims rather than hiding uncertainty.",
-          "source": "fixtures/council_fixture.json"
-        }
-      ],
-      "reasoning": "Auditability depends on preserving disagreement and uncertainty."
-    },
-    {
-      "id": "c7",
-      "text": "Small teams often benefit from a single-agent minimum viable path.",
-      "verdict": "supported",
-      "confidence": 0.78,
-      "evidence": [
-        {
-          "id": "e2",
-          "title": "Fixture operations note",
-          "summary": "Small teams should prefer the simplest workflow unless the decision is high-impact or auditability is required.",
-          "source": "fixtures/council_fixture.json"
-        }
-      ],
-      "reasoning": "The minimum viable path is often the simplest path for small teams."
-    },
-    {
-      "id": "c8",
-      "text": "Council-style verification is most useful when wrong answers are costly.",
-      "verdict": "supported",
-      "confidence": 0.9,
-      "evidence": [
-        {
-          "id": "e2",
-          "title": "Fixture operations note",
-          "summary": "Small teams should prefer the simplest workflow unless the decision is high-impact or auditability is required.",
-          "source": "fixtures/council_fixture.json"
-        },
-        {
-          "id": "e4",
-          "title": "Fixture audit note",
-          "summary": "A trustworthy final answer should show supported, refuted, and unresolved claims rather than hiding uncertainty.",
-          "source": "fixtures/council_fixture.json"
-        }
-      ],
-      "reasoning": "The extra review cost is justified when the cost of error is high."
-    },
-    {
-      "id": "c9",
-      "text": "Fixture mode can demonstrate the architecture without paid provider calls.",
-      "verdict": "supported",
-      "confidence": 0.98,
-      "evidence": [
-        {
-          "id": "e3",
-          "title": "Fixture safety note",
-          "summary": "Offline fixture mode avoids provider keys and paid calls; live mode must be opt-in and user configured.",
-          "source": "fixtures/council_fixture.json"
-        }
-      ],
-      "reasoning": "This capstone fixture mode uses static local data and no provider calls."
-    },
-    {
-      "id": "c10",
-      "text": "A staged process can separate generation, critique, verification, and synthesis.",
+      "id": "cw2",
+      "text": "To wash the car at a stationary car wash, the car must be brought to the wash.",
       "verdict": "supported",
       "confidence": 0.95,
       "evidence": [
         {
-          "id": "e1",
-          "title": "Fixture architecture note",
-          "summary": "Separate roles reduce correlated review failures only when the process forces independent answers and explicit checks.",
-          "source": "fixtures/council_fixture.json"
-        },
-        {
-          "id": "e4",
-          "title": "Fixture audit note",
-          "summary": "A trustworthy final answer should show supported, refuted, and unresolved claims rather than hiding uncertainty.",
-          "source": "fixtures/council_fixture.json"
+          "id": "cw_e3",
+          "title": "Physical constraint note",
+          "summary": "A stationary car wash can wash a car only if the car is present at the wash location.",
+          "source": "fixtures/car_wash_fixture.json"
         }
       ],
-      "reasoning": "The staged process is represented directly in the fixture pipeline."
+      "reasoning": "A stationary car wash cannot wash a car that has not been brought to it.",
+      "roleId": "physical_logistics",
+      "claimType": "physical_requirement",
+      "roleWeight": 0.35,
+      "claimWeight": 1,
+      "supports": {
+        "drive": 1
+      },
+      "appliesWhen": [
+        "actual_wash"
+      ]
     },
     {
-      "id": "c11",
-      "text": "Confidence scoring is useful when backed by evidence checks.",
-      "verdict": "partially_supported",
-      "confidence": 0.72,
-      "evidence": [
-        {
-          "id": "e4",
-          "title": "Fixture audit note",
-          "summary": "A trustworthy final answer should show supported, refuted, and unresolved claims rather than hiding uncertainty.",
-          "source": "fixtures/council_fixture.json"
-        }
-      ],
-      "reasoning": "Confidence is useful only when tied to evidence and caveats; otherwise it can be decorative."
-    },
-    {
-      "id": "c12",
-      "text": "Unresolved claims should remain visible in the final answer.",
+      "id": "cw3",
+      "text": "Fifty meters is a short and reasonable distance for most people to walk.",
       "verdict": "supported",
-      "confidence": 0.92,
+      "confidence": 0.95,
       "evidence": [
         {
-          "id": "e4",
-          "title": "Fixture audit note",
-          "summary": "A trustworthy final answer should show supported, refuted, and unresolved claims rather than hiding uncertainty.",
-          "source": "fixtures/council_fixture.json"
+          "id": "cw_e1",
+          "title": "Prompt fact: car wash distance",
+          "summary": "The user says the car wash is 50 meters away.",
+          "source": "fixtures/car_wash_fixture.json"
         }
       ],
-      "reasoning": "The final synthesis should retain unresolved claims for review."
+      "reasoning": "Fifty meters is close enough that walking is reasonable for a person.",
+      "roleId": "practical_operator",
+      "claimType": "distance",
+      "roleWeight": 0.25,
+      "claimWeight": 0.45,
+      "supports": {
+        "walk": 0.8,
+        "caveat": 0.4
+      },
+      "appliesWhen": [
+        "personal_travel",
+        "checking"
+      ]
+    },
+    {
+      "id": "cw4",
+      "text": "Walking to the car wash does not move the car there if the car starts with the user.",
+      "verdict": "supported",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "id": "cw_e3",
+          "title": "Physical constraint note",
+          "summary": "A stationary car wash can wash a car only if the car is present at the wash location.",
+          "source": "fixtures/car_wash_fixture.json"
+        }
+      ],
+      "reasoning": "If the car starts with the user, walking the person to the wash leaves the car behind.",
+      "roleId": "physical_logistics",
+      "claimType": "physical_constraint",
+      "roleWeight": 0.35,
+      "claimWeight": 0.95,
+      "supports": {
+        "drive": 0.9
+      },
+      "appliesWhen": [
+        "actual_wash"
+      ]
+    },
+    {
+      "id": "cw5",
+      "text": "Walking is reasonable if the user only wants to inspect, pay, ask a question, or if the car is already at the wash.",
+      "verdict": "partially_supported",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "id": "cw_e4",
+          "title": "Ambiguity note",
+          "summary": "Walking can be correct for checking, paying, asking a question, or if the car is already at the wash.",
+          "source": "fixtures/car_wash_fixture.json"
+        }
+      ],
+      "reasoning": "Walking is a good conditional branch, but only when the task is inspection/payment or the car is already there.",
+      "roleId": "ambiguity_skeptic",
+      "claimType": "conditional_caveat",
+      "roleWeight": 0.15,
+      "claimWeight": 0.6,
+      "supports": {
+        "walk": 0.7,
+        "caveat": 1
+      },
+      "appliesWhen": [
+        "checking",
+        "car_already_there"
+      ]
+    },
+    {
+      "id": "cw6",
+      "text": "The recommendation assumes the car is safe and legal to drive.",
+      "verdict": "unresolved",
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "id": "cw_e5",
+          "title": "Safety caveat note",
+          "summary": "Driving should not be recommended if the car cannot be driven safely or legally.",
+          "source": "fixtures/car_wash_fixture.json"
+        }
+      ],
+      "reasoning": "The prompt does not say whether the car is safe and legal to drive, so this remains an assumption.",
+      "roleId": "ambiguity_skeptic",
+      "claimType": "safety_assumption",
+      "roleWeight": 0.15,
+      "claimWeight": 0.8,
+      "supports": {
+        "caveat": 1
+      },
+      "appliesWhen": [
+        "actual_wash"
+      ]
     }
   ],
   "final": {
-    "finalAnswer": "A small team should start with a single strong agent when speed, simplicity, and low coordination cost matter. For high-stakes research or AI-assisted decisions, The Council pattern is stronger: independent agents answer first, peer critique exposes weak assumptions, a verification swarm checks claims against evidence, and final synthesis preserves unresolved claims instead of hiding them. The practical recommendation is progressive escalation: use one agent for low-risk work, then trigger a council when the decision needs traceability, disagreement analysis, or an audit trail.",
+    "finalAnswer": "Drive the car to the car wash if your goal is to wash it there. The car wash is only 50 meters away, so walking is reasonable if you only want to check the line, pay, ask a question, or if the car is already at the wash. But for the actual wash, the car needs to be at the facility, so driving the car is the practical recommendation.",
     "confidenceSummary": {
-      "averageConfidence": 0.87,
-      "supportedClaims": 11,
+      "averageConfidence": 0.83,
+      "supportedClaims": 4,
       "partiallySupportedClaims": 1,
-      "unresolvedClaims": 0
+      "unresolvedClaims": 1
     },
-    "unresolvedClaims": []
+    "unresolvedClaims": [
+      {
+        "id": "cw6",
+        "text": "The recommendation assumes the car is safe and legal to drive.",
+        "verdict": "unresolved",
+        "confidence": 0.5,
+        "evidence": [
+          {
+            "id": "cw_e5",
+            "title": "Safety caveat note",
+            "summary": "Driving should not be recommended if the car cannot be driven safely or legally.",
+            "source": "fixtures/car_wash_fixture.json"
+          }
+        ],
+        "reasoning": "The prompt does not say whether the car is safe and legal to drive, so this remains an assumption.",
+        "roleId": "ambiguity_skeptic",
+        "claimType": "safety_assumption",
+        "roleWeight": 0.15,
+        "claimWeight": 0.8,
+        "supports": {
+          "caveat": 1
+        },
+        "appliesWhen": [
+          "actual_wash"
+        ]
+      }
+    ],
+    "decisionScores": {
+      "drive": 0.78,
+      "walk": 0.13,
+      "caveat": 0.08
+    },
+    "scenarioInterpretation": {
+      "likelyIntent": "The user wants to get the car washed at a nearby stationary car wash.",
+      "primaryRecommendation": "drive",
+      "ambiguity": "Walking is reasonable only if the user wants to inspect, pay, ask a question, or if the car is already at the wash."
+    },
+    "assumptionsAndCaveats": [
+      "Assumes the car starts with the user and is not already at the wash.",
+      "Assumes the car wash is a stationary facility, not a mobile/detailing service.",
+      "Assumes the car can be driven safely and legally.",
+      "If the user only wants to inspect, pay, or ask a question, walking 50 meters is reasonable."
+    ]
   },
   "auditTrail": [
     {
       "step": "load_fixture",
-      "detail": "Loaded public fixture data from fixtures/council_fixture.json."
+      "detail": "Loaded public fixture data from fixtures/car_wash_fixture.json."
     },
     {
       "step": "redact_input",
@@ -321,7 +358,7 @@
     },
     {
       "step": "extract_claims",
-      "detail": "Loaded 12 fixture claims."
+      "detail": "Loaded 6 fixture claims."
     },
     {
       "step": "verify_claims_against_fixture",

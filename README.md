@@ -8,26 +8,28 @@ The model is only ~10% of this system; the other ~90% is the **harness** — inp
 
 ## Quickstart
 
-**Recommended (visual):** start the offline fixture UI and open it in a browser — the dashboard shows each agent, peer critiques, color-coded claim verdicts, confidence bars, decision scores, and the final synthesis:
-
-```bash
-npm run ui:fixture
-```
-
-Then open `http://127.0.0.1:4173` (no keys, no packages beyond Node/npm). On Windows: `launch.bat ui`.
-
-**Command-line equivalent:** the same fixture evaluator, as text + JSON/Markdown reports:
+**Recommended (run it yourself):** one command, no keys, no browser, nothing to install beyond Node/npm. The CLI renders an animated dashboard that walks the whole pipeline — at-a-glance confidence meter, each agent with its own confidence, peer critiques, color-coded claim verdicts with confidence bars, weighted decision scores, preserved unresolved claims, and the final synthesis:
 
 ```bash
 npm run demo:fixture
 ```
 
-On Windows, you can also double-click `launch.bat` for a menu, or run:
+This is the most reproducible path — it prints to your terminal and also writes JSON/Markdown reports. On Windows: `launch.bat fixture` (the launcher forces UTF-8 so the dashboard renders correctly).
+
+**Optional (visual / for screenshots):** the same fixture evaluator as a browser page — a clean static view that makes a good hero image:
+
+```bash
+npm run ui:fixture
+```
+
+Then open `http://127.0.0.1:4173`. On Windows: `launch.bat ui`.
+
+On Windows, double-click `launch.bat` for a menu, or run:
 
 ```bat
-launch.bat ui
 launch.bat fixture
 launch.bat car-wash
+launch.bat ui
 launch.bat verify
 ```
 

@@ -3,6 +3,10 @@ setlocal EnableExtensions
 
 cd /d "%~dp0"
 
+rem Use UTF-8 so the rich terminal dashboard (box-drawing, block bars, arrows)
+rem renders correctly instead of mojibake on stock cmd.exe code pages.
+chcp 65001 >nul
+
 if /I "%~1"=="fixture" goto run_fixture
 if /I "%~1"=="car-wash" goto run_car_wash
 if /I "%~1"=="verify" goto run_verify
@@ -22,39 +26,92 @@ if not "%~1"=="" goto unknown
 :menu
 set "PAUSE_ON_EXIT=1"
 cls
-echo The Council - local launcher
 echo.
-echo 1. Run default fixture demo
-echo 2. Run weighted car-wash demo
-echo 3. Run full capstone verification
-echo 4. Run smoke tests
-echo 5. Run MCP self-test
-echo 6. Open public demo page
-echo 7. Start public fixture UI
-echo 8. Start optional live React UI
-echo 9. Run live feedback loop
-echo 10. Install optional live UI dependencies
-echo 11. Run custom fixture question
-echo 12. Exit
+echo   The Council
+echo   redact -^> council -^> critique -^> verify -^> synthesize -^> audit
+echo   --------------------------------------------------------------
+echo     D^)  Run the demo             offline - no keys
+echo     U^)  Open browser UI          offline - no keys
+echo     V^)  Verify (for reviewers)   offline - no keys
+echo     --------------------------------------------------------------
+echo     A^)  Advanced / developer              ^>
+echo     L^)  Live mode (needs keys, may cost)  ^>
+echo     Q^)  Quit
 echo.
-set /p CHOICE="Choose an option: "
+echo   Everything here is offline ^& safe unless marked Live.
+echo   [Enter] = Run the demo
+echo.
+set /p CHOICE="  Choose [D/U/V/A/L/Q]: "
 
-if "%CHOICE%"=="1" goto run_fixture
-if "%CHOICE%"=="2" goto run_car_wash
-if "%CHOICE%"=="3" goto run_verify
-if "%CHOICE%"=="4" goto run_test
-if "%CHOICE%"=="5" goto run_mcp
-if "%CHOICE%"=="6" goto open_static_ui
-if "%CHOICE%"=="7" goto run_fixture_ui
-if "%CHOICE%"=="8" goto run_live_ui
-if "%CHOICE%"=="9" goto run_live_feedback
-if "%CHOICE%"=="10" goto install_ui
-if "%CHOICE%"=="11" goto run_custom_prompt
-if "%CHOICE%"=="12" goto done
+if "%CHOICE%"=="" goto run_fixture
+if /I "%CHOICE%"=="D" goto demo_menu
+if /I "%CHOICE%"=="U" goto run_fixture_ui
+if /I "%CHOICE%"=="V" goto run_verify
+if /I "%CHOICE%"=="A" goto advanced_menu
+if /I "%CHOICE%"=="L" goto live_menu
+if /I "%CHOICE%"=="Q" goto done
+if /I "%CHOICE%"=="exit" goto done
+if /I "%CHOICE%"=="H" goto help
 
 echo.
-echo Unknown option: %CHOICE%
-goto finish
+echo   Unknown option: %CHOICE%
+echo.
+pause
+goto menu
+
+:demo_menu
+cls
+echo.
+echo   DEMO   (offline - no keys)
+echo   --------------------------------------------------------------
+echo     1^)  Default fixture dashboard
+echo     2^)  Weighted car-wash scenario
+echo     3^)  Custom question
+echo     B^)  Back
+echo.
+set /p DCHOICE="  Choose [1/2/3/B]: "
+if "%DCHOICE%"=="" goto run_fixture
+if "%DCHOICE%"=="1" goto run_fixture
+if "%DCHOICE%"=="2" goto run_car_wash
+if "%DCHOICE%"=="3" goto run_custom_prompt
+if /I "%DCHOICE%"=="B" goto menu
+goto demo_menu
+
+:advanced_menu
+cls
+echo.
+echo   ADVANCED / DEVELOPER   (offline - no keys)
+echo   --------------------------------------------------------------
+echo     1^)  Run smoke tests
+echo     2^)  Run MCP self-test
+echo     3^)  Run full capstone verification
+echo     B^)  Back
+echo.
+set /p ACHOICE="  Choose [1/2/3/B]: "
+if "%ACHOICE%"=="1" goto run_test
+if "%ACHOICE%"=="2" goto run_mcp
+if "%ACHOICE%"=="3" goto run_verify
+if /I "%ACHOICE%"=="B" goto menu
+goto advanced_menu
+
+:live_menu
+cls
+echo.
+echo   LIVE MODE   (optional - needs provider keys, may cost money)
+echo   --------------------------------------------------------------
+echo     1^)  Start live React UI        (server + client)
+echo     2^)  Run live feedback loop
+echo     3^)  Install live UI dependencies
+echo     B^)  Back
+echo.
+echo   These call real providers and are NOT required for grading.
+echo.
+set /p LCHOICE="  Choose [1/2/3/B]: "
+if "%LCHOICE%"=="1" goto run_live_ui
+if "%LCHOICE%"=="2" goto run_live_feedback
+if "%LCHOICE%"=="3" goto install_ui
+if /I "%LCHOICE%"=="B" goto menu
+goto live_menu
 
 :preflight
 where node >nul 2>nul
@@ -218,22 +275,26 @@ goto finish
 :help
 echo The Council - local launcher
 echo.
-echo Interactive:
-echo   launch.bat
+echo Interactive menu (just run: launch.bat):
+echo   D) Demo  - default fixture / car-wash / custom question   (offline)
+echo   U) Open browser fixture UI                                (offline)
+echo   V) Verify - full capstone verification                   (offline)
+echo   A) Advanced - smoke tests / MCP self-test / verification  (offline)
+echo   L) Live mode - React UI / feedback / install deps  (needs keys, may cost)
+echo   Q) Quit
 echo.
-echo Direct commands:
-echo   launch.bat fixture
-echo   launch.bat car-wash
-echo   launch.bat verify
-echo   launch.bat test
-echo   launch.bat mcp
-echo   launch.bat ui-static
-echo   launch.bat ui
-echo   launch.bat ui-fixture
-echo   launch.bat ui-live
-echo   launch.bat live-feedback
-echo   launch.bat install-ui
-echo   launch.bat custom "Your question here"
+echo Direct commands (offline unless noted):
+echo   launch.bat fixture            default fixture dashboard
+echo   launch.bat car-wash           weighted car-wash scenario
+echo   launch.bat custom "question"  custom fixture question
+echo   launch.bat ui                 browser fixture UI
+echo   launch.bat verify             full capstone verification
+echo   launch.bat test               smoke tests
+echo   launch.bat mcp                MCP self-test
+echo   launch.bat ui-static          open pre-rendered demo HTML
+echo   launch.bat ui-live            live React UI    (needs keys, may cost)
+echo   launch.bat live-feedback      live feedback    (needs keys, may cost)
+echo   launch.bat install-ui         install live deps
 echo.
 goto done
 

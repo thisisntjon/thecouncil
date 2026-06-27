@@ -81,18 +81,19 @@ export function buildFixtureUiHtml() {
   <title>The Council - Fixture UI</title>
   <style>
     :root {
-      color-scheme: light;
-      --bg: #f6f7fb;
-      --surface: #ffffff;
-      --surface-muted: #f0f3f7;
-      --border: #d8dee8;
-      --text: #172033;
-      --muted: #657187;
-      --blue: #2556a3;
-      --green: #16835c;
-      --amber: #9c6b12;
-      --red: #b13a30;
-      --shadow: 0 16px 40px rgba(23, 32, 51, 0.08);
+      color-scheme: dark;
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-muted: #1b2230;
+      --border: #2a3340;
+      --text: #e6edf3;
+      --muted: #8b97a7;
+      --blue: #4d9fff;
+      --green: #3fb950;
+      --amber: #d6a124;
+      --red: #f0786c;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      --mono: ui-monospace, SFMono-Regular, "Cascadia Code", Consolas, monospace;
     }
     * { box-sizing: border-box; }
     body {
@@ -253,7 +254,7 @@ export function buildFixtureUiHtml() {
     .peer-revise { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
     .peer-revise.yes { color: var(--amber); background: #fff7e8; border: 1px solid #ecd196; }
     .peer-revise.no { color: var(--green); background: #ecf8f2; border: 1px solid #bce8d2; }
-    .score-row { display: grid; grid-template-columns: 140px 1fr 54px; gap: 10px; align-items: center; margin-top: 10px; }
+    .score-row { display: grid; grid-template-columns: 140px 1fr auto; gap: 10px; align-items: center; margin-top: 10px; }
     .bar { height: 10px; border-radius: 999px; background: var(--surface-muted); overflow: hidden; }
     .bar > span { display: block; height: 100%; background: var(--blue); border-radius: 999px; }
     .synthesis {
@@ -280,6 +281,65 @@ export function buildFixtureUiHtml() {
       .score-row { grid-template-columns: 1fr; }
       .status { width: 100%; }
     }
+
+    /* --- Dark dashboard theme: overrides for hardcoded light colors --- */
+    body { background: radial-gradient(1100px 560px at 82% -12%, rgba(77, 159, 255, 0.10), transparent 60%), var(--bg); }
+    h1 { font-family: var(--mono); letter-spacing: 0.5px; }
+    .pipeline-line { margin-top: 10px; font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: 0.5px; }
+    .status { border-color: #1f3a5f; background: #112138; font-family: var(--mono); }
+    .scenario-button { background: var(--surface-muted); }
+    .scenario-button:hover, .scenario-button.active { border-color: var(--blue); background: #112138; }
+    textarea { background: #0b0f16; color: var(--text); }
+    .primary { background: linear-gradient(180deg, #3f86ff, #2f6bd6); border-color: #2f6bd6; }
+    .secondary { background: var(--surface-muted); }
+    .metric { background: var(--surface-muted); }
+    .metric strong { font-family: var(--mono); }
+    .stage { background: var(--surface-muted); }
+    .stage-number { background: #112138; font-family: var(--mono); }
+    .answer { color: #c7d0dc; }
+    .claim { background: var(--surface-muted); }
+    .peer { background: var(--surface-muted); }
+    .peer-score { font-family: var(--mono); }
+    .verdict { font-family: var(--mono); }
+    .supported { color: #7ee2a0; background: rgba(63, 185, 80, 0.13); border-color: rgba(63, 185, 80, 0.40); }
+    .partially_supported { color: #f0cd7a; background: rgba(214, 161, 36, 0.13); border-color: rgba(214, 161, 36, 0.40); }
+    .unresolved, .refuted { color: #f5a39a; background: rgba(240, 120, 108, 0.13); border-color: rgba(240, 120, 108, 0.40); }
+    .peer-revise.yes { color: #f0cd7a; background: rgba(214, 161, 36, 0.13); border: 1px solid rgba(214, 161, 36, 0.40); }
+    .peer-revise.no { color: #7ee2a0; background: rgba(63, 185, 80, 0.13); border: 1px solid rgba(63, 185, 80, 0.40); }
+    .evidence { background: #0b0f16; }
+    .evidence-title { color: var(--text); }
+    .evidence-summary { color: #c7d0dc; }
+    .synthesis { font-size: 18px; color: var(--text); background: #0f1a2c; border: 1px solid #1f3358; border-left: 5px solid var(--blue); }
+
+    /* at-a-glance confidence banner (mirrors the terminal dashboard) */
+    .glance { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); font-family: var(--mono); margin-bottom: 16px; }
+    .glance .label { color: var(--muted); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+    .glance .big { font-size: 30px; font-weight: 800; }
+    .meter { flex: 1 1 200px; min-width: 160px; height: 14px; border-radius: 999px; background: var(--surface-muted); border: 1px solid var(--border); overflow: hidden; }
+    .meter > span { display: block; height: 100%; background: linear-gradient(90deg, #3fb950, #5ad17f); }
+    .tally { display: flex; gap: 12px; font-size: 15px; font-weight: 700; }
+    .tally .t-ok { color: var(--green); }
+    .tally .t-mid { color: var(--amber); }
+    .tally .t-no { color: var(--muted); }
+    .glance .counts { color: var(--muted); font-size: 13px; }
+
+    /* inline confidence bars for agents + claims */
+    .conf-row { display: grid; grid-template-columns: 1fr 46px; gap: 10px; align-items: center; margin-top: 10px; }
+    .conf { height: 8px; border-radius: 999px; background: var(--surface-muted); border: 1px solid var(--border); overflow: hidden; }
+    .conf > span { display: block; height: 100%; background: var(--blue); }
+    .conf.s > span { background: var(--green); }
+    .conf.p > span { background: var(--amber); }
+    .conf.u > span { background: var(--muted); }
+    .conf.r > span { background: var(--red); }
+    .conf-row .pctv { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; }
+
+    /* decision scores winner */
+    .score-row.chosen strong { color: var(--green); }
+    .bar { border: 1px solid var(--border); }
+    .bar.win > span { background: linear-gradient(90deg, #3fb950, #5ad17f); }
+    .score-val { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+    .chosen-tag { color: var(--green); font-weight: 700; }
+    .warn { color: var(--amber); }
   </style>
 </head>
 <body>
@@ -288,6 +348,7 @@ export function buildFixtureUiHtml() {
       <div>
         <h1>The Council</h1>
         <p class="subtitle">Offline fixture UI for a multi-agent verification capstone. It runs the public-safe evaluator, shows role-separated agents, verifies claims against fixture evidence, and exports an audit trail without API keys.</p>
+        <p class="pipeline-line">redact → council → critique → verify → synthesize → audit</p>
         <div class="badge-row">
           <span class="badge">fixture/offline</span>
           <span class="badge">simulated public data</span>
@@ -351,6 +412,17 @@ export function buildFixtureUiHtml() {
       return Math.max(4, Math.round((Math.abs(Number(score) || 0) / max) * 100));
     }
 
+    function verdictClass(verdict) {
+      if (verdict === 'supported') return 's';
+      if (verdict === 'partially_supported') return 'p';
+      if (verdict === 'refuted') return 'r';
+      return 'u';
+    }
+
+    function confLevelClass(percentValue) {
+      return percentValue >= 80 ? 's' : percentValue >= 60 ? 'p' : 'r';
+    }
+
     function setStatus(text) {
       runStatus.textContent = text;
     }
@@ -383,12 +455,24 @@ export function buildFixtureUiHtml() {
       const unresolved = report.final.unresolvedClaims || [];
       const sections = [];
 
+      const claimConf = {};
+      (report.verifiedClaims || []).forEach((claim) => { claimConf[claim.id] = claim.confidence; });
+      const agentConf = (agent) => {
+        const values = (agent.claimIds || []).map((id) => claimConf[id]).filter((value) => typeof value === 'number');
+        return values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
+      };
+      const avgPct = pct(summary.averageConfidence);
+
       sections.push(
-        '<section class="grid four">' +
-          '<div class="metric"><strong>' + escapeHtml(stats.agents) + '</strong><span>Council agents</span></div>' +
-          '<div class="metric"><strong>' + escapeHtml(stats.claims) + '</strong><span>Claims checked</span></div>' +
-          '<div class="metric"><strong>' + pct(summary.averageConfidence) + '%</strong><span>Average confidence</span></div>' +
-          '<div class="metric"><strong>' + escapeHtml(summary.unresolvedClaims || 0) + '</strong><span>Unresolved claims</span></div>' +
+        '<section class="glance">' +
+          '<div><div class="label">Confidence</div><div class="big">' + avgPct + '%</div></div>' +
+          '<div class="meter"><span style="width: ' + avgPct + '%"></span></div>' +
+          '<div class="tally">' +
+            '<span class="t-ok">✔ ' + escapeHtml(summary.supportedClaims || 0) + '</span>' +
+            '<span class="t-mid">◐ ' + escapeHtml(summary.partiallySupportedClaims || 0) + '</span>' +
+            '<span class="t-no">? ' + escapeHtml(summary.unresolvedClaims || 0) + '</span>' +
+          '</div>' +
+          '<div class="counts">' + escapeHtml(stats.claims) + ' claims · ' + escapeHtml(stats.agents) + ' agents</div>' +
         '</section>'
       );
 
@@ -400,13 +484,16 @@ export function buildFixtureUiHtml() {
         '</div>'
       )).join('');
 
-      const scoreRows = Object.entries(scores).map(([option, score]) => (
-        '<div class="score-row">' +
+      const scoreEntries = Object.entries(scores);
+      const topScore = scoreEntries.length ? Math.max(...scoreEntries.map(([, value]) => Number(value))) : null;
+      const scoreRows = scoreEntries.map(([option, score]) => {
+        const win = topScore !== null && Number(score) === topScore;
+        return '<div class="score-row' + (win ? ' chosen' : '') + '">' +
           '<strong>' + escapeHtml(option) + '</strong>' +
-          '<div class="bar"><span style="width: ' + scoreWidth(score, scores) + '%"></span></div>' +
-          '<span>' + escapeHtml(score) + '</span>' +
-        '</div>'
-      )).join('');
+          '<div class="bar' + (win ? ' win' : '') + '"><span style="width: ' + scoreWidth(score, scores) + '%"></span></div>' +
+          '<span class="score-val">' + escapeHtml(score) + (win ? ' <span class="chosen-tag">← chosen</span>' : '') + '</span>' +
+        '</div>';
+      }).join('');
 
       sections.push(
         '<section class="grid two">' +
@@ -429,11 +516,18 @@ export function buildFixtureUiHtml() {
 
       sections.push(
         '<section class="card"><h2>Council Roles</h2><div class="grid two">' +
-        (report.agents || []).map((agent) => (
-          '<div class="panel"><h3>' + escapeHtml(agent.name) + '</h3>' +
-          '<p class="muted">' + escapeHtml(agent.role) + (agent.roleWeight ? ' - role weight ' + escapeHtml(agent.roleWeight) : '') + '</p>' +
-          '<p class="answer">' + escapeHtml(agent.answer) + '</p></div>'
-        )).join('') +
+        (report.agents || []).map((agent) => {
+          const conf = agentConf(agent);
+          const confPct = conf === null ? null : pct(conf);
+          const confHtml = confPct === null ? '' : (
+            '<div class="conf-row"><div class="conf ' + confLevelClass(confPct) + '"><span style="width: ' + confPct + '%"></span></div>' +
+            '<div class="pctv">' + confPct + '%</div></div>'
+          );
+          return '<div class="panel"><h3>' + escapeHtml(agent.name) + '</h3>' +
+            '<p class="muted">' + escapeHtml(agent.role) + (agent.roleWeight ? ' · weight ' + escapeHtml(agent.roleWeight) : '') + '</p>' +
+            confHtml +
+            '<p class="answer">' + escapeHtml(agent.answer) + '</p></div>';
+        }).join('') +
         '</div></section>'
       );
 
@@ -470,6 +564,8 @@ export function buildFixtureUiHtml() {
           '<article class="claim">' +
             '<div class="claim-head"><strong>' + escapeHtml(claim.id) + ' - ' + escapeHtml(claim.text) + '</strong>' +
             '<span class="verdict ' + escapeHtml(claim.verdict) + '">' + escapeHtml(claim.verdict) + ' ' + pct(claim.confidence) + '%</span></div>' +
+            '<div class="conf-row"><div class="conf ' + verdictClass(claim.verdict) + '"><span style="width: ' + pct(claim.confidence) + '%"></span></div>' +
+            '<div class="pctv">' + pct(claim.confidence) + '%</div></div>' +
             '<p>' + escapeHtml(claim.reasoning) + '</p>' +
             (claim.appliesWhen ? '<p class="muted">Applies when: ' + escapeHtml(claim.appliesWhen) + '</p>' : '') +
             (claim.evidence || []).map((ev) => (
@@ -485,7 +581,7 @@ export function buildFixtureUiHtml() {
         sections.push(
           '<section class="card"><h2>Assumptions And Caveats</h2><ul class="list">' +
           caveats.map((item) => '<li>' + escapeHtml(item) + '</li>').join('') +
-          unresolved.map((claim) => '<li>Unresolved: ' + escapeHtml(claim.text) + '</li>').join('') +
+          unresolved.map((claim) => '<li class="warn">⚠ Unresolved: ' + escapeHtml(claim.text) + '</li>').join('') +
           '</ul></section>'
         );
       }

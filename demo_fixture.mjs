@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Offline fixture demo for The Council. Runs the deterministic fixture council
 // and writes a JSON + Markdown audit report. No API keys or network required.
-import { runFixtureCouncil, writeReport } from "./lib/fixtureCouncil.mjs";
+import { runFixtureCouncil, writeReport, ROOT } from "./lib/fixtureCouncil.mjs";
+import { renderReportBlocks } from "./lib/cli_render.mjs";
 import { makeRunId, EXIT } from "./lib/ops.mjs";
+import path from "node:path";
 
 const HELP = `The Council — offline fixture demo
 
@@ -13,18 +15,24 @@ Options:
   --output DIR     Write the report to DIR instead of sample_outputs/
   --dry-run        Run the council but write no files (preview only)
   --json           Emit a machine-readable JSON summary (and JSON errors) on stdout
+  --no-color       Disable ANSI colors (auto-disabled when output is not a TTY)
+  --no-anim        Disable the staged reveal animation (print everything at once)
   -h, --help       Show this help
 
 With no question, the default fixture question is used. Exit codes: 0 ok, 2 usage, 1 error.
 `;
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 function parseArgs(argv) {
-  const opts = { output: undefined, dryRun: false, json: false, help: false, words: [] };
+  const opts = { output: undefined, dryRun: false, json: false, noColor: false, noAnim: false, help: false, words: [] };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "-h" || arg === "--help") opts.help = true;
     else if (arg === "--dry-run") opts.dryRun = true;
     else if (arg === "--json") opts.json = true;
+    else if (arg === "--no-color") opts.noColor = true;
+    else if (arg === "--no-anim") opts.noAnim = true;
     else if (arg === "--output") {
       if (i + 1 >= argv.length) { const e = new Error("--output requires a directory"); e.exitCode = EXIT.USAGE; throw e; }
       opts.output = argv[i + 1]; i += 1;
@@ -49,9 +57,7 @@ try {
   const report = runFixtureCouncil({ question });
 
   let outputs = null;
-  if (opts.dryRun) {
-    if (!opts.json) console.log("[DRY-RUN] no files written.");
-  } else {
+  if (!opts.dryRun) {
     outputs = opts.output ? writeReport(report, opts.output) : writeReport(report);
   }
 
@@ -67,20 +73,24 @@ try {
       outputs
     }, null, 2)}\n`);
   } else {
-    console.log("The Council fixture demo completed.");
-    console.log("Mode: fixture/offline/simulated");
-    console.log(`Run ID: ${runId}`);
-    console.log(`Question: ${report.question}`);
-    console.log(`Agents: ${report.agents.length}`);
-    console.log(`Verified claims: ${report.verifiedClaims.length}`);
-    console.log(`Average confidence: ${report.final.confidenceSummary.averageConfidence}`);
-    if (outputs) {
-      console.log(`JSON report: ${outputs.jsonPath}`);
-      console.log(`Markdown report: ${outputs.mdPath}`);
+    const color = !opts.noColor && !process.env.NO_COLOR && Boolean(process.stdout.isTTY);
+    const animate = color && !opts.noAnim;
+    const displayOutputs = outputs && {
+      jsonPath: path.relative(ROOT, outputs.jsonPath).replaceAll("\\", "/"),
+      mdPath: path.relative(ROOT, outputs.mdPath).replaceAll("\\", "/")
+    };
+    const blocks = renderReportBlocks(report, {
+      runId,
+      color,
+      dryRun: opts.dryRun,
+      outputs: displayOutputs,
+      width: process.stdout.columns
+    });
+    process.stdout.write("\n");
+    for (let i = 0; i < blocks.length; i += 1) {
+      process.stdout.write(blocks[i] + "\n\n");
+      if (animate && i < blocks.length - 1) await sleep(120);
     }
-    console.log("");
-    console.log("Final synthesis:");
-    console.log(report.final.finalAnswer);
   }
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);

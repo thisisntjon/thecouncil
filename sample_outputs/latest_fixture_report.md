@@ -1,64 +1,82 @@
 # The Council Fixture Report
 
 Mode: fixture (simulated/offline)
-Generated: 2026-06-27T02:51:17.978Z
+Generated: 2026-06-27T19:14:43.282Z
 
 ## Question
 
-What are the tradeoffs between single-agent and multi-agent verification for AI-assisted decision making?
+I want to wash my car. The car wash is 50 meters away. Should I walk or drive?
+
+## Scenario Interpretation
+
+Likely intent: The user wants to get the car washed at a nearby stationary car wash.
+Primary recommendation: drive
+Ambiguity: Walking is reasonable only if the user wants to inspect, pay, ask a question, or if the car is already at the wash.
 
 ## Council Agents
-### Architect Agent
+### Intent Framer
 
-Role: Systems thinker
+Role: Interprets what task the user is actually trying to complete (weight: 0.25)
 
-A single powerful agent is faster and easier to operate, but it concentrates failure modes. A multi-agent council adds coordination cost, yet creates useful friction: independent answers, critique, claim extraction, and evidence checks make overconfident answers easier to catch.
+The likely goal is not just personal travel over 50 meters; it is getting the car washed. If the user wants the actual car washed at that facility, the car needs to be involved in the trip.
 
-### Skeptic Agent
+### Physical Logistics Analyst
 
-Role: Failure-mode reviewer
+Role: Checks whether the proposed action physically accomplishes the goal (weight: 0.35)
 
-Multi-agent systems can look rigorous while simply multiplying the same model bias. They help only when agents have separated roles, independent context, explicit verification tasks, and an audit trail that records disagreement instead of hiding it.
+For a stationary car wash, the car must be at the wash location. Walking the person there does not bring the car, so driving the car is the practical choice for the actual wash.
 
-### Operator Agent
+### Practical Operator
 
-Role: Practical delivery lead
+Role: Weighs convenience, distance, and normal execution (weight: 0.25)
 
-For small teams, a single agent is usually the minimum viable path. Use a council only for high-stakes research, policy, security, or decisions where a wrong answer is costly. The best compromise is an offline fixture demo plus optional live mode.
+Fifty meters is very walkable for a person, so walking is sensible for checking the line or paying. But if the plan is to wash the car now, driving 50 meters directly completes the task.
 
-### Research Agent
+### Ambiguity Skeptic
 
-Role: Evidence and evaluation lead
+Role: Preserves caveats and hidden assumptions (weight: 0.15)
 
-The strongest design is not 'more agents' by itself. It is a staged process: independent generation, peer critique, claim decomposition, evidence checking, confidence scoring, and final synthesis with unresolved claims preserved.
+The recommendation depends on missing context: whether the car is already at the wash, whether the car can be driven safely and legally, and whether the user only wants to inspect the location.
+
+## Swarm Roles
+- Claim Atomizer: Splits each role answer into atomic claims.
+- Scenario-Fact Verifier: Confirms facts stated by the prompt: car wash distance and user's stated goal.
+- Goal-Applicability Verifier: Distinguishes claims that help complete the wash from claims that only help personal travel.
+- Physical-Constraint Verifier: Checks whether walking moves the car to the wash.
+- Weighted Decision Aggregator: Combines verdict, confidence, role weight, claim weight, and option effect.
 
 ## Peer Review
-- architect -> skeptic: 88/100. Strength: Correctly warns that agent count is not the same as reliability. Weakness: Could offer a more concrete operating model.
-- skeptic -> operator: 82/100. Strength: Grounded in practical team constraints. Weakness: Risks underplaying high-stakes reliability needs.
-- operator -> researcher: 94/100. Strength: Gives an actionable staged workflow. Weakness: Needs cost and latency caveats.
-- researcher -> architect: 90/100. Strength: Balances architecture and failure modes. Weakness: Should distinguish simulated fixture evidence from live web evidence.
+- intent_framer -> physical_logistics: 94/100. Strength: Correctly identifies the physical requirement that the car must reach the wash. Weakness: Should state the hidden assumption that the wash is stationary.
+- physical_logistics -> practical_operator: 86/100. Strength: Keeps the short walking distance in view. Weakness: Could overvalue personal convenience if the task is the actual wash.
+- practical_operator -> ambiguity_skeptic: 90/100. Strength: Preserves the cases where walking is the right answer. Weakness: Needs a clear default recommendation after listing caveats.
+- ambiguity_skeptic -> intent_framer: 88/100. Strength: Frames the likely intent as task completion. Weakness: Should avoid treating the likely intent as certain.
 
 ## Verified Claims
-- c1: supported (90%) - Single-agent systems are faster and simpler to operate.
-- c2: supported (84%) - Single-agent systems concentrate failure modes in one model response.
-- c3: supported (88%) - Multi-agent councils add coordination cost.
-- c4: supported (81%) - Multi-agent systems can multiply shared model bias if roles are not separated.
-- c5: supported (86%) - Independent context and explicit verification tasks improve multi-agent value.
-- c6: supported (93%) - An audit trail should preserve disagreement.
-- c7: supported (78%) - Small teams often benefit from a single-agent minimum viable path.
-- c8: supported (90%) - Council-style verification is most useful when wrong answers are costly.
-- c9: supported (98%) - Fixture mode can demonstrate the architecture without paid provider calls.
-- c10: supported (95%) - A staged process can separate generation, critique, verification, and synthesis.
-- c11: partially_supported (72%) - Confidence scoring is useful when backed by evidence checks.
-- c12: supported (92%) - Unresolved claims should remain visible in the final answer.
+- cw1: supported (91%) role weight 0.25, claim weight 0.9 - The user likely wants to get the car washed, not merely travel personally to the car wash location.
+- cw2: supported (95%) role weight 0.35, claim weight 1 - To wash the car at a stationary car wash, the car must be brought to the wash.
+- cw3: supported (95%) role weight 0.25, claim weight 0.45 - Fifty meters is a short and reasonable distance for most people to walk.
+- cw4: supported (95%) role weight 0.35, claim weight 0.95 - Walking to the car wash does not move the car there if the car starts with the user.
+- cw5: partially_supported (75%) role weight 0.15, claim weight 0.6 - Walking is reasonable if the user only wants to inspect, pay, ask a question, or if the car is already at the wash.
+- cw6: unresolved (50%) role weight 0.15, claim weight 0.8 - The recommendation assumes the car is safe and legal to drive.
+
+## Decision Scores
+- drive: 0.78
+- walk: 0.13
+- caveat: 0.08
 
 ## Final Synthesis
 
-A small team should start with a single strong agent when speed, simplicity, and low coordination cost matter. For high-stakes research or AI-assisted decisions, The Council pattern is stronger: independent agents answer first, peer critique exposes weak assumptions, a verification swarm checks claims against evidence, and final synthesis preserves unresolved claims instead of hiding them. The practical recommendation is progressive escalation: use one agent for low-risk work, then trigger a council when the decision needs traceability, disagreement analysis, or an audit trail.
+Drive the car to the car wash if your goal is to wash it there. The car wash is only 50 meters away, so walking is reasonable if you only want to check the line, pay, ask a question, or if the car is already at the wash. But for the actual wash, the car needs to be at the facility, so driving the car is the practical recommendation.
+
+## Assumptions And Caveats
+- Assumes the car starts with the user and is not already at the wash.
+- Assumes the car wash is a stationary facility, not a mobile/detailing service.
+- Assumes the car can be driven safely and legally.
+- If the user only wants to inspect, pay, or ask a question, walking 50 meters is reasonable.
 
 ## Audit Trail
-- load_fixture: Loaded public fixture data from fixtures/council_fixture.json.
+- load_fixture: Loaded public fixture data from fixtures/car_wash_fixture.json.
 - redact_input: Input risk level: low.
-- extract_claims: Loaded 12 fixture claims.
+- extract_claims: Loaded 6 fixture claims.
 - verify_claims_against_fixture: Checked each claim against local fixture evidence.
 - write_audit_report: Report can be exported as JSON and Markdown.

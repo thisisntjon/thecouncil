@@ -2,13 +2,13 @@
 
 The recommended public demo is fixture/offline/simulated. It does not require API keys or live provider calls.
 
-**Start here (most compelling in a 5-minute review):** the visual browser UI. It shows the agents, peer critiques, color-coded claim verdicts, confidence, decision scores, and synthesis at a glance.
+**Start here (one command, most reproducible):** the terminal dashboard. It animates the full pipeline — an at-a-glance confidence meter, each agent with its own confidence, peer critiques, color-coded claim verdicts with confidence bars, weighted decision scores, preserved unresolved claims, and the final synthesis.
 
 ```bash
-npm run ui:fixture
+npm run demo:fixture
 ```
 
-Then open `http://127.0.0.1:4173` (Windows: `launch.bat ui`). The command-line demo below produces the same evaluation as text + reports.
+Windows: `launch.bat fixture` (the launcher forces UTF-8 so box-drawing/bars render correctly). For a static, screenshot-friendly view, the browser UI below shows the same evaluation in a web page.
 
 ## Recommended Demo Question
 
@@ -26,7 +26,7 @@ Windows launcher:
 launch.bat
 ```
 
-The launcher menu can run the default fixture, weighted car-wash scenario, full validation, smoke tests, MCP self-test, or a custom fixture question.
+The launcher opens a grouped menu: press **Enter** (or **D**) for the demo (default fixture / car-wash / custom question), **U** for the browser UI, and **V** to verify. Developer checks (smoke tests, MCP self-test) live under **A) Advanced**, and the optional key-requiring paths under **L) Live mode**. Everything is offline and key-free unless marked Live.
 
 ## Browser Fixture UI
 

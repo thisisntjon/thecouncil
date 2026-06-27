@@ -8,10 +8,14 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { listDemoQuestions, runFixtureCouncil, writeReport } from '../lib/fixtureCouncil.mjs';
 import { withTimeout, retry, isTransient } from '../lib/ops.mjs';
 import { isReasoningClaim, claimAuthorId } from '../lib/claims.mjs';
+import { normalizeProviderKeys } from '../lib/providerKeys.mjs';
 
 // Load .env from server/ first, fall back to project root
 dotenv.config();
 dotenv.config({ path: '../.env' });
+// Accept provider-key aliases (e.g. GROK_API_KEY -> XAI_API_KEY) so an existing
+// .env works without editing secret files.
+normalizeProviderKeys();
 
 const app = express();
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -93,8 +97,19 @@ function requestToken(req) {
   return match?.[1] || req.get('x-council-token') || '';
 }
 
+function isLoopbackAddress(addr) {
+  return Boolean(addr) && (addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1' || addr.startsWith('127.'));
+}
+
 function requireCouncilAuth(req, res, next) {
   if (!liveAuthRequired()) return next();
+  // Local-dev convenience: trust same-machine (loopback) requests ONLY when no explicit
+  // token is configured. The server binds 127.0.0.1 by default, so this never exposes the
+  // keyed API to the network. If an operator deliberately set COUNCIL_API_TOKEN, enforce it
+  // even on loopback (so the configured token is a real control, not a no-op).
+  if (process.env.COUNCIL_REQUIRE_AUTH !== 'true' && !LIVE_API_TOKEN && isLoopbackAddress(req.socket?.remoteAddress || req.ip)) {
+    return next();
+  }
   if (!LIVE_API_TOKEN) {
     return res.status(503).json({
       error: 'COUNCIL_API_TOKEN is required before live provider routes can run with configured keys.',
@@ -168,31 +183,33 @@ function publicFixtureReport(report) {
 
 // ── Model Configs ───────────────────────────────────────────
 
+// Council DEFAULTS: modern, best-value tier (validated live against each provider
+// 2026-06-27). Prices are $/1M tokens, confirmed against official pricing pages.
+// Keep model IDs in sync with client/src/App.jsx MODEL_CONFIG and shadow-council.
 const MODELS = {
-  claude: { name: 'Claude', provider: 'Anthropic', model: 'claude-sonnet-4-6', color: '#D97706' },
-  gpt: { name: 'GPT-5.2', provider: 'OpenAI', model: 'gpt-5.2', color: '#10B981' },
-  gemini: { name: 'Gemini', provider: 'Google', model: 'gemini-3-flash-preview', color: '#3B82F6' },
-  grok: { name: 'Grok', provider: 'xAI', model: 'grok-4-1-fast-reasoning', color: '#EF4444' },
+  claude: { name: 'Claude Haiku 4.5', provider: 'Anthropic', model: 'claude-haiku-4-5', color: '#D97706' },
+  gpt: { name: 'GPT-5.4 mini', provider: 'OpenAI', model: 'gpt-5.4-mini', color: '#10B981' },
+  gemini: { name: 'Gemini 3.5 Flash', provider: 'Google', model: 'gemini-3.5-flash', color: '#3B82F6' },
+  grok: { name: 'Grok 4.3', provider: 'xAI', model: 'grok-4.3', color: '#EF4444' },
 };
 
 const MODEL_OPTIONS = {
   claude: [
+    { model: 'claude-haiku-4-5', label: 'Haiku 4.5', tier: 'value', input: 1.00, output: 5.00 },
     { model: 'claude-sonnet-4-6', label: 'Sonnet 4.6', tier: 'flagship', input: 3.00, output: 15.00 },
-    { model: 'claude-haiku-4-5-20251001', label: 'Haiku 4.5', tier: 'budget', input: 1.00, output: 5.00 },
+    { model: 'claude-opus-4-8', label: 'Opus 4.8', tier: 'premium', input: 5.00, output: 25.00 },
   ],
   gpt: [
-    { model: 'gpt-5.2', label: 'GPT-5.2', tier: 'flagship', input: 1.75, output: 14.00 },
-    { model: 'gpt-4.1', label: 'GPT-4.1', tier: 'balanced', input: 2.00, output: 8.00 },
-    { model: 'gpt-4.1-mini', label: 'GPT-4.1 Mini', tier: 'budget', input: 0.40, output: 1.60 },
+    { model: 'gpt-5.4-mini', label: 'GPT-5.4 mini', tier: 'value', input: 0.75, output: 4.50 },
+    { model: 'gpt-5.5', label: 'GPT-5.5', tier: 'flagship', input: 5.00, output: 30.00 },
   ],
   gemini: [
-    { model: 'gemini-3-flash-preview', label: 'Gemini 3 Flash', tier: 'flagship', input: 0.50, output: 3.00 },
-    { model: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', tier: 'balanced', input: 0.15, output: 0.60 },
+    { model: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash', tier: 'value', input: 1.50, output: 9.00 },
     { model: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite', tier: 'budget', input: 0.10, output: 0.40 },
   ],
   grok: [
-    { model: 'grok-4-1-fast-reasoning', label: 'Grok 4.1 Fast', tier: 'flagship', input: 0.20, output: 0.50 },
-    { model: 'grok-3-mini', label: 'Grok 3 Mini', tier: 'budget', input: 0.30, output: 0.50 },
+    { model: 'grok-4.3', label: 'Grok 4.3', tier: 'value', input: 1.00, output: 2.00 },
+    { model: 'grok-4.20-0309-non-reasoning', label: 'Grok 4.20 (fast)', tier: 'budget', input: 1.00, output: 2.00 },
   ],
 };
 
@@ -375,9 +392,42 @@ async function callGrok(systemPrompt, userMessage) {
 const callers = { claude: callClaude, gpt: callGPT, gemini: callGemini, grok: callGrok };
 
 // ── Search-Enabled Call Functions (Round 1 only) ────────────
+//
+// Each Round-1 caller accepts an optional `onDelta({ type, text })` callback. When
+// provided, the caller streams the model's answer token-by-token (and chain-of-thought
+// where the SDK supports it) via onDelta, then still returns the SAME final result
+// object. Streaming is wrapped in try/catch and FALLS BACK to the proven non-stream
+// path on any error, so enabling streaming can never break the live flow.
 
-async function callClaudeWithSearch(systemPrompt, userMessage) {
+async function streamClaudeSearch(systemPrompt, userMessage, onDelta, start) {
+  const stream = anthropic.messages.stream({
+    model: MODELS.claude.model,
+    max_tokens: 2048,
+    system: systemPrompt,
+    tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }],
+    messages: [{ role: 'user', content: userMessage }],
+  });
+  let streamed = '';
+  stream.on('text', (text) => { streamed += text; onDelta({ type: 'answer_delta', text }); });
+  // Some SDK versions surface summarized thinking as a separate event; forward it if present.
+  stream.on('thinking', (text) => { if (text) onDelta({ type: 'thinking_delta', text }); });
+  const final = await withTimeout(stream.finalMessage(), API_SEARCH_TIMEOUT_MS, 'claude-stream');
+  const usageData = final.usage || {};
+  trackUsage('anthropic', MODELS.claude.model, usageData.input_tokens || 0, usageData.output_tokens || 0);
+  const textBlocks = (final.content || []).filter(b => b.type === 'text');
+  const answer = textBlocks.map(b => b.text).join('\n') || streamed || null;
+  return { id: 'claude', ...MODELS.claude, answer, latency: Date.now() - start, status: 'success', usage: { input: usageData.input_tokens || 0, output: usageData.output_tokens || 0 } };
+}
+
+async function callClaudeWithSearch(systemPrompt, userMessage, onDelta) {
   const start = Date.now();
+  if (onDelta) {
+    try {
+      return await streamClaudeSearch(systemPrompt, userMessage, onDelta, start);
+    } catch (err) {
+      console.warn(`[COUNCIL] Claude (search) stream failed — falling back to non-stream: ${err.message}`);
+    }
+  }
   try {
     const response = await resilientCall(() => anthropic.messages.create({
       model: MODELS.claude.model,
@@ -397,8 +447,44 @@ async function callClaudeWithSearch(systemPrompt, userMessage) {
   }
 }
 
-async function callGPTWithSearch(systemPrompt, userMessage) {
+async function streamGPTSearch(systemPrompt, userMessage, onDelta, start) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), API_SEARCH_TIMEOUT_MS);
+  try {
+    const streamResp = await openai.chat.completions.create({
+      model: 'gpt-5-search-api',
+      web_search_options: {},
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
+      ],
+      max_completion_tokens: 2048,
+      stream: true,
+      stream_options: { include_usage: true },
+    }, { signal: controller.signal });
+    let answer = '';
+    let usageGpt = {};
+    for await (const chunk of streamResp) {
+      const delta = chunk.choices?.[0]?.delta?.content;
+      if (delta) { answer += delta; onDelta({ type: 'answer_delta', text: delta }); }
+      if (chunk.usage) usageGpt = chunk.usage;
+    }
+    trackUsage('openai', 'gpt-5-search-api', usageGpt.prompt_tokens || 0, usageGpt.completion_tokens || 0);
+    return { id: 'gpt', ...MODELS.gpt, answer: answer || null, latency: Date.now() - start, status: 'success', usage: { input: usageGpt.prompt_tokens || 0, output: usageGpt.completion_tokens || 0 } };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function callGPTWithSearch(systemPrompt, userMessage, onDelta) {
   const start = Date.now();
+  if (onDelta) {
+    try {
+      return await streamGPTSearch(systemPrompt, userMessage, onDelta, start);
+    } catch (err) {
+      console.warn(`[COUNCIL] GPT (search) stream failed — falling back to non-stream: ${err.message}`);
+    }
+  }
   try {
     const response = await resilientCall(() => openai.chat.completions.create({
       model: 'gpt-5-search-api',
@@ -418,8 +504,33 @@ async function callGPTWithSearch(systemPrompt, userMessage) {
   }
 }
 
-async function callGeminiWithSearch(systemPrompt, userMessage) {
+async function streamGeminiSearch(systemPrompt, userMessage, onDelta, start) {
+  const model = genAI.getGenerativeModel({
+    model: MODELS.gemini.model,
+    systemInstruction: systemPrompt,
+    tools: [{ googleSearch: {} }],
+  });
+  const result = await withTimeout(model.generateContentStream(userMessage), API_SEARCH_TIMEOUT_MS, 'gemini-stream');
+  let streamed = '';
+  for await (const chunk of result.stream) {
+    const text = chunk.text?.();
+    if (text) { streamed += text; onDelta({ type: 'answer_delta', text }); }
+  }
+  const response = await result.response;
+  const gemMeta = response?.usageMetadata || {};
+  trackUsage('google', MODELS.gemini.model, gemMeta.promptTokenCount || 0, gemMeta.candidatesTokenCount || 0);
+  return { id: 'gemini', ...MODELS.gemini, answer: response?.text?.() || streamed || null, latency: Date.now() - start, status: 'success', usage: { input: gemMeta.promptTokenCount || 0, output: gemMeta.candidatesTokenCount || 0 } };
+}
+
+async function callGeminiWithSearch(systemPrompt, userMessage, onDelta) {
   const start = Date.now();
+  if (onDelta) {
+    try {
+      return await streamGeminiSearch(systemPrompt, userMessage, onDelta, start);
+    } catch (err) {
+      console.warn(`[COUNCIL] Gemini (search) stream failed — falling back to non-stream: ${err.message}`);
+    }
+  }
   try {
     const model = genAI.getGenerativeModel({
       model: MODELS.gemini.model,
@@ -436,7 +547,9 @@ async function callGeminiWithSearch(systemPrompt, userMessage) {
   }
 }
 
-async function callGrokWithSearch(systemPrompt, userMessage) {
+// Grok's Round-1 search uses the /v1/responses endpoint, which does not stream the
+// search path — per the brief we keep it non-streaming (onDelta is accepted but unused).
+async function callGrokWithSearch(systemPrompt, userMessage, _onDelta) {
   const start = Date.now();
   try {
     const data = await resilientCall(async () => {
@@ -444,14 +557,11 @@ async function callGrokWithSearch(systemPrompt, userMessage) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.XAI_API_KEY}` },
         body: JSON.stringify({
-          model: 'grok-4-1-fast-reasoning', // Only grok-4 family supports server-side tools
+          model: MODELS.grok.model, // grok-4 family supports server-side tools
           instructions: systemPrompt,
           input: [{ role: 'user', content: userMessage }],
-          tools: [
-            { type: 'web_search' },
-            { type: 'x_search' },
-          ],
-          tool_choice: 'required',
+          tools: [{ type: 'web_search' }],
+          tool_choice: 'auto',
         }),
       });
       if (!response.ok) {
@@ -469,7 +579,7 @@ async function callGrokWithSearch(systemPrompt, userMessage) {
         .filter(c => c.type === 'output_text').map(c => c.text).join('\n');
     }
     const grokUsage = data.usage || {};
-    trackUsage('xai', 'grok-4-1-fast-reasoning', grokUsage.input_tokens || grokUsage.prompt_tokens || 0, grokUsage.output_tokens || grokUsage.completion_tokens || 0);
+    trackUsage('xai', MODELS.grok.model, grokUsage.input_tokens || grokUsage.prompt_tokens || 0, grokUsage.output_tokens || grokUsage.completion_tokens || 0);
     return { id: 'grok', ...MODELS.grok, answer: text, latency: Date.now() - start, status: 'success', usage: { input: grokUsage.input_tokens || grokUsage.prompt_tokens || 0, output: grokUsage.output_tokens || grokUsage.completion_tokens || 0 } };
   } catch (err) {
     console.error(`[COUNCIL] Grok (search) failed: ${err.message}`);
@@ -951,14 +1061,22 @@ app.post('/api/ask', ...protectLiveRoute, async (req, res) => {
     Connection: 'keep-alive',
   });
 
-  // Round 1 uses search-enabled callers for web-grounded answers
+  // Round 1 uses search-enabled callers for web-grounded answers. Each caller streams
+  // answer (and chain-of-thought, where supported) deltas tagged by modelId so the
+  // concurrent streams interleave safely on this one SSE response. The final
+  // {type:'answer', result} and {type:'complete'} events are preserved so the headless
+  // harness and tests keep working even when streaming is active.
   const promises = activeModels.map(async (modelId) => {
     const caller = searchCallers[modelId];
     if (!caller) return;
-    const result = await caller(buildCouncilSystemPrompt(modelId, defaultSystem), question);
+    const onDelta = (evt) => {
+      try { res.write(`data: ${JSON.stringify({ type: evt.type, modelId, text: evt.text })}\n\n`); } catch {}
+    };
+    const result = await caller(buildCouncilSystemPrompt(modelId, defaultSystem), question, onDelta);
     result.councilRole = COUNCIL_ROLES[modelId]?.name || 'General Council analyst';
     console.log(`[COUNCIL] ${result.name} responded in ${result.latency}ms (${result.status})`);
-    // Send each result as it arrives
+    // Signal this model finished streaming, then send the canonical answer event.
+    res.write(`data: ${JSON.stringify({ type: 'answer_done', modelId, result })}\n\n`);
     res.write(`data: ${JSON.stringify({ type: 'answer', result })}\n\n`);
     return result;
   });

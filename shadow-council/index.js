@@ -3,14 +3,18 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import crypto from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { withTimeout, retry, isTransient } from '../lib/ops.mjs';
 import { isReasoningClaim } from '../lib/claims.mjs';
+import { normalizeProviderKeys } from '../lib/providerKeys.mjs';
 
 // Load .env from shadow-council/ first, fall back to project root
 dotenv.config();
 dotenv.config({ path: '../.env' });
+normalizeProviderKeys();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -40,8 +44,45 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const grokClient = new OpenAI({ apiKey: process.env.XAI_API_KEY, baseURL: 'https://api.x.ai/v1' });
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 let SHADOW_MODEL = process.env.SHADOW_MODEL || 'claude-sonnet-4-6';
+
+// ── Diverse verifier providers ──────────────────────────────
+// The Shadow Council verifies each claim with a model from a DIFFERENT vendor
+// than the one that authored it, so verification is genuinely heterogeneous
+// rather than "a second Claude". Only providers with a configured key are used.
+const SHADOW_PROVIDERS = {
+  claude: { vendor: 'anthropic', name: 'Claude', model: 'claude-haiku-4-5', search: true },
+  gpt: { vendor: 'openai', name: 'GPT', model: 'gpt-5.4-mini', search: true },
+  gemini: { vendor: 'google', name: 'Gemini', model: 'gemini-3.5-flash', search: true },
+  grok: { vendor: 'xai', name: 'Grok', model: 'grok-4.3', search: true },
+};
+
+const PROVIDER_KEY_ENV = {
+  claude: 'ANTHROPIC_API_KEY', gpt: 'OPENAI_API_KEY', gemini: 'GOOGLE_API_KEY', grok: 'XAI_API_KEY',
+};
+
+function diverseProviders() {
+  return Object.keys(SHADOW_PROVIDERS).filter(id => isConfiguredSecret(process.env[PROVIDER_KEY_ENV[id]]));
+}
+
+// Pick a verifier provider that is NOT the claim's author, rotating across the
+// available pool for even spread. Falls back to the author only if it is the
+// single configured provider.
+function pickVerifier(authorId, pool, rotation) {
+  const others = pool.filter(id => id !== authorId);
+  const choices = others.length ? others : pool;
+  return choices[rotation % choices.length];
+}
+
+// Author model is encoded in the claim id prefix, e.g. "gemini-3" -> "gemini".
+function claimAuthor(claim) {
+  const prefix = String(claim?.id || '').split('-')[0];
+  return SHADOW_PROVIDERS[prefix] ? prefix : null;
+}
 const SHADOW_API_TOKEN = process.env.SHADOW_COUNCIL_TOKEN || process.env.LOCAL_API_TOKEN || process.env.COUNCIL_API_TOKEN || '';
 
 function isConfiguredSecret(value) {
@@ -64,8 +105,18 @@ function requestToken(req) {
   return match?.[1] || req.get('x-shadow-council-token') || req.get('x-council-token') || '';
 }
 
+function isLoopbackAddress(addr) {
+  return Boolean(addr) && (addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1' || addr.startsWith('127.'));
+}
+
 function requireShadowAuth(req, res, next) {
   if (!shadowAuthRequired()) return next();
+  // Local-dev convenience: trust same-machine (loopback) requests ONLY when no explicit
+  // token is configured. Bound to 127.0.0.1 by default, so not network-exposed. If an
+  // operator deliberately set SHADOW_COUNCIL_TOKEN, enforce it even on loopback.
+  if (process.env.SHADOW_REQUIRE_AUTH !== 'true' && !SHADOW_API_TOKEN && isLoopbackAddress(req.socket?.remoteAddress || req.ip)) {
+    return next();
+  }
   if (!SHADOW_API_TOKEN) {
     return res.status(503).json({
       error: 'SHADOW_COUNCIL_TOKEN is required before Shadow provider routes can run with configured keys.',
@@ -110,8 +161,8 @@ const shadowUsage = {
   reset() { this.calls.length = 0; this.totalInputTokens = 0; this.totalOutputTokens = 0; },
 };
 
-function trackShadowUsage(model, input, output) {
-  shadowUsage.calls.push({ provider: 'anthropic', model, input, output, timestamp: Date.now() });
+function trackShadowUsage(vendor, model, input, output) {
+  shadowUsage.calls.push({ provider: vendor, model, input, output, timestamp: Date.now() });
   shadowUsage.totalInputTokens += input;
   shadowUsage.totalOutputTokens += output;
 }
@@ -185,7 +236,7 @@ async function callClaude(systemPrompt, userMessage) {
       messages: [{ role: 'user', content: userMessage }],
     }), { label: 'claude' });
     const usage = response.usage || {};
-    trackShadowUsage(SHADOW_MODEL, usage.input_tokens || 0, usage.output_tokens || 0);
+    trackShadowUsage('anthropic', SHADOW_MODEL, usage.input_tokens || 0, usage.output_tokens || 0);
     return response.content[0]?.text || null;
   } catch (err) {
     console.error('[CLAUDE] Call failed:', err.message);
@@ -224,10 +275,94 @@ async function callClaudeWithWebSearch(prompt, maxUses = 3) {
       .map(r => ({ url: r.url, title: r.title }));
 
     const wsUsage = response.usage || {};
-    trackShadowUsage(SHADOW_MODEL, wsUsage.input_tokens || 0, wsUsage.output_tokens || 0);
+    trackShadowUsage('anthropic', SHADOW_MODEL, wsUsage.input_tokens || 0, wsUsage.output_tokens || 0);
     return { text, citations, searchResults };
   } catch (err) {
     console.error('[CLAUDE+WEB] Call failed:', err.message);
+    return { text: '', citations: [], searchResults: [], error: err.message };
+  }
+}
+
+// ── Multi-provider verifier helpers ─────────────────────────
+// Provider-agnostic calls so any vendor can verify a claim. Each returns plain
+// text (callVerifier) or { text, citations, searchResults } (callVerifierWithSearch).
+
+async function callVerifier(providerId, systemPrompt, userMessage) {
+  const p = SHADOW_PROVIDERS[providerId];
+  if (!p || providerId === 'claude') return callClaude(systemPrompt, userMessage);
+  try {
+    if (providerId === 'gemini') {
+      const model = genAI.getGenerativeModel({ model: p.model, systemInstruction: systemPrompt });
+      const result = await resilientCall(() => model.generateContent(userMessage), { label: 'gemini' });
+      const meta = result?.response?.usageMetadata || {};
+      trackShadowUsage('google', p.model, meta.promptTokenCount || 0, meta.candidatesTokenCount || 0);
+      return result?.response?.text?.() || null;
+    }
+    const client = providerId === 'grok' ? grokClient : openai;
+    const response = await resilientCall(() => client.chat.completions.create({
+      model: p.model,
+      messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }],
+      max_completion_tokens: 2048,
+    }), { label: providerId });
+    const usage = response.usage || {};
+    trackShadowUsage(p.vendor, p.model, usage.prompt_tokens || 0, usage.completion_tokens || 0);
+    return response.choices?.[0]?.message?.content || null;
+  } catch (err) {
+    console.error(`[${providerId.toUpperCase()}] Call failed:`, err.message);
+    return null;
+  }
+}
+
+async function callVerifierWithSearch(providerId, prompt) {
+  const p = SHADOW_PROVIDERS[providerId];
+  if (!p || providerId === 'claude') return callClaudeWithWebSearch(prompt, 3);
+  try {
+    if (providerId === 'gemini') {
+      const model = genAI.getGenerativeModel({ model: p.model, tools: [{ googleSearch: {} }] });
+      const result = await resilientCall(() => model.generateContent(prompt), { timeoutMs: API_SEARCH_TIMEOUT_MS, label: 'gemini-search' });
+      const meta = result?.response?.usageMetadata || {};
+      trackShadowUsage('google', p.model, meta.promptTokenCount || 0, meta.candidatesTokenCount || 0);
+      const grounding = result?.response?.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      const searchResults = grounding.map(g => ({ url: g.web?.uri, title: g.web?.title })).filter(s => s.url);
+      return { text: result?.response?.text?.() || '', citations: [], searchResults };
+    }
+    if (providerId === 'gpt') {
+      const response = await resilientCall(() => openai.chat.completions.create({
+        model: 'gpt-5-search-api',
+        web_search_options: {},
+        messages: [{ role: 'user', content: prompt }],
+        max_completion_tokens: 2048,
+      }), { timeoutMs: API_SEARCH_TIMEOUT_MS, label: 'gpt-search' });
+      const usage = response.usage || {};
+      trackShadowUsage('openai', 'gpt-5-search-api', usage.prompt_tokens || 0, usage.completion_tokens || 0);
+      const msg = response.choices?.[0]?.message || {};
+      const searchResults = (msg.annotations || [])
+        .filter(a => a.type === 'url_citation')
+        .map(a => ({ url: a.url_citation?.url, title: a.url_citation?.title }))
+        .filter(s => s.url);
+      return { text: msg.content || '', citations: [], searchResults };
+    }
+    // grok — xAI /v1/responses with server-side web_search
+    const response = await resilientCall(async () => {
+      const r = await fetch('https://api.x.ai/v1/responses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.XAI_API_KEY}` },
+        body: JSON.stringify({ model: p.model, input: [{ role: 'user', content: prompt }], tools: [{ type: 'web_search' }], tool_choice: 'auto' }),
+      });
+      if (!r.ok) { const e = new Error(`Grok API ${r.status}: ${await r.text()}`); e.status = r.status; throw e; }
+      return r.json();
+    }, { timeoutMs: API_SEARCH_TIMEOUT_MS, label: 'grok-search' });
+    let text = response.output_text || '';
+    if (!text && Array.isArray(response.output)) {
+      text = response.output.filter(b => b.type === 'message')
+        .flatMap(m => Array.isArray(m.content) ? m.content : [])
+        .filter(c => c.type === 'output_text').map(c => c.text).join('\n');
+    }
+    const usage = response.usage || {};
+    trackShadowUsage('xai', p.model, usage.input_tokens || usage.prompt_tokens || 0, usage.output_tokens || usage.completion_tokens || 0);
+    return { text, citations: [], searchResults: [] };
+  } catch (err) {
+    console.error(`[${providerId.toUpperCase()}+WEB] Call failed:`, err.message);
     return { text: '', citations: [], searchResults: [], error: err.message };
   }
 }
@@ -293,10 +428,10 @@ Use "computation", "logical_deduction", or "derivation" for claims whose correct
 
 // ── Stage 2: Investigator Swarm ─────────────────────────────
 
-// Reasoning-validity check (no web). Shadow is Claude-only, so this is a separate pass by the
-// same model rather than a different model — still better than evidence lookup for logic claims.
+// Reasoning-validity check (no web), run by a verifier from a DIFFERENT vendor than the claim's
+// author — an independent re-derivation rather than the same model grading itself.
 // Calibrated: never returns raw "unverifiable" for a well-formed reasoning claim.
-async function investigateByReasoning(claim) {
+async function investigateByReasoning(claim, providerId = 'claude') {
   const prompt = `You are a reasoning checker. This claim is a logical or mathematical deduction, NOT an empirical fact. Do not search the web — independently re-derive or check whether it follows logically.
 
 CLAIM: "${claim.text}"
@@ -309,7 +444,7 @@ Respond ONLY with JSON (no markdown fences):
 }
 Use "supported" only if you independently re-derived it; "partially_supported" if plausible but not fully verified; "refuted" if wrong. Never answer "unverifiable".`;
 
-  const text = await callClaude('You are a precise reasoning checker. Respond ONLY with valid JSON.', prompt);
+  const text = await callVerifier(providerId, 'You are a precise reasoning checker. Respond ONLY with valid JSON.', prompt);
   const parsed = parseJSON(text);
   const source = [{ title: 'Independent reasoning re-derivation', url: null }];
   if (!parsed) {
@@ -323,17 +458,20 @@ Use "supported" only if you independently re-derived it; "partially_supported" i
   return { verdict, confidence, reasoning: parsed.reasoning || 'Reasoning re-derivation.', key_finding: parsed.key_finding || null, sources: source, reasoning_mode: true };
 }
 
-async function investigateClaim(questionNum, claim) {
+async function investigateClaim(questionNum, claim, providerId = 'claude') {
+  const verifierName = SHADOW_PROVIDERS[providerId]?.name || providerId;
   broadcast({
     type: 'investigation_started',
     question_number: questionNum,
     claim_id: claim.id,
     claim_text: claim.text,
+    verifier_id: providerId,
+    verifier_name: verifierName,
   });
 
   // Reasoning/logic/math claims: check by re-derivation, not web search (web can't confirm logic).
   if (isReasoningClaim(claim)) {
-    const verification = await investigateByReasoning(claim);
+    const verification = await investigateByReasoning(claim, providerId);
     broadcast({
       type: 'investigation_complete',
       question_number: questionNum,
@@ -342,8 +480,10 @@ async function investigateClaim(questionNum, claim) {
       confidence: verification.confidence,
       reasoning: verification.reasoning,
       source_count: verification.sources.length,
+      verifier_id: providerId,
+      verifier_name: verifierName,
     });
-    return { claimId: claim.id, ...verification };
+    return { claimId: claim.id, verifiedBy: providerId, ...verification };
   }
 
   const prompt = `You are a fact-checking investigator. Your job is to verify whether this claim is true.
@@ -360,7 +500,7 @@ After searching, provide your verdict as JSON (no markdown fences):
   "key_finding": "the single most important piece of evidence"
 }`;
 
-  const result = await callClaudeWithWebSearch(prompt, 3);
+  const result = await callVerifierWithSearch(providerId, prompt);
 
   const parsed = parseJSON(result.text);
   const verification = {
@@ -381,27 +521,41 @@ After searching, provide your verdict as JSON (no markdown fences):
     confidence: verification.confidence,
     reasoning: verification.reasoning,
     source_count: verification.sources.length,
+    verifier_id: providerId,
+    verifier_name: verifierName,
   });
 
-  return { claimId: claim.id, ...verification };
+  return { claimId: claim.id, verifiedBy: providerId, ...verification };
 }
 
 async function runInvestigatorSwarm(questionNum, claims, concurrency = 10) {
   const results = {};
   let index = 0;
 
+  // Build the diverse verifier pool once; each claim is checked by a vendor
+  // different from its author (see pickVerifier). Falls back to all-Claude only
+  // when no other provider key is configured.
+  const pool = diverseProviders();
+  if (pool.length) {
+    const spread = [...new Set(claims.map((c, i) => pickVerifier(claimAuthor(c), pool, i)))];
+    broadcast({ type: 'swarm_diversity', question_number: questionNum, providers: pool, verifiers_used: spread });
+    console.log(`[SHADOW] Diverse verifier pool: ${pool.join(', ')}`);
+  }
+
   async function worker() {
     while (index < claims.length) {
       const i = index++;
       const claim = claims[i];
       if (!claim) break;
+      const providerId = pool.length ? pickVerifier(claimAuthor(claim), pool, i) : 'claude';
       try {
-        const result = await investigateClaim(questionNum, claim);
+        const result = await investigateClaim(questionNum, claim, providerId);
         results[result.claimId] = result;
       } catch (err) {
-        console.error(`[INVESTIGATOR] Error for ${claim.id}:`, err.message);
+        console.error(`[INVESTIGATOR] Error for ${claim.id} (verifier ${providerId}):`, err.message);
         results[claim.id] = {
           claimId: claim.id,
+          verifiedBy: providerId,
           verdict: 'unverifiable',
           confidence: 0,
           reasoning: `Investigation error: ${err.message}`,
@@ -925,10 +1079,13 @@ app.get('/api/health', (req, res) => {
   const activeCount = Object.values(store.questions).filter(q =>
     !['complete', 'error'].includes(q.status)
   ).length;
+  const pool = diverseProviders();
   res.json({
     status: 'ok',
     name: 'Shadow Council',
     model: SHADOW_MODEL,
+    diverse: pool.length > 1,
+    verifierProviders: pool.map(id => ({ id, name: SHADOW_PROVIDERS[id].name, model: SHADOW_PROVIDERS[id].model })),
     anthropic_key_configured: !!process.env.ANTHROPIC_API_KEY,
     questions_received: questionCount,
     active_pipelines: activeCount,
