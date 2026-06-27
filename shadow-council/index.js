@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import crypto from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -13,12 +14,94 @@ dotenv.config({ path: '../.env' });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
-app.use(cors());
+const DEFAULT_ALLOWED_ORIGINS = [
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+  'http://localhost:3002',
+  'http://127.0.0.1:3002',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+];
+
+function splitEnvList(value) {
+  return (value || '').split(',').map(item => item.trim()).filter(Boolean);
+}
+
+const allowedOrigins = new Set([
+  ...DEFAULT_ALLOWED_ORIGINS,
+  ...splitEnvList(process.env.SHADOW_ALLOWED_ORIGINS),
+]);
+
+app.use(cors({
+  origin(origin, callback) {
+    callback(null, !origin || allowedOrigins.has(origin));
+  },
+}));
 app.use(express.json({ limit: '10mb' }));
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 let SHADOW_MODEL = process.env.SHADOW_MODEL || 'claude-sonnet-4-6';
+const SHADOW_API_TOKEN = process.env.SHADOW_COUNCIL_TOKEN || process.env.LOCAL_API_TOKEN || process.env.COUNCIL_API_TOKEN || '';
+
+function isConfiguredSecret(value) {
+  return Boolean(value && value !== 'your-anthropic-key-here');
+}
+
+function shadowAuthRequired() {
+  return process.env.SHADOW_REQUIRE_AUTH === 'true' || Boolean(SHADOW_API_TOKEN) || isConfiguredSecret(process.env.ANTHROPIC_API_KEY);
+}
+
+function safeEqual(a, b) {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
+
+function requestToken(req) {
+  const auth = req.get('authorization') || '';
+  const match = auth.match(/^Bearer\s+(.+)$/i);
+  return match?.[1] || req.get('x-shadow-council-token') || req.get('x-council-token') || '';
+}
+
+function requireShadowAuth(req, res, next) {
+  if (!shadowAuthRequired()) return next();
+  if (!SHADOW_API_TOKEN) {
+    return res.status(503).json({
+      error: 'SHADOW_COUNCIL_TOKEN is required before Shadow provider routes can run with configured keys.',
+    });
+  }
+  if (!safeEqual(requestToken(req), SHADOW_API_TOKEN)) {
+    return res.status(401).json({ error: 'Local bearer token required' });
+  }
+  return next();
+}
+
+function makeFixedWindowLimiter({ windowMs, maxRequests }) {
+  const buckets = new Map();
+  return (req, res, next) => {
+    if (!Number.isFinite(maxRequests) || maxRequests <= 0) return next();
+    const now = Date.now();
+    const key = `${req.ip || req.socket.remoteAddress || 'unknown'}:${req.path}`;
+    const bucket = buckets.get(key);
+    if (!bucket || now > bucket.resetAt) {
+      buckets.set(key, { count: 1, resetAt: now + windowMs });
+      return next();
+    }
+    bucket.count += 1;
+    if (bucket.count > maxRequests) {
+      res.setHeader('Retry-After', Math.ceil((bucket.resetAt - now) / 1000));
+      return res.status(429).json({ error: 'Too many Shadow requests; retry after the current window.' });
+    }
+    return next();
+  };
+}
+
+const shadowRouteLimit = makeFixedWindowLimiter({
+  windowMs: Number(process.env.SHADOW_RATE_LIMIT_WINDOW_MS || 60000),
+  maxRequests: Number(process.env.SHADOW_RATE_LIMIT_MAX || 60),
+});
+const protectShadowRoute = [requireShadowAuth, shadowRouteLimit];
 
 const shadowUsage = {
   calls: [],
@@ -718,18 +801,19 @@ async function runPipeline(questionNum) {
 // ── Routes ──────────────────────────────────────────────────
 
 // POST /api/verify — Receives answers from The Council server
-app.post('/api/verify', (req, res) => {
+app.post('/api/verify', ...protectShadowRoute, (req, res) => {
   const { question_number, question, answers } = req.body;
+  const normalizedQuestionNumber = Number(question_number);
 
-  if (!question_number || !question || !answers) {
+  if (!Number.isInteger(normalizedQuestionNumber) || normalizedQuestionNumber < 1 || !question || !Array.isArray(answers)) {
     return res.status(400).json({ error: 'question_number, question, and answers required' });
   }
 
-  console.log(`[SHADOW] Received Q${question_number}: "${question.slice(0, 80)}..." (${answers.length} models)`);
+  console.log(`[SHADOW] Received Q${normalizedQuestionNumber}: "${question.slice(0, 80)}..." (${answers.length} models)`);
 
   // Store and immediately respond 202 (Accepted)
-  store.questions[question_number] = {
-    question_number,
+  store.questions[normalizedQuestionNumber] = {
+    question_number: normalizedQuestionNumber,
     question,
     answers,
     status: 'queued',
@@ -746,17 +830,17 @@ app.post('/api/verify', (req, res) => {
 
   broadcast({
     type: 'question_received',
-    question_number,
+    question_number: normalizedQuestionNumber,
     question,
     model_count: answers.length,
   });
 
   // Fire pipeline async — don't await
-  runPipeline(question_number).catch(err => {
-    console.error(`[SHADOW] Pipeline failed for Q${question_number}:`, err);
+  runPipeline(normalizedQuestionNumber).catch(err => {
+    console.error(`[SHADOW] Pipeline failed for Q${normalizedQuestionNumber}:`, err);
   });
 
-  res.status(202).json({ status: 'accepted', question_number });
+  res.status(202).json({ status: 'accepted', question_number: normalizedQuestionNumber });
 });
 
 // GET /api/stream — SSE endpoint for dashboard real-time updates
@@ -816,7 +900,7 @@ app.get('/', (req, res) => {
 });
 
 // POST /api/config — Accept model override from Council server
-app.post('/api/config', (req, res) => {
+app.post('/api/config', ...protectShadowRoute, (req, res) => {
   if (req.body.model) {
     SHADOW_MODEL = req.body.model;
     console.log(`[SHADOW] Model switched to: ${SHADOW_MODEL}`);
@@ -825,12 +909,12 @@ app.post('/api/config', (req, res) => {
 });
 
 // GET /api/usage — Session usage stats
-app.get('/api/usage', (req, res) => {
+app.get('/api/usage', requireShadowAuth, (req, res) => {
   res.json(shadowUsage);
 });
 
 // POST /api/usage/reset — Reset usage counters
-app.post('/api/usage/reset', (req, res) => {
+app.post('/api/usage/reset', ...protectShadowRoute, (req, res) => {
   shadowUsage.reset();
   res.json({ status: 'ok' });
 });
@@ -849,13 +933,20 @@ app.get('/api/health', (req, res) => {
     questions_received: questionCount,
     active_pipelines: activeCount,
     connected_dashboards: store.sseClients.length,
+    security: {
+      bindHost: process.env.SHADOW_HOST || process.env.HOST || '127.0.0.1',
+      authRequired: shadowAuthRequired(),
+      tokenConfigured: Boolean(SHADOW_API_TOKEN),
+      allowedOrigins: [...allowedOrigins],
+    },
   });
 });
 
 // ── Start ───────────────────────────────────────────────────
 
 const PORT = process.env.SHADOW_PORT || 3002;
-app.listen(PORT, () => {
+const HOST = process.env.SHADOW_HOST || process.env.HOST || '127.0.0.1';
+app.listen(PORT, HOST, () => {
   console.log(`\n  SHADOW COUNCIL server running on port ${PORT}`);
   console.log(`   Dashboard: http://localhost:${PORT}`);
   console.log(`   SSE stream: http://localhost:${PORT}/api/stream`);

@@ -8,7 +8,7 @@
     "demo:fixture": "node demo_fixture.mjs",
     "demo:car-wash": "node demo_fixture.mjs \"I want to wash my car. The car wash is 50 meters away. Should I walk or drive?\"",
     "lint": "eslint .",
-    "test": "node tests/ops_smoke.mjs && node tests/claims_smoke.mjs && node tests/capstone_smoke.mjs",
+    "test": "node tests/ops_smoke.mjs && node tests/claims_smoke.mjs && node tests/capstone_smoke.mjs && node tests/security_controls_smoke.mjs",
     "test:smoke": "node tests/capstone_smoke.mjs",
     "test:ops": "node tests/ops_smoke.mjs",
     "test:claims": "node tests/claims_smoke.mjs",

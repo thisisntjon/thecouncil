@@ -27,6 +27,7 @@ Usage: node scripts/live_feedback_loop.mjs [options]
 
 Options:
   --api-base URL         Council API base (default $COUNCIL_API_BASE or http://127.0.0.1:3001)
+  --api-token TOKEN      Local bearer token (default $COUNCIL_API_TOKEN or $LOCAL_API_TOKEN)
   --filter a,b,c         Run only these question ids (default $COUNCIL_FEEDBACK_FILTER or all)
   --limit N              Run only the first N selected questions
   --sample               Shorthand for --limit 1
@@ -49,6 +50,7 @@ Exit codes: 0 ok · 2 usage · 3 config · 4 transient/exhausted · 1 questions 
 function parseArgs(argv) {
   const opts = {
     apiBase: process.env.COUNCIL_API_BASE || "http://127.0.0.1:3001",
+    apiToken: process.env.COUNCIL_API_TOKEN || process.env.LOCAL_API_TOKEN || "",
     filter: (process.env.COUNCIL_FEEDBACK_FILTER || "").split(",").map((s) => s.trim()).filter(Boolean),
     limit: null,
     workers: 1,
@@ -78,6 +80,7 @@ function parseArgs(argv) {
       case "--debug": opts.debug = true; break;
       case "--sample": opts.limit = 1; break;
       case "--api-base": opts.apiBase = need(i, arg); i += 1; break;
+      case "--api-token": opts.apiToken = need(i, arg); i += 1; break;
       case "--filter": opts.filter = need(i, arg).split(",").map((s) => s.trim()).filter(Boolean); i += 1; break;
       case "--limit": opts.limit = Number(need(i, arg)); i += 1; break;
       case "--workers": opts.workers = Number(need(i, arg)); i += 1; break;
@@ -100,6 +103,10 @@ function usage(message) {
   const err = new Error(message);
   err.exitCode = EXIT.USAGE;
   return err;
+}
+
+function authHeaders(ctx, headers = {}) {
+  return ctx.apiToken ? { ...headers, authorization: `Bearer ${ctx.apiToken}` } : headers;
 }
 
 const stressQuestions = [
@@ -231,7 +238,7 @@ async function postSse(ctx, pathname, payload, onEvent) {
   const connect = () => withTimeout(
     fetch(`${ctx.apiBase}${pathname}`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: authHeaders(ctx, { "content-type": "application/json" }),
       body: JSON.stringify(payload)
     }),
     ctx.timeoutMs,
@@ -658,6 +665,7 @@ async function main() {
 
   const ctx = {
     apiBase: opts.apiBase,
+    apiToken: opts.apiToken,
     timeoutMs: opts.timeoutMs,
     retries: opts.retries,
     format: opts.format,

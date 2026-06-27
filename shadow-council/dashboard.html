@@ -660,11 +660,45 @@ function formatTime() {
   return new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function safeUrl(value) {
+  if (!value) return null;
+  try {
+    const url = new URL(String(value), window.location.origin);
+    if (url.protocol === 'http:' || url.protocol === 'https:') return escapeHtml(url.href);
+  } catch {}
+  return null;
+}
+
+function safeCssToken(value) {
+  return String(value ?? '').replace(/[^a-zA-Z0-9_-]/g, '');
+}
+
+function safePercent(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return 0;
+  return Math.max(0, Math.min(100, number));
+}
+
 function addFeedEntry(msg, type = '') {
   const feed = $('feedContainer');
   const entry = document.createElement('div');
   entry.className = `feed-entry ${type}`;
-  entry.innerHTML = `<span class="feed-time">${formatTime()}</span><span class="feed-msg">${msg}</span>`;
+  const time = document.createElement('span');
+  time.className = 'feed-time';
+  time.textContent = formatTime();
+  const message = document.createElement('span');
+  message.className = 'feed-msg';
+  message.textContent = msg;
+  entry.append(time, message);
   feed.insertBefore(entry, feed.firstChild);
   // Keep max 100 entries
   while (feed.children.length > 100) feed.removeChild(feed.lastChild);
@@ -727,8 +761,9 @@ function updateLeaderboard() {
 
   sorted.forEach((entry, i) => {
     const color = MODEL_COLORS[entry.id] || '#888';
-    const name = MODEL_NAMES[entry.id] || entry.id;
-    const scoreColor = entry.score >= 80 ? 'var(--verified)' : entry.score >= 50 ? 'var(--partial)' : 'var(--refuted)';
+    const name = escapeHtml(MODEL_NAMES[entry.id] || entry.id);
+    const safeScore = safePercent(entry.score);
+    const scoreColor = safeScore >= 80 ? 'var(--verified)' : safeScore >= 50 ? 'var(--partial)' : 'var(--refuted)';
 
     const div = document.createElement('div');
     div.className = `leaderboard-entry${i === 0 ? ' leader' : ''}`;
@@ -738,17 +773,17 @@ function updateLeaderboard() {
           <div class="lb-dot" style="background: ${color}; box-shadow: 0 0 6px ${color};"></div>
           <span class="lb-name" style="color: ${color};">${name}</span>
         </div>
-        <span class="lb-score" style="color: ${scoreColor};">${entry.score}%</span>
+        <span class="lb-score" style="color: ${scoreColor};">${safeScore}%</span>
       </div>
       <div class="lb-bar-track">
-        <div class="lb-bar-fill" style="width: ${entry.score}%; background: ${scoreColor};"></div>
+        <div class="lb-bar-fill" style="width: ${safeScore}%; background: ${scoreColor};"></div>
       </div>
       <div class="lb-breakdown">
-        <span class="v">${entry.verified}&#10003;</span>
-        <span class="r">${entry.refuted}&#10007;</span>
-        <span class="p">${entry.partial}~</span>
-        <span class="u">${entry.unverifiable}?</span>
-        <span>/ ${entry.total}</span>
+        <span class="v">${escapeHtml(entry.verified)}&#10003;</span>
+        <span class="r">${escapeHtml(entry.refuted)}&#10007;</span>
+        <span class="p">${escapeHtml(entry.partial)}~</span>
+        <span class="u">${escapeHtml(entry.unverifiable)}?</span>
+        <span>/ ${escapeHtml(entry.total)}</span>
       </div>
     `;
     lb.appendChild(div);
@@ -776,7 +811,8 @@ function renderQuestionBlock(qNum) {
   }
 
   const expanded = state.expandedQuestion === qNum;
-  const statusLabel = q.status.replace(/_/g, ' ');
+  const statusClass = safeCssToken(q.status);
+  const statusLabel = escapeHtml(String(q.status || '').replace(/_/g, ' '));
 
   // Count verdicts for summary
   const verdicts = Object.values(q.verifications || {});
@@ -793,16 +829,18 @@ function renderQuestionBlock(qNum) {
       if (q.synthesis.citations && q.synthesis.citations.length > 0) {
         citationsHTML = '<div class="synthesis-citations">' +
           q.synthesis.citations.map(c => {
-            const sourceLink = c.source?.url
-              ? `<a href="${c.source.url}" target="_blank" rel="noopener">${c.source.title || c.source.url}</a>`
-              : (c.source?.title || 'N/A');
-            return `<div class="synthesis-citation"><span class="synthesis-citation-num">[${c.index}]</span><span>${c.claim}</span> &mdash; ${sourceLink}</div>`;
+            const href = safeUrl(c.source?.url);
+            const sourceText = escapeHtml(c.source?.title || c.source?.url || 'N/A');
+            const sourceLink = href
+              ? `<a href="${href}" target="_blank" rel="noopener">${sourceText}</a>`
+              : sourceText;
+            return `<div class="synthesis-citation"><span class="synthesis-citation-num">[${escapeHtml(c.index)}]</span><span>${escapeHtml(c.claim)}</span> &mdash; ${sourceLink}</div>`;
           }).join('') + '</div>';
       }
       bodyHTML += `
         <div class="synthesis-section">
           <div class="synthesis-header">&#9989; Verified Answer</div>
-          <div class="synthesis-answer">${q.synthesis.answer}</div>
+          <div class="synthesis-answer">${escapeHtml(q.synthesis.answer)}</div>
           ${citationsHTML}
         </div>
       `;
@@ -811,7 +849,7 @@ function renderQuestionBlock(qNum) {
     // Build claim list per model
     Object.entries(q.claims || {}).forEach(([modelId, claims]) => {
       const color = MODEL_COLORS[modelId] || '#888';
-      const name = MODEL_NAMES[modelId] || modelId;
+      const name = escapeHtml(MODEL_NAMES[modelId] || modelId);
 
       claims.forEach(claim => {
         const v = (q.verifications || {})[claim.id];
@@ -826,24 +864,25 @@ function renderQuestionBlock(qNum) {
         else if (verdict === 'investigating') verdictBadge = '<span class="verdict-badge investigating">&#8987; Investigating</span>';
         else verdictBadge = '<span class="verdict-badge pending">&hellip; Pending</span>';
 
-        let reasoningHTML = v?.reasoning ? `<div class="claim-reasoning">${v.reasoning}</div>` : '';
+        let reasoningHTML = v?.reasoning ? `<div class="claim-reasoning">${escapeHtml(v.reasoning)}</div>` : '';
         let sourcesHTML = '';
         if (v?.sources && v.sources.length > 0) {
           sourcesHTML = '<div class="claim-sources">' +
-            v.sources.slice(0, 2).map(s =>
-              s.url ? `<a class="claim-source-link" href="${s.url}" target="_blank" rel="noopener">&nearr; ${s.title || s.url}</a>` : ''
-            ).join('') + '</div>';
+            v.sources.slice(0, 2).map(s => {
+              const href = safeUrl(s.url);
+              return href ? `<a class="claim-source-link" href="${href}" target="_blank" rel="noopener">&nearr; ${escapeHtml(s.title || s.url)}</a>` : '';
+            }).join('') + '</div>';
         }
 
         bodyHTML += `
           <div class="claim-row ${verdict === 'refuted' ? 'refuted' : ''}">
             <div class="claim-text-row">
               <span class="claim-model-tag" style="background: ${color}22; color: ${color}; border: 1px solid ${color}44;">${name}</span>
-              <span style="flex: 1; color: var(--text);">${claim.text}</span>
+              <span style="flex: 1; color: var(--text);">${escapeHtml(claim.text)}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; padding-left: 32px;">
               ${verdictBadge}
-              ${confidence ? `<span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--text-dim);">${confidence}</span>` : ''}
+              ${confidence ? `<span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--text-dim);">${escapeHtml(confidence)}</span>` : ''}
             </div>
             ${reasoningHTML}
             ${sourcesHTML}
@@ -854,14 +893,14 @@ function renderQuestionBlock(qNum) {
   }
 
   block.innerHTML = `
-    <div class="question-header" onclick="toggleQuestion(${qNum})">
+    <div class="question-header" onclick="toggleQuestion(${Number(qNum)})">
       <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
-        <span class="q-num">Q${qNum}</span>
-        <span class="q-text">${q.question}</span>
+        <span class="q-num">Q${escapeHtml(qNum)}</span>
+        <span class="q-text">${escapeHtml(q.question)}</span>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
         <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--text-dim);">${summary}</span>
-        <span class="q-status ${q.status}">${statusLabel}</span>
+        <span class="q-status ${statusClass}">${statusLabel}</span>
       </div>
     </div>
     ${expanded ? `<div class="question-body">${bodyHTML || '<div style="padding: 16px; color: var(--text-dim); font-size: 0.8rem;">Extracting claims...</div>'}</div>` : ''}
@@ -925,9 +964,9 @@ function updateProgress() {
 
     const connector = i < questions.length - 1 ? '<div class="progress-connector"></div>' : '';
     return `
-      <div class="progress-node ${nodeClass}">
+      <div class="progress-node ${safeCssToken(nodeClass)}">
         <div class="node-dot"></div>
-        <span style="color: var(--text-dim);">Q${q.question_number}</span>
+        <span style="color: var(--text-dim);">Q${escapeHtml(q.question_number)}</span>
       </div>
       ${connector}
     `;

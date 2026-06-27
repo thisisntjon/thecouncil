@@ -11,6 +11,27 @@ const MODEL_CONFIG = {
 };
 
 const API_BASE = '/api';
+const COUNCIL_TOKEN_STORAGE_KEY = 'councilApiToken';
+const SHADOW_TOKEN_STORAGE_KEY = 'shadowCouncilToken';
+
+function storedToken(key, fallback = '') {
+  try {
+    return window.localStorage.getItem(key) || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function authHeaders(headers = {}) {
+  const token = storedToken(COUNCIL_TOKEN_STORAGE_KEY, import.meta.env?.VITE_COUNCIL_API_TOKEN || '');
+  return token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
+}
+
+function shadowAuthHeaders(headers = {}) {
+  const fallback = import.meta.env?.VITE_SHADOW_COUNCIL_TOKEN || import.meta.env?.VITE_COUNCIL_API_TOKEN || '';
+  const token = storedToken(SHADOW_TOKEN_STORAGE_KEY, storedToken(COUNCIL_TOKEN_STORAGE_KEY, fallback));
+  return token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
+}
 
 // ── Styles ──────────────────────────────────────────────────
 
@@ -2058,7 +2079,7 @@ function MainApp() {
   useEffect(() => {
     if (!gameConfig || phase === 'setup' || phase === 'game_over') return;
     const poll = () => {
-      fetch('http://localhost:3002/api/usage')
+      fetch('http://localhost:3002/api/usage', { headers: shadowAuthHeaders() })
         .then(r => r.json())
         .then(data => setShadowCost({
           calls: data.calls?.length || 0,
@@ -2096,7 +2117,7 @@ function MainApp() {
     try {
       const response = await fetch(`${API_BASE}/ask`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ question: question.trim(), models: activeModels }),
       });
 
@@ -2173,7 +2194,7 @@ function MainApp() {
     try {
       const response = await fetch(`${API_BASE}/evaluate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ question: question.trim(), answers: answersPayload }),
       });
 
@@ -2345,7 +2366,7 @@ function MainApp() {
   const handleResearchPricing = async () => {
     setPricingStatus('researching');
     try {
-      const response = await fetch(`${API_BASE}/research-pricing`, { method: 'POST' });
+      const response = await fetch(`${API_BASE}/research-pricing`, { method: 'POST', headers: authHeaders() });
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
@@ -2379,7 +2400,7 @@ function MainApp() {
     try {
       await fetch(`${API_BASE}/config`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ models: modelSelections }),
       });
       setShowMidGameSettings(false);
@@ -2396,14 +2417,14 @@ function MainApp() {
       try {
         await fetch(`${API_BASE}/config`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ models: modelSelections }),
         });
       } catch {}
     }
     // Reset usage counters
-    fetch(`${API_BASE}/usage/reset`, { method: 'POST' }).catch(() => {});
-    fetch('http://localhost:3002/api/usage/reset', { method: 'POST' }).catch(() => {});
+    fetch(`${API_BASE}/usage/reset`, { method: 'POST', headers: authHeaders() }).catch(() => {});
+    fetch('http://localhost:3002/api/usage/reset', { method: 'POST', headers: shadowAuthHeaders() }).catch(() => {});
     setSessionCost({ calls: 0, totalInput: 0, totalOutput: 0 });
 
     setGameConfig({ totalQuestions });
@@ -2423,7 +2444,7 @@ function MainApp() {
       setPhase('game_over');
       channelRef.current?.postMessage({ type: 'game_over', finalScores: runningScores, gameResults });
       // Final Shadow Council cost snapshot
-      fetch('http://localhost:3002/api/usage').then(r => r.json()).then(data => {
+      fetch('http://localhost:3002/api/usage', { headers: shadowAuthHeaders() }).then(r => r.json()).then(data => {
         setShadowCost({ calls: data.calls?.length || 0, totalInput: data.totalInputTokens || 0, totalOutput: data.totalOutputTokens || 0 });
       }).catch(() => {});
       return;
@@ -3290,7 +3311,7 @@ function ShadowWindow() {
     try {
       const response = await fetch(`${API_BASE}/verify`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ question, answers }),
       });
 

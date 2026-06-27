@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import crypto from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -13,7 +14,27 @@ dotenv.config();
 dotenv.config({ path: '../.env' });
 
 const app = express();
-app.use(cors());
+const DEFAULT_ALLOWED_ORIGINS = [
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+];
+
+function splitEnvList(value) {
+  return (value || '').split(',').map(item => item.trim()).filter(Boolean);
+}
+
+const allowedOrigins = new Set([
+  ...DEFAULT_ALLOWED_ORIGINS,
+  ...splitEnvList(process.env.COUNCIL_ALLOWED_ORIGINS),
+]);
+
+app.use(cors({
+  origin(origin, callback) {
+    callback(null, !origin || allowedOrigins.has(origin));
+  },
+}));
 app.use(express.json({ limit: '10mb' }));
 
 let questionCounter = 0;
@@ -38,6 +59,85 @@ const KEY_NAMES = {
   ANTHROPIC_API_KEY: 'Claude', OPENAI_API_KEY: 'GPT',
   GOOGLE_API_KEY: 'Gemini', XAI_API_KEY: 'Grok',
 };
+const PLACEHOLDER_KEYS = new Set([
+  'your-anthropic-key-here',
+  'your-openai-key-here',
+  'your-google-key-here',
+  'your-xai-key-here',
+  'your-brave-search-key-here',
+]);
+const LIVE_API_TOKEN = process.env.COUNCIL_API_TOKEN || process.env.LOCAL_API_TOKEN || '';
+const SHADOW_API_TOKEN = process.env.SHADOW_COUNCIL_TOKEN || process.env.LOCAL_API_TOKEN || process.env.COUNCIL_API_TOKEN || '';
+
+function isConfiguredSecret(value) {
+  return Boolean(value && !PLACEHOLDER_KEYS.has(value));
+}
+
+function hasConfiguredLiveKeys() {
+  return [...Object.keys(KEY_NAMES), 'BRAVE_SEARCH_API_KEY'].some(name => isConfiguredSecret(process.env[name]));
+}
+
+function liveAuthRequired() {
+  return process.env.COUNCIL_REQUIRE_AUTH === 'true' || Boolean(LIVE_API_TOKEN) || hasConfiguredLiveKeys();
+}
+
+function safeEqual(a, b) {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
+
+function requestToken(req) {
+  const auth = req.get('authorization') || '';
+  const match = auth.match(/^Bearer\s+(.+)$/i);
+  return match?.[1] || req.get('x-council-token') || '';
+}
+
+function requireCouncilAuth(req, res, next) {
+  if (!liveAuthRequired()) return next();
+  if (!LIVE_API_TOKEN) {
+    return res.status(503).json({
+      error: 'COUNCIL_API_TOKEN is required before live provider routes can run with configured keys.',
+    });
+  }
+  if (!safeEqual(requestToken(req), LIVE_API_TOKEN)) {
+    return res.status(401).json({ error: 'Local bearer token required' });
+  }
+  return next();
+}
+
+function makeFixedWindowLimiter({ windowMs, maxRequests }) {
+  const buckets = new Map();
+  return (req, res, next) => {
+    if (!Number.isFinite(maxRequests) || maxRequests <= 0) return next();
+    const now = Date.now();
+    const key = `${req.ip || req.socket.remoteAddress || 'unknown'}:${req.path}`;
+    const bucket = buckets.get(key);
+    if (!bucket || now > bucket.resetAt) {
+      buckets.set(key, { count: 1, resetAt: now + windowMs });
+      return next();
+    }
+    bucket.count += 1;
+    if (bucket.count > maxRequests) {
+      res.setHeader('Retry-After', Math.ceil((bucket.resetAt - now) / 1000));
+      return res.status(429).json({ error: 'Too many live API requests; retry after the current window.' });
+    }
+    return next();
+  };
+}
+
+const liveRouteLimit = makeFixedWindowLimiter({
+  windowMs: Number(process.env.COUNCIL_RATE_LIMIT_WINDOW_MS || 60000),
+  maxRequests: Number(process.env.COUNCIL_RATE_LIMIT_MAX || 60),
+});
+const protectLiveRoute = [requireCouncilAuth, liveRouteLimit];
+
+function shadowHeaders(extra = {}) {
+  const headers = { ...extra };
+  if (SHADOW_API_TOKEN) headers.Authorization = `Bearer ${SHADOW_API_TOKEN}`;
+  return headers;
+}
+
 const missingKeys = Object.entries(KEY_NAMES).filter(([envVar]) => !process.env[envVar]);
 missingKeys.forEach(([envVar, model]) => console.warn(`⚠ ${envVar} not set — ${model} will be unavailable`));
 const configuredProviderCount = Object.keys(KEY_NAMES).length - missingKeys.length;
@@ -832,7 +932,7 @@ app.post('/api/fixture/run', (req, res) => {
   }
 });
 
-app.post('/api/ask', async (req, res) => {
+app.post('/api/ask', ...protectLiveRoute, async (req, res) => {
   const { question, systemPrompt, models, skipShadow } = req.body;
   if (!question || typeof question !== 'string') return res.status(400).json({ error: 'Question is required' });
   if (question.length > 10000) return res.status(400).json({ error: 'Question too long (max 10,000 chars)' });
@@ -885,7 +985,7 @@ app.post('/api/ask', async (req, res) => {
     shadow = { dispatched: true, questionNumber: questionCounter };
     fetch(`${SHADOW_COUNCIL_URL}/api/verify`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: shadowHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({
         question_number: questionCounter,
         question: question.trim(),
@@ -904,7 +1004,7 @@ app.post('/api/ask', async (req, res) => {
 
 // ── Round 2: Peer Evaluation ────────────────────────────────
 
-app.post('/api/evaluate', async (req, res) => {
+app.post('/api/evaluate', ...protectLiveRoute, async (req, res) => {
   const { question, answers } = req.body;
   if (!question || typeof question !== 'string') return res.status(400).json({ error: 'Question is required' });
   if (!Array.isArray(answers) || answers.length === 0) return res.status(400).json({ error: 'Answers array required' });
@@ -1017,7 +1117,7 @@ Rate EACH OTHER model's answer (not your own) on a scale of 1-100. Respond in th
 
 // ── Round 2.5: Explicit Vote ─────────────────────────────────
 
-app.post('/api/vote', async (req, res) => {
+app.post('/api/vote', ...protectLiveRoute, async (req, res) => {
   const { question, answers, evaluations } = req.body;
 
   if (!question || !answers || !evaluations) {
@@ -1163,7 +1263,7 @@ Respond in this exact JSON format:
 
 // ── Round 3: Verification Swarm ─────────────────────────────
 
-app.post('/api/verify', async (req, res) => {
+app.post('/api/verify', ...protectLiveRoute, async (req, res) => {
   const { question, answers } = req.body;
 
   if (!question || !answers) return res.status(400).json({ error: 'Question and answers required' });
@@ -1291,38 +1391,38 @@ function applyModelSelections(models) {
   if (models.claude) {
     fetch(`${SHADOW_COUNCIL_URL}/api/config`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: shadowHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ model: MODELS.claude.model }),
     }).catch(() => {});
   }
 }
 
-app.post('/api/config', (req, res) => {
+app.post('/api/config', ...protectLiveRoute, (req, res) => {
   applyModelSelections(req.body.models);
   res.json({ status: 'ok', models: MODELS });
 });
 
-app.get('/api/models', (req, res) => {
+app.get('/api/models', requireCouncilAuth, (req, res) => {
   res.json({ current: MODELS, options: MODEL_OPTIONS });
 });
 
-app.post('/api/models', (req, res) => {
+app.post('/api/models', ...protectLiveRoute, (req, res) => {
   applyModelSelections(req.body.models);
   res.json({ status: 'ok', models: MODELS });
 });
 
-app.get('/api/usage', (req, res) => {
+app.get('/api/usage', requireCouncilAuth, (req, res) => {
   res.json(sessionUsage);
 });
 
-app.post('/api/usage/reset', (req, res) => {
+app.post('/api/usage/reset', ...protectLiveRoute, (req, res) => {
   sessionUsage.reset();
   res.json({ status: 'ok' });
 });
 
 // ── AI-Powered Pricing Research (The Double Twist) ────────
 
-app.post('/api/research-pricing', async (req, res) => {
+app.post('/api/research-pricing', ...protectLiveRoute, async (req, res) => {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -1395,6 +1495,12 @@ app.get('/api/health', (req, res) => {
     models: MODELS,
     modelOptions: MODEL_OPTIONS,
     keysConfigured: keys,
+    security: {
+      bindHost: process.env.COUNCIL_HOST || process.env.HOST || '127.0.0.1',
+      authRequired: liveAuthRequired(),
+      tokenConfigured: Boolean(LIVE_API_TOKEN),
+      allowedOrigins: [...allowedOrigins],
+    },
     fixtureMode: {
       available: true,
       requiresProviderKeys: false,
@@ -1407,7 +1513,8 @@ app.get('/api/health', (req, res) => {
 // ── Start ───────────────────────────────────────────────────
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+const HOST = process.env.COUNCIL_HOST || process.env.HOST || '127.0.0.1';
+app.listen(PORT, HOST, () => {
   console.log(`\n⚡ THE COUNCIL server running on port ${PORT}`);
   console.log(`   Health check: http://localhost:${PORT}/api/health`);
   if (!process.env.BRAVE_SEARCH_API_KEY) {
