@@ -1,0 +1,11 @@
+{
+  "setup": [],
+  "answers": [],
+  "critical": [],
+  "serious": [],
+  "counts": {
+    "critical": 0,
+    "serious": 0,
+    "total": 0
+  }
+}

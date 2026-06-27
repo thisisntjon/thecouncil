@@ -53,6 +53,11 @@ build/
 .cache/
 coverage/
 
+# UI-QA regenerable outputs (keep the report, result JSON, screens + visual baselines)
+artifacts/ui-qa/playwright-report/
+**/test-results/
+**/playwright-report/
+
 # Local OS/editor noise
 .DS_Store
 Thumbs.db

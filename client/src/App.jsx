@@ -283,7 +283,7 @@ function ConsensusPanel({ consensus }) {
             <span className="text-lg text-muted-foreground">/100</span>
           </div>
           <div className="w-full max-w-md">
-            <Progress value={consensus} indicatorClassName={bar} />
+            <Progress value={consensus} indicatorClassName={bar} aria-label="Council consensus score" />
           </div>
           <span className="text-sm font-medium">{label}</span>
         </CardContent>
@@ -317,7 +317,7 @@ function ClaimRow({ claim, verification }) {
         )}
       </div>
       {confidence != null && verdict !== 'pending' && (
-        <Progress value={confidence} className="h-1" indicatorClassName={meta.bar} />
+        <Progress value={confidence} className="h-1" indicatorClassName={meta.bar} aria-label="Verification confidence" />
       )}
       {verification?.reasoning && (
         <p className="text-xs leading-relaxed text-muted-foreground">{verification.reasoning}</p>
@@ -503,7 +503,7 @@ function NativeVerification({ questionText, epoch, onComplete }) {
                   </span>
                 )}
               </div>
-              {total > 0 && <Progress value={pct} />}
+              {total > 0 && <Progress value={pct} aria-label="Claims verified" />}
 
               <div className="grid gap-4 lg:grid-cols-2">
                 {claimGroups.map(modelId => {
@@ -1085,7 +1085,7 @@ function MainApp() {
           </div>
           <div className="leading-tight">
             <div className="flex items-center gap-2">
-              <span className="text-base font-bold tracking-tight">The Council</span>
+              <h1 className="text-base font-bold tracking-tight">The Council</h1>
               <Badge variant={liveBadge.tone} className="hidden sm:inline-flex">{liveBadge.label}</Badge>
             </div>
             <div className="text-xs text-muted-foreground">Independent answers, cross-verified</div>
@@ -1370,7 +1370,7 @@ function MainApp() {
       {Header}
 
       {gameConfig && (
-        <div className="border-b bg-muted/30">
+        <div className="border-b bg-muted/30" role="region" aria-label="Session progress">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-2.5">
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Question {currentQuestionNum} of {gameConfig.totalQuestions}

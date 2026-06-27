@@ -1,0 +1,31 @@
+{
+  "verdict": "PASS",
+  "changed_ui": true,
+  "tests_run": [
+    "cd client && npx playwright test (council.spec.js — chromium desktop 1440x900 + mobile 390x844)",
+    "runtime+golden-path (mocked SSE, $0)",
+    "accessibility-audit (@axe-core/playwright) on setup + answers screens",
+    "visual-regression toHaveScreenshot (setup/answers/verdict, dark+light, desktop+mobile)"
+  ],
+  "tests_passed": true,
+  "console_errors": [],
+  "network_failures": [],
+  "screenshots": [
+    "artifacts/ui-qa/screens/01-setup.png",
+    "artifacts/ui-qa/screens/02-question-input.png",
+    "artifacts/ui-qa/screens/03-answers-and-swarm.png",
+    "artifacts/ui-qa/screens/04-round2-consensus.png",
+    "artifacts/ui-qa/screens/05-verdict.png"
+  ],
+  "visual_diffs": [],
+  "accessibility_violations": [],
+  "baseline_updated": true,
+  "requires_human_review": false,
+  "risks": [
+    "DOCUMENTED baseline regeneration: the 12 visual baselines (setup/answers/verdict × dark/light × desktop/mobile) were intentionally regenerated because the a11y fix darkened the light-theme verdict tokens (--verdict-supported/partial/refuted to 700/800-level) and raised --muted-foreground contrast — a deliberate, reviewed pixel change, not drift. Re-run after regeneration was stable (no diffs).",
+    "All 3 serious + 2 moderate a11y violations from the prior FAIL are resolved: aria-label added to the 3 shadcn Progress usages; verdict text tokens darkened to clear WCAG AA 4.5:1 on white + soft tints (verified via axe color-data probe); brand promoted to <h1>; session-progress strip given a landmark role. axe now reports 0 critical / 0 serious / 0 moderate.",
+    "The a11y scan now settles entrance animations before analyzing (transient framer-motion opacity is not a WCAG failure; WCAG assesses the stable state).",
+    "Deep flow (Round 2 / consensus / Round 3 verification) exercised via deterministic mocked SSE ($0); a real live end-to-end run earlier also passed with all 4 models + cross-vendor verification.",
+    "Mobile golden-path + mobile a11y are skipped by design (desktop-only specs; logic is viewport-independent, mobile still covered by visual baselines); claude-in-chrome was not connected so runtime diagnostics used Playwright headless."
+  ]
+}

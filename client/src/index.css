@@ -21,7 +21,7 @@
   --secondary: hsl(240 5% 96%);
   --secondary-foreground: hsl(240 6% 10%);
   --muted: hsl(240 5% 96%);
-  --muted-foreground: hsl(240 4% 44%);
+  --muted-foreground: hsl(240 5% 38%);
   --accent: hsl(240 5% 95%);
   --accent-foreground: hsl(240 6% 10%);
   --destructive: hsl(0 72% 51%);
@@ -36,11 +36,11 @@
   --model-gemini: #3b82f6;
   --model-grok: #ef4444;
 
-  /* Verdict semantics */
-  --verdict-supported: #059669;
-  --verdict-partial: #d97706;
-  --verdict-refuted: #e11d48;
-  --verdict-unknown: #71717a;
+  /* Verdict semantics (light: 700-level for WCAG AA text contrast on white + soft tints) */
+  --verdict-supported: #047857;
+  --verdict-partial: #92400e;
+  --verdict-refuted: #be123c;
+  --verdict-unknown: #52525b;
 }
 
 .dark {
@@ -55,7 +55,7 @@
   --secondary: hsl(240 5% 13%);
   --secondary-foreground: hsl(0 0% 98%);
   --muted: hsl(240 5% 12%);
-  --muted-foreground: hsl(240 5% 64%);
+  --muted-foreground: hsl(240 5% 72%);
   --accent: hsl(240 5% 15%);
   --accent-foreground: hsl(0 0% 98%);
   --destructive: hsl(0 72% 55%);
