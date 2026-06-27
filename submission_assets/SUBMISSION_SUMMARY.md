@@ -20,6 +20,12 @@ npm run demo:fixture
 
 This path is simulated, reproducible, and requires no API keys.
 
+Optional weighted practical-reasoning demo:
+
+```bash
+npm run demo:car-wash
+```
+
 ## What To Emphasize
 
 - Four independent Council agents answer the same question.
@@ -27,12 +33,15 @@ This path is simulated, reproducible, and requires no API keys.
 - Hidden Verification Swarm checks 12 fixture claims.
 - Confidence summary and unresolved-claim handling are visible.
 - JSON/Markdown audit reports are exported under `sample_outputs/`.
+- Weighted car-wash scenario shows role/claim weighting and decision scores.
+- Counterfactual guardrails prevent overgeneralized driving advice.
 - Security boundaries are explicit: no-key fixture mode, `.env` ignored, placeholders only, redaction helper, tool allowlist, secret scan.
 
 ## Validation Commands
 
 ```bash
 npm run demo:fixture
+npm run demo:car-wash
 npm test
 npm run secret:scan
 npm run mcp:self-test

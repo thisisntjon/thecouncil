@@ -1,0 +1,157 @@
+{
+  "mode": "fixture",
+  "scenarioId": "coffee_shop_50m",
+  "label": "Offline simulated fixture for unrelated 50-meter destination guardrail",
+  "question": "The coffee shop is 50 meters away. Should I walk or drive?",
+  "scenarioInterpretation": {
+    "likelyIntent": "The user is choosing personal travel mode for a nearby destination.",
+    "primaryRecommendation": "walk",
+    "ambiguity": "Driving may be reasonable for mobility, safety, severe weather, or carrying heavy items."
+  },
+  "agents": [
+    {
+      "id": "intent_framer",
+      "name": "Intent Framer",
+      "role": "Distinguishes personal travel from car transport",
+      "roleWeight": 0.3,
+      "answer": "This is a personal trip to a coffee shop, not a task requiring a car to be transported.",
+      "claims": ["cf1"]
+    },
+    {
+      "id": "distance_operator",
+      "name": "Distance Operator",
+      "role": "Evaluates distance",
+      "roleWeight": 0.3,
+      "answer": "Fifty meters is very close, so walking is the practical default.",
+      "claims": ["cf2"]
+    },
+    {
+      "id": "practical_operator",
+      "name": "Practical Operator",
+      "role": "Compares effort and usefulness",
+      "roleWeight": 0.25,
+      "answer": "Driving such a short distance adds parking and maneuvering overhead without helping much.",
+      "claims": ["cf3"]
+    },
+    {
+      "id": "ambiguity_skeptic",
+      "name": "Ambiguity Skeptic",
+      "role": "Preserves exceptions",
+      "roleWeight": 0.15,
+      "answer": "Exceptions include unsafe walking conditions, accessibility needs, severe weather, or carrying heavy items.",
+      "claims": ["cf4"]
+    }
+  ],
+  "claims": {
+    "cf1": "Going to a coffee shop is personal travel rather than moving the car to complete a car-related task.",
+    "cf2": "Fifty meters is a short distance for most people to walk.",
+    "cf3": "Driving 50 meters usually adds overhead such as parking and maneuvering.",
+    "cf4": "Walking depends on safety, accessibility, weather, and what the user is carrying."
+  },
+  "peerReviews": [
+    {
+      "reviewer": "intent_framer",
+      "target": "distance_operator",
+      "score": 93,
+      "strength": "Correctly uses the short distance.",
+      "weakness": "Should mention accessibility caveats.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "distance_operator",
+      "target": "practical_operator",
+      "score": 89,
+      "strength": "Identifies driving overhead.",
+      "weakness": "Could avoid assuming parking is difficult.",
+      "wouldRevise": false
+    },
+    {
+      "reviewer": "practical_operator",
+      "target": "ambiguity_skeptic",
+      "score": 88,
+      "strength": "Preserves reasonable exceptions.",
+      "weakness": "Could state that walking remains the default.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "ambiguity_skeptic",
+      "target": "intent_framer",
+      "score": 90,
+      "strength": "Prevents car-wash logic from leaking into a normal destination trip.",
+      "weakness": "Should mention the 50-meter distance explicitly.",
+      "wouldRevise": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "cf_e1",
+      "title": "Prompt fact: coffee shop destination",
+      "summary": "The user asks about going to a coffee shop.",
+      "source": "fixtures/coffee_shop_fixture.json"
+    },
+    {
+      "id": "cf_e2",
+      "title": "Prompt fact: short distance",
+      "summary": "The coffee shop is 50 meters away.",
+      "source": "fixtures/coffee_shop_fixture.json"
+    }
+  ],
+  "verification": {
+    "cf1": {
+      "verdict": "supported",
+      "confidence": 0.94,
+      "evidence": ["cf_e1"],
+      "reasoning": "The prompt describes a normal destination trip, not a car-related task.",
+      "roleId": "intent_framer",
+      "claimType": "intent",
+      "roleWeight": 0.3,
+      "claimWeight": 0.9,
+      "supports": { "walk": 0.9 },
+      "appliesWhen": ["personal_travel"]
+    },
+    "cf2": {
+      "verdict": "supported",
+      "confidence": 0.96,
+      "evidence": ["cf_e2"],
+      "reasoning": "Fifty meters is very close for personal travel.",
+      "roleId": "distance_operator",
+      "claimType": "distance",
+      "roleWeight": 0.3,
+      "claimWeight": 1,
+      "supports": { "walk": 1 },
+      "appliesWhen": ["personal_travel"]
+    },
+    "cf3": {
+      "verdict": "partially_supported",
+      "confidence": 0.8,
+      "evidence": ["cf_e2"],
+      "reasoning": "Driving a very short distance can add overhead, though local conditions may vary.",
+      "roleId": "practical_operator",
+      "claimType": "effort",
+      "roleWeight": 0.25,
+      "claimWeight": 0.7,
+      "supports": { "walk": 0.7, "drive": -0.2 },
+      "appliesWhen": ["personal_travel"]
+    },
+    "cf4": {
+      "verdict": "unresolved",
+      "confidence": 0.5,
+      "evidence": [],
+      "reasoning": "The prompt does not specify accessibility, safety, weather, or load.",
+      "roleId": "ambiguity_skeptic",
+      "claimType": "conditional_caveat",
+      "roleWeight": 0.15,
+      "claimWeight": 0.6,
+      "supports": { "caveat": 1 },
+      "appliesWhen": ["personal_travel"]
+    }
+  },
+  "synthesis": {
+    "finalAnswer": "Walk. A coffee shop 50 meters away is a normal short personal trip, so walking is the practical default. Drive only if walking is unsafe or inaccessible, the weather is severe, or you need to carry something that makes walking impractical.",
+    "assumptionsAndCaveats": [
+      "Assumes walking 50 meters is safe and accessible.",
+      "This is not a car-transport task like taking a car to a car wash.",
+      "Drive if safety, accessibility, weather, or heavy items make walking impractical."
+    ]
+  }
+}

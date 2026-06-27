@@ -1,4 +1,9 @@
 # Secrets and local configuration
+CLAUDE.local.md
+CLAUDE.md
+.claude/
+workflow/
+importantprompt.txt
 .env
 .env.*
 !.env.example
@@ -23,6 +28,7 @@ runs/
 generated-runs/
 private/
 _private_course_alignment/
+COURSE_CONCEPTS_SUMMARY.md
 
 # Dependencies and virtual environments
 node_modules/

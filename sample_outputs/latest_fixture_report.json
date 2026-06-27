@@ -2,7 +2,9 @@
   "project": "The Council: Multi-Agent Verification Swarm",
   "mode": "fixture",
   "simulated": true,
-  "generatedAt": "2026-06-26T01:31:09.259Z",
+  "fixture": "fixtures/council_fixture.json",
+  "label": "Offline simulated fixture for public capstone demo",
+  "generatedAt": "2026-06-27T02:51:17.978Z",
   "question": "What are the tradeoffs between single-agent and multi-agent verification for AI-assisted decision making?",
   "inputRisk": {
     "level": "low",
@@ -69,6 +71,7 @@
       ]
     }
   ],
+  "swarmRoles": [],
   "peerReviews": [
     {
       "reviewer": "architect",

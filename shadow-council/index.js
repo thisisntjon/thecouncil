@@ -2,9 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
-import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { withTimeout, retry, isTransient } from '../lib/ops.mjs';
+import { isReasoningClaim } from '../lib/claims.mjs';
 
 // Load .env from shadow-council/ first, fall back to project root
 dotenv.config();
@@ -74,28 +75,32 @@ function parseJSON(text) {
   }
 }
 
-// ── Timeout Helper ──────────────────────────────────────────
+// ── Timeout + Retry Helper ──────────────────────────────────
+// Env-configurable timeout + retry with backoff/jitter (see lib/ops.mjs).
 
-const API_TIMEOUT_MS = 60000;
+const API_TIMEOUT_MS = Number(process.env.API_TIMEOUT_MS || 60000);
+const API_SEARCH_TIMEOUT_MS = Number(process.env.API_SEARCH_TIMEOUT_MS || 90000);
+const API_RETRIES = Number(process.env.API_RETRIES || 2);
 
-function withTimeout(promise, ms = API_TIMEOUT_MS) {
-  let timer;
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(`API call timed out after ${ms}ms`)), ms); }),
-  ]).finally(() => clearTimeout(timer));
+function resilientCall(thunk, { timeoutMs = API_TIMEOUT_MS, label = 'shadow' } = {}) {
+  return retry(() => withTimeout(thunk(), timeoutMs, label), {
+    retries: API_RETRIES,
+    retryOn: isTransient,
+    honorRetryAfter: true,
+    onRetry: ({ attempt, retries, delay }) => console.warn(`[SHADOW] ${label} transient failure — retry ${attempt}/${retries} in ${delay}ms`),
+  });
 }
 
 // ── Claude API Helpers ──────────────────────────────────────
 
 async function callClaude(systemPrompt, userMessage) {
   try {
-    const response = await withTimeout(anthropic.messages.create({
+    const response = await resilientCall(() => anthropic.messages.create({
       model: SHADOW_MODEL,
       max_tokens: 2048,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
-    }));
+    }), { label: 'claude' });
     const usage = response.usage || {};
     trackShadowUsage(SHADOW_MODEL, usage.input_tokens || 0, usage.output_tokens || 0);
     return response.content[0]?.text || null;
@@ -107,7 +112,7 @@ async function callClaude(systemPrompt, userMessage) {
 
 async function callClaudeWithWebSearch(prompt, maxUses = 3) {
   try {
-    const response = await withTimeout(anthropic.messages.create({
+    const response = await resilientCall(() => anthropic.messages.create({
       model: SHADOW_MODEL,
       max_tokens: 1024,
       tools: [{
@@ -116,7 +121,7 @@ async function callClaudeWithWebSearch(prompt, maxUses = 3) {
         max_uses: maxUses,
       }],
       messages: [{ role: 'user', content: prompt }],
-    }), 90000); // Extra time for web search
+    }), { timeoutMs: API_SEARCH_TIMEOUT_MS, label: 'claude-search' }); // Extra time for web search
 
     // Extract text from all text blocks
     const textBlocks = (response.content || []).filter(b => b.type === 'text');
@@ -161,13 +166,13 @@ Respond in this exact JSON format:
     {
       "id": "${modelId}-1",
       "text": "the exact claim as a standalone sentence",
-      "category": "statistic|attribution|causal|definition|comparison|temporal|other",
+      "category": "statistic|attribution|causal|definition|comparison|temporal|computation|logical_deduction|derivation|other",
       "verifiable": true
     }
   ]
 }
 
-Number the IDs sequentially: ${modelId}-1, ${modelId}-2, etc. Only include factual claims, not opinions or hedging language. Aim for 4-8 claims.`;
+Use "computation", "logical_deduction", or "derivation" for claims whose correctness is a matter of math or logical reasoning rather than external fact. Number the IDs sequentially: ${modelId}-1, ${modelId}-2, etc. Include factual claims AND any load-bearing reasoning/derivation steps; skip pure opinions or hedging. Aim for 4-8 claims.`;
 
   const text = await callClaude(
     'You are a precise fact-checking analyst. Respond ONLY with valid JSON.',
@@ -205,6 +210,36 @@ Number the IDs sequentially: ${modelId}-1, ${modelId}-2, etc. Only include factu
 
 // ── Stage 2: Investigator Swarm ─────────────────────────────
 
+// Reasoning-validity check (no web). Shadow is Claude-only, so this is a separate pass by the
+// same model rather than a different model — still better than evidence lookup for logic claims.
+// Calibrated: never returns raw "unverifiable" for a well-formed reasoning claim.
+async function investigateByReasoning(claim) {
+  const prompt = `You are a reasoning checker. This claim is a logical or mathematical deduction, NOT an empirical fact. Do not search the web — independently re-derive or check whether it follows logically.
+
+CLAIM: "${claim.text}"
+
+Respond ONLY with JSON (no markdown fences):
+{
+  "verdict": "supported|partially_supported|refuted",
+  "confidence": 0.0 to 1.0,
+  "reasoning": "1-2 sentence re-derivation"
+}
+Use "supported" only if you independently re-derived it; "partially_supported" if plausible but not fully verified; "refuted" if wrong. Never answer "unverifiable".`;
+
+  const text = await callClaude('You are a precise reasoning checker. Respond ONLY with valid JSON.', prompt);
+  const parsed = parseJSON(text);
+  const source = [{ title: 'Independent reasoning re-derivation', url: null }];
+  if (!parsed) {
+    return { verdict: 'partially_supported', confidence: 0.3, reasoning: 'Reasoning verifier unparseable; provisionally partial.', key_finding: null, sources: source, reasoning_mode: true };
+  }
+  let verdict = parsed.verdict;
+  if (verdict !== 'supported' && verdict !== 'refuted') verdict = 'partially_supported';
+  let confidence = Number(parsed.confidence);
+  if (!Number.isFinite(confidence)) confidence = 0.3;
+  if (verdict === 'partially_supported') confidence = Math.min(confidence, 0.7);
+  return { verdict, confidence, reasoning: parsed.reasoning || 'Reasoning re-derivation.', key_finding: parsed.key_finding || null, sources: source, reasoning_mode: true };
+}
+
 async function investigateClaim(questionNum, claim) {
   broadcast({
     type: 'investigation_started',
@@ -212,6 +247,21 @@ async function investigateClaim(questionNum, claim) {
     claim_id: claim.id,
     claim_text: claim.text,
   });
+
+  // Reasoning/logic/math claims: check by re-derivation, not web search (web can't confirm logic).
+  if (isReasoningClaim(claim)) {
+    const verification = await investigateByReasoning(claim);
+    broadcast({
+      type: 'investigation_complete',
+      question_number: questionNum,
+      claim_id: claim.id,
+      verdict: verification.verdict,
+      confidence: verification.confidence,
+      reasoning: verification.reasoning,
+      source_count: verification.sources.length,
+    });
+    return { claimId: claim.id, ...verification };
+  }
 
   const prompt = `You are a fact-checking investigator. Your job is to verify whether this claim is true.
 
@@ -439,6 +489,9 @@ async function improvementLoop(questionNum, allClaims, verifications) {
   broadcast({ type: 'status_change', question_number: questionNum, status: 'improving' });
 
   const weakClaims = Object.values(allClaims).flat().filter(c => {
+    // Reasoning claims are checked by re-derivation; web re-search can never confirm them, so
+    // don't burn paid search retries on them.
+    if (isReasoningClaim(c)) return false;
     const v = verifications[c.id];
     return v && (v.verdict === 'unverifiable' || (v.confidence < 0.5 && v.verdict !== 'refuted'));
   });

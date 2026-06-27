@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { listDemoQuestions, runFixtureCouncil, writeReport } from '../lib/fixtureCouncil.mjs';
+import { withTimeout, retry, isTransient } from '../lib/ops.mjs';
+import { isReasoningClaim, claimAuthorId } from '../lib/claims.mjs';
 
 // Load .env from server/ first, fall back to project root
 dotenv.config();
@@ -35,11 +38,33 @@ const KEY_NAMES = {
   ANTHROPIC_API_KEY: 'Claude', OPENAI_API_KEY: 'GPT',
   GOOGLE_API_KEY: 'Gemini', XAI_API_KEY: 'Grok',
 };
-Object.entries(KEY_NAMES).forEach(([envVar, model]) => {
-  if (!process.env[envVar]) console.warn(`⚠ ${envVar} not set — ${model} will be unavailable`);
-});
+const missingKeys = Object.entries(KEY_NAMES).filter(([envVar]) => !process.env[envVar]);
+missingKeys.forEach(([envVar, model]) => console.warn(`⚠ ${envVar} not set — ${model} will be unavailable`));
+const configuredProviderCount = Object.keys(KEY_NAMES).length - missingKeys.length;
+if (configuredProviderCount < 2) {
+  console.warn(`⚠ Live Council is degraded: ${configuredProviderCount} provider key(s) configured, needs 2+. Fixture endpoints still work without keys.`);
+}
 
 const VALID_MODEL_IDS = new Set(['claude', 'gpt', 'gemini', 'grok']);
+
+function publicFixtureReport(report) {
+  const summary = report.final.confidenceSummary;
+  return {
+    ...report,
+    stats: {
+      agents: report.agents.length,
+      claims: report.verifiedClaims.length,
+      supported: summary.supportedClaims,
+      partial: summary.partiallySupportedClaims,
+      unresolved: summary.unresolvedClaims,
+      confidence: summary.averageConfidence,
+    },
+    reportPaths: {
+      json: 'sample_outputs/latest_fixture_report.json',
+      markdown: 'sample_outputs/latest_fixture_report.md',
+    },
+  };
+}
 
 // ── Model Configs ───────────────────────────────────────────
 
@@ -73,6 +98,43 @@ const MODEL_OPTIONS = {
 
 // ── Session Usage Tracking ─────────────────────────────────
 
+const COUNCIL_ROLES = {
+  claude: {
+    name: 'Operations and feasibility analyst',
+    instructions: 'Identify the user\'s actual goal and the physical/logistical steps required to accomplish it. Do not optimize for convenience until you have confirmed that the recommendation can complete the stated task.'
+  },
+  gpt: {
+    name: 'Practical tradeoff analyst',
+    instructions: 'Compare the practical costs, safety issues, and effort of each option, but treat goal feasibility as a hard constraint. If an option is efficient but does not accomplish the stated goal, say so explicitly.'
+  },
+  gemini: {
+    name: 'Assumption and edge-case analyst',
+    instructions: 'Challenge hidden assumptions and separate the main task from adjacent tasks like scouting, checking prices, or preparing supplies. State the primary recommendation first, then caveats.'
+  },
+  grok: {
+    name: 'Contrarian verifier',
+    instructions: 'Look for the common-sense trap in the question. Prefer the answer that actually satisfies the user\'s stated intent, and call out when a superficially attractive option fails that intent.'
+  },
+};
+
+function buildCouncilSystemPrompt(modelId, baseSystemPrompt) {
+  const role = COUNCIL_ROLES[modelId] || {
+    name: 'General Council analyst',
+    instructions: 'Answer directly, verify that the recommendation accomplishes the stated goal, and put caveats after the primary recommendation.'
+  };
+  return `${baseSystemPrompt}
+
+Your Council role: ${role.name}.
+Role instructions: ${role.instructions}
+
+Decision discipline:
+1. Restate the user's actual goal in your own reasoning.
+2. Check whether each option can physically/logistically accomplish that goal.
+3. Give the primary recommendation first.
+4. Put caveats and alternate interpretations after the primary recommendation.
+5. Do not let generic heuristics, such as "short distances are walkable," override whether the option completes the user's stated task.`;
+}
+
 const sessionUsage = {
   calls: [],
   totalInputTokens: 0,
@@ -86,16 +148,23 @@ function trackUsage(provider, model, input, output, round = 'unknown') {
   sessionUsage.totalOutputTokens += output;
 }
 
-// ── Timeout Helper ──────────────────────────────────────────
+// ── Timeout + Retry Helper ──────────────────────────────────
+// Timeouts and retry policy are env-configurable so operators can tune them
+// without editing code. Retries honor Retry-After and back off with jitter
+// (see lib/ops.mjs); only transient failures (429/5xx/network) are retried.
 
-const API_TIMEOUT_MS = 60000;
+const API_TIMEOUT_MS = Number(process.env.API_TIMEOUT_MS || 60000);
+const API_SEARCH_TIMEOUT_MS = Number(process.env.API_SEARCH_TIMEOUT_MS || 90000);
+const API_RETRIES = Number(process.env.API_RETRIES || 2);
 
-function withTimeout(promise, ms = API_TIMEOUT_MS) {
-  let timer;
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(`API call timed out after ${ms}ms`)), ms); }),
-  ]).finally(() => clearTimeout(timer));
+// Wrap a lazy provider call (a thunk so it can be re-invoked) in timeout + retry.
+function resilientCall(thunk, { timeoutMs = API_TIMEOUT_MS, label = 'provider' } = {}) {
+  return retry(() => withTimeout(thunk(), timeoutMs, label), {
+    retries: API_RETRIES,
+    retryOn: isTransient,
+    honorRetryAfter: true,
+    onRetry: ({ attempt, retries, delay }) => console.warn(`[COUNCIL] ${label} transient failure — retry ${attempt}/${retries} in ${delay}ms`),
+  });
 }
 
 // ── API Call Functions ──────────────────────────────────────
@@ -103,12 +172,12 @@ function withTimeout(promise, ms = API_TIMEOUT_MS) {
 async function callClaude(systemPrompt, userMessage) {
   const start = Date.now();
   try {
-    const response = await withTimeout(anthropic.messages.create({
+    const response = await resilientCall(() => anthropic.messages.create({
       model: MODELS.claude.model,
       max_tokens: 2048,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
-    }));
+    }), { label: 'claude' });
     const usage = response.usage || {};
     trackUsage('anthropic', MODELS.claude.model, usage.input_tokens || 0, usage.output_tokens || 0);
     return {
@@ -128,14 +197,14 @@ async function callClaude(systemPrompt, userMessage) {
 async function callGPT(systemPrompt, userMessage) {
   const start = Date.now();
   try {
-    const response = await withTimeout(openai.chat.completions.create({
+    const response = await resilientCall(() => openai.chat.completions.create({
       model: MODELS.gpt.model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
       ],
       max_completion_tokens: 2048,
-    }));
+    }), { label: 'gpt' });
     const usage = response.usage || {};
     trackUsage('openai', MODELS.gpt.model, usage.prompt_tokens || 0, usage.completion_tokens || 0);
     return {
@@ -159,7 +228,7 @@ async function callGemini(systemPrompt, userMessage) {
       model: MODELS.gemini.model,
       systemInstruction: systemPrompt,
     });
-    const result = await withTimeout(model.generateContent(userMessage));
+    const result = await resilientCall(() => model.generateContent(userMessage), { label: 'gemini' });
     const meta = result?.response?.usageMetadata || {};
     trackUsage('google', MODELS.gemini.model, meta.promptTokenCount || 0, meta.candidatesTokenCount || 0);
     return {
@@ -179,14 +248,14 @@ async function callGemini(systemPrompt, userMessage) {
 async function callGrok(systemPrompt, userMessage) {
   const start = Date.now();
   try {
-    const response = await withTimeout(grokClient.chat.completions.create({
+    const response = await resilientCall(() => grokClient.chat.completions.create({
       model: MODELS.grok.model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
       ],
       max_completion_tokens: 2048,
-    }));
+    }), { label: 'grok' });
     const usage = response.usage || {};
     trackUsage('xai', MODELS.grok.model, usage.prompt_tokens || 0, usage.completion_tokens || 0);
     return {
@@ -210,13 +279,13 @@ const callers = { claude: callClaude, gpt: callGPT, gemini: callGemini, grok: ca
 async function callClaudeWithSearch(systemPrompt, userMessage) {
   const start = Date.now();
   try {
-    const response = await withTimeout(anthropic.messages.create({
+    const response = await resilientCall(() => anthropic.messages.create({
       model: MODELS.claude.model,
       max_tokens: 2048,
       system: systemPrompt,
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }],
       messages: [{ role: 'user', content: userMessage }],
-    }), 90000); // Extra time for web search
+    }), { timeoutMs: API_SEARCH_TIMEOUT_MS, label: 'claude-search' }); // Extra time for web search
     const usageData = response.usage || {};
     trackUsage('anthropic', MODELS.claude.model, usageData.input_tokens || 0, usageData.output_tokens || 0);
     const textBlocks = (response.content || []).filter(b => b.type === 'text');
@@ -231,7 +300,7 @@ async function callClaudeWithSearch(systemPrompt, userMessage) {
 async function callGPTWithSearch(systemPrompt, userMessage) {
   const start = Date.now();
   try {
-    const response = await withTimeout(openai.chat.completions.create({
+    const response = await resilientCall(() => openai.chat.completions.create({
       model: 'gpt-5-search-api',
       web_search_options: {},
       messages: [
@@ -239,7 +308,7 @@ async function callGPTWithSearch(systemPrompt, userMessage) {
         { role: 'user', content: userMessage },
       ],
       max_completion_tokens: 2048,
-    }), 90000);
+    }), { timeoutMs: API_SEARCH_TIMEOUT_MS, label: 'gpt-search' });
     const usageGpt = response.usage || {};
     trackUsage('openai', 'gpt-5-search-api', usageGpt.prompt_tokens || 0, usageGpt.completion_tokens || 0);
     return { id: 'gpt', ...MODELS.gpt, answer: response.choices?.[0]?.message?.content ?? null, latency: Date.now() - start, status: 'success', usage: { input: usageGpt.prompt_tokens || 0, output: usageGpt.completion_tokens || 0 } };
@@ -257,7 +326,7 @@ async function callGeminiWithSearch(systemPrompt, userMessage) {
       systemInstruction: systemPrompt,
       tools: [{ googleSearch: {} }],
     });
-    const result = await withTimeout(model.generateContent(userMessage), 90000);
+    const result = await resilientCall(() => model.generateContent(userMessage), { timeoutMs: API_SEARCH_TIMEOUT_MS, label: 'gemini-search' });
     const gemMeta = result?.response?.usageMetadata || {};
     trackUsage('google', MODELS.gemini.model, gemMeta.promptTokenCount || 0, gemMeta.candidatesTokenCount || 0);
     return { id: 'gemini', ...MODELS.gemini, answer: result?.response?.text?.() ?? null, latency: Date.now() - start, status: 'success', usage: { input: gemMeta.promptTokenCount || 0, output: gemMeta.candidatesTokenCount || 0 } };
@@ -270,22 +339,29 @@ async function callGeminiWithSearch(systemPrompt, userMessage) {
 async function callGrokWithSearch(systemPrompt, userMessage) {
   const start = Date.now();
   try {
-    const response = await withTimeout(fetch('https://api.x.ai/v1/responses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.XAI_API_KEY}` },
-      body: JSON.stringify({
-        model: 'grok-4-1-fast-reasoning', // Only grok-4 family supports server-side tools
-        instructions: systemPrompt,
-        input: [{ role: 'user', content: userMessage }],
-        tools: [
-          { type: 'web_search' },
-          { type: 'x_search' },
-        ],
-        tool_choice: 'required',
-      }),
-    }), 90000);
-    if (!response.ok) throw new Error(`Grok API ${response.status}: ${await response.text()}`);
-    const data = await response.json();
+    const data = await resilientCall(async () => {
+      const response = await fetch('https://api.x.ai/v1/responses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.XAI_API_KEY}` },
+        body: JSON.stringify({
+          model: 'grok-4-1-fast-reasoning', // Only grok-4 family supports server-side tools
+          instructions: systemPrompt,
+          input: [{ role: 'user', content: userMessage }],
+          tools: [
+            { type: 'web_search' },
+            { type: 'x_search' },
+          ],
+          tool_choice: 'required',
+        }),
+      });
+      if (!response.ok) {
+        const err = new Error(`Grok API ${response.status}: ${await response.text()}`);
+        err.status = response.status;
+        err.headers = response.headers;
+        throw err;
+      }
+      return response.json();
+    }, { timeoutMs: API_SEARCH_TIMEOUT_MS, label: 'grok-search' });
     let text = data.output_text || '';
     if (!text && Array.isArray(data.output)) {
       text = data.output.filter(b => b.type === 'message')
@@ -317,10 +393,25 @@ let verifierCursor = 0;
 function pickVerifier(excludeId = null) {
   const available = VERIFIER_ORDER.filter(id => id !== excludeId && !!process.env[VERIFIER_KEY_ENV[id]]);
   const pool = available.length > 0 ? available : VERIFIER_ORDER.filter(id => !!process.env[VERIFIER_KEY_ENV[id]]);
-  if (pool.length === 0) return { id: 'claude', caller: callClaude };
+  // No configured provider — return null rather than a keyless Claude that would
+  // fail on the next call. Callers must handle this (degraded verification).
+  if (pool.length === 0) return null;
   const id = pool[verifierCursor % pool.length];
   verifierCursor++;
   return { id, caller: callers[id] };
+}
+
+// Use where a verifier is mandatory: fail with one clear, classified error
+// instead of crashing on a null destructure. Only triggers when NO provider key
+// is configured at all (a state in which verification cannot run regardless).
+function requireVerifier(excludeId = null) {
+  const verifier = pickVerifier(excludeId);
+  if (!verifier) {
+    const err = new Error('Verification unavailable: no provider API key is configured. Set at least one of ANTHROPIC_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, XAI_API_KEY.');
+    err.code = 'NO_VERIFIER';
+    throw err;
+  }
+  return verifier;
 }
 
 async function searchBrave(query) {
@@ -357,7 +448,7 @@ function generateSearchQuery(claimText) {
     'holds','held','represents','began','serving','individual','hold','office',
     'approximately','roughly','around','currently','according','stated','claimed',
   ]);
-  const words = claimText.replace(/[.!?,;:'"()\[\]]/g, '').split(/\s+/)
+  const words = claimText.replace(/[.!?,;:'"()[\]]/g, '').split(/\s+/)
     .filter(w => !stopWords.has(w.toLowerCase()) && w.length > 1);
   return words.slice(0, 10).join(' ');
 }
@@ -377,15 +468,15 @@ Respond in this exact JSON format:
     {
       "id": "${modelId}-1",
       "text": "the exact claim as a standalone sentence",
-      "category": "statistic|attribution|causal|definition|comparison|temporal|other",
+      "category": "statistic|attribution|causal|definition|comparison|temporal|computation|logical_deduction|derivation|other",
       "verifiable": true
     }
   ]
 }
 
-Number the IDs sequentially: ${modelId}-1, ${modelId}-2, etc. Only include factual claims, not opinions or hedging language. Aim for 4-8 claims.`;
+Use "computation", "logical_deduction", or "derivation" for claims whose correctness is a matter of math or logical reasoning (e.g. arithmetic results, constraint-satisfaction assignments, deduced conclusions) rather than external fact. Number the IDs sequentially: ${modelId}-1, ${modelId}-2, etc. Include factual claims AND any load-bearing reasoning/derivation steps; skip pure opinions or hedging. Aim for 4-8 claims.`;
 
-  const { id: verifierId, caller } = pickVerifier(modelId);
+  const { id: verifierId, caller } = requireVerifier(modelId);
   console.log(`[COUNCIL] Extract claims for ${modelName} → verifier: ${verifierId}`);
   const result = await caller(
     'You are a precise fact-checking analyst. Respond ONLY with valid JSON.',
@@ -435,7 +526,7 @@ Respond in this exact JSON format:
   ]
 }`;
 
-  const { id: verifierId, caller } = pickVerifier();
+  const { id: verifierId, caller } = requireVerifier();
   console.log(`[COUNCIL] Cross-reference claims → verifier: ${verifierId}`);
   const result = await caller(
     'You are a precise analytical judge. Respond ONLY with valid JSON.',
@@ -455,7 +546,60 @@ Respond in this exact JSON format:
   }
 }
 
+// Reasoning-validity verification for logic/math/derivation claims. These have no external
+// corroborant, so an evidence-based check marks them "unverifiable" (confidence 0) even when
+// correct. Here an INDEPENDENT verifier re-derives / checks logical validity. Calibrated to
+// avoid false positives: only "supported" when it can actually re-derive; "partially_supported"
+// (capped confidence) when plausible-but-unchecked; never raw "unverifiable" for a well-formed
+// reasoning claim, so a correct answer is neither dropped by synthesis nor zeroed by the scorer.
+async function verifyByReasoning(claim) {
+  const prompt = `You are a reasoning checker. The following claim is a logical or mathematical deduction, NOT an empirical fact. Do not search for external evidence — independently re-derive or check whether it follows logically.
+
+Claim: "${claim.text}"
+
+Respond ONLY with valid JSON:
+{
+  "verdict": "supported|partially_supported|refuted",
+  "confidence": <0.0 to 1.0>,
+  "reasoning": "1-2 sentence explanation of your re-derivation"
+}
+Rules: use "supported" only if you independently re-derived/confirmed it; "partially_supported" if it is plausible but you could not fully verify it; "refuted" if the reasoning is wrong. Never answer "unverifiable" — a logical claim is checkable by reasoning.`;
+
+  const author = claimAuthorId(claim);
+  const { id: verifierId, caller } = requireVerifier(author);
+  console.log(`[COUNCIL] Verify claim ${claim.id} (reasoning) → verifier: ${verifierId}`);
+  const result = await caller('You are a precise reasoning checker. Respond ONLY with valid JSON.', prompt);
+
+  const source = [{ title: 'Independent reasoning re-derivation', url: null }];
+  if (result.status !== 'success' || !result.answer) {
+    return { verdict: 'partially_supported', confidence: 0.3, reasoning: 'Reasoning verifier call failed; provisionally partial.', sources: source, reasoning_mode: true };
+  }
+  const coerce = (parsed) => {
+    let verdict = parsed.verdict;
+    if (verdict !== 'supported' && verdict !== 'refuted') verdict = 'partially_supported';
+    let confidence = Number(parsed.confidence);
+    if (!Number.isFinite(confidence)) confidence = 0.3;
+    if (verdict === 'partially_supported') confidence = Math.min(confidence, 0.7); // cap unchecked
+    return { verdict, confidence, reasoning: parsed.reasoning || 'Reasoning re-derivation.', sources: source, reasoning_mode: true };
+  };
+  try {
+    const cleaned = result.answer.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    return coerce(JSON.parse(cleaned));
+  } catch {
+    const match = result.answer.match(/\{[\s\S]*\}/);
+    if (match) {
+      try { return coerce(JSON.parse(match[0])); } catch {}
+    }
+    console.warn(`[COUNCIL] Verify claim ${claim.id} (reasoning): could not parse — provisionally partial`);
+    return { verdict: 'partially_supported', confidence: 0.3, reasoning: 'Reasoning verifier output unparseable; provisionally partial.', sources: source, reasoning_mode: true, parser_fallback: true };
+  }
+}
+
 async function verifyClaim(claim, searchResults) {
+  // Reasoning/logic/math claims are checked by re-derivation, not evidence lookup.
+  if (isReasoningClaim(claim)) {
+    return verifyByReasoning(claim);
+  }
   // Web-evidence verification when search results exist
   if (searchResults.length > 0) {
     const evidenceBlock = searchResults.map(r => `- "${r.title}": ${r.snippet}`).join('\n');
@@ -475,7 +619,7 @@ Respond in this exact JSON format:
   "reasoning": "1-2 sentence explanation"
 }`;
 
-    const { id: verifierId, caller } = pickVerifier();
+    const { id: verifierId, caller } = requireVerifier();
     console.log(`[COUNCIL] Verify claim ${claim.id} (web) → verifier: ${verifierId}`);
     const result = await caller(
       'You are a precise fact-checker. Respond ONLY with valid JSON.',
@@ -494,7 +638,8 @@ Respond in this exact JSON format:
       if (match) {
         try { return { ...JSON.parse(match[0]), sources: searchResults }; } catch {}
       }
-      return { verdict: 'unverifiable', confidence: 0, reasoning: 'Failed to parse verdict', sources: searchResults };
+      console.warn(`[COUNCIL] Verify claim ${claim.id} (web): could not parse verifier JSON — marking unverifiable`);
+      return { verdict: 'unverifiable', confidence: 0, reasoning: 'Failed to parse verdict', sources: searchResults, parser_fallback: true };
     }
   }
 
@@ -512,7 +657,7 @@ Respond in this exact JSON format:
   "reasoning": "1-2 sentence explanation"
 }`;
 
-  const { id: verifierId, caller } = pickVerifier();
+  const { id: verifierId, caller } = requireVerifier();
   console.log(`[COUNCIL] Verify claim ${claim.id} (knowledge) → verifier: ${verifierId}`);
   const result = await caller(
     'You are a precise fact-checker. Respond ONLY with valid JSON. Be conservative.',
@@ -537,7 +682,8 @@ Respond in this exact JSON format:
         return { ...parsed, sources: [{ title: 'LLM Knowledge Assessment', url: null }] };
       } catch {}
     }
-    return { verdict: 'unverifiable', confidence: 0, reasoning: 'Failed to parse verdict', sources: [] };
+    console.warn(`[COUNCIL] Verify claim ${claim.id} (knowledge): could not parse verifier JSON — marking unverifiable`);
+    return { verdict: 'unverifiable', confidence: 0, reasoning: 'Failed to parse verdict', sources: [], parser_fallback: true };
   }
 }
 
@@ -568,7 +714,7 @@ Which position is better supported by evidence? Respond in this exact JSON forma
   "sources": [{ "title": "...", "url": "..." }]
 }`;
 
-  const { id: verifierId, caller } = pickVerifier();
+  const { id: verifierId, caller } = requireVerifier();
   console.log(`[COUNCIL] Resolve disagreement "${disagreement.topic?.slice(0, 60)}" → verifier: ${verifierId}`);
   const result = await caller(
     'You are a precise fact-checker resolving disagreements. Respond ONLY with valid JSON.',
@@ -586,7 +732,8 @@ Which position is better supported by evidence? Respond in this exact JSON forma
     if (match) {
       try { return JSON.parse(match[0]); } catch {}
     }
-    return { verdict: 'Inconclusive', winning_position: 'inconclusive', reasoning: 'Failed to parse', sources: searchResults };
+    console.warn(`[COUNCIL] Resolve disagreement: could not parse verifier JSON — marking inconclusive`);
+    return { verdict: 'Inconclusive', winning_position: 'inconclusive', reasoning: 'Failed to parse', sources: searchResults, parser_fallback: true };
   }
 }
 
@@ -608,9 +755,16 @@ ${verifiedBlock || 'No verified claims available'}
 Claims to EXCLUDE (refuted):
 ${refutedBlock || 'None'}
 
-Write a clear, accurate, well-structured answer using only verified information. Include [N] citations inline. Aim for 2-4 paragraphs.`;
+Decision rule:
+1. Answer the original choice/question first.
+2. Prefer the option that directly accomplishes the user's stated goal.
+3. Do not lead with a secondary action, such as scouting, checking prices, or saving effort, unless the user specifically asked for that secondary action.
+4. Use efficiency, cost, health, safety, and environmental considerations as caveats after the primary recommendation.
+5. If verified claims show an option cannot accomplish the stated goal without an additional step, do not present that option as the primary recommendation.
 
-  const { id: verifierId, caller } = pickVerifier();
+Write a clear, accurate, well-structured answer using only verified information. State the primary recommendation in the first sentence. Include [N] citations inline. Aim for 2-4 paragraphs.`;
+
+  const { id: verifierId, caller } = requireVerifier();
   console.log(`[COUNCIL] Synthesize verified answer → verifier: ${verifierId}`);
   const result = await caller(
     'You are an authoritative synthesizer producing verified, cited answers.',
@@ -663,6 +817,21 @@ async function processInBatches(items, batchSize, delayMs, fn) {
 
 // ── Round 1: Independent Answers ────────────────────────────
 
+app.get('/api/fixture/questions', (req, res) => {
+  res.json({ questions: listDemoQuestions() });
+});
+
+app.post('/api/fixture/run', (req, res) => {
+  const { question } = req.body || {};
+  try {
+    const report = runFixtureCouncil({ question });
+    writeReport(report);
+    res.json({ report: publicFixtureReport(report) });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Fixture run failed' });
+  }
+});
+
 app.post('/api/ask', async (req, res) => {
   const { question, systemPrompt, models, skipShadow } = req.body;
   if (!question || typeof question !== 'string') return res.status(400).json({ error: 'Question is required' });
@@ -686,7 +855,8 @@ app.post('/api/ask', async (req, res) => {
   const promises = activeModels.map(async (modelId) => {
     const caller = searchCallers[modelId];
     if (!caller) return;
-    const result = await caller(defaultSystem, question);
+    const result = await caller(buildCouncilSystemPrompt(modelId, defaultSystem), question);
+    result.councilRole = COUNCIL_ROLES[modelId]?.name || 'General Council analyst';
     console.log(`[COUNCIL] ${result.name} responded in ${result.latency}ms (${result.status})`);
     // Send each result as it arrives
     res.write(`data: ${JSON.stringify({ type: 'answer', result })}\n\n`);
@@ -702,8 +872,17 @@ app.post('/api/ask', async (req, res) => {
     .filter(r => r.status === 'fulfilled' && r.value?.status === 'success')
     .map(r => r.value);
 
-  if (successfulResults.length > 0 && !skipShadow) {
+  // Shadow Council is optional and async, so we dispatch without awaiting — but
+  // we report whether it was dispatched/skipped and log async failures rather
+  // than swallowing them, so a degraded verification is never invisible.
+  let shadow;
+  if (skipShadow) {
+    shadow = { dispatched: false, reason: 'skipped by request' };
+  } else if (successfulResults.length === 0) {
+    shadow = { dispatched: false, reason: 'no successful answers to verify' };
+  } else {
     console.log(`[COUNCIL] Sending ${successfulResults.length} answers to Shadow Council (Q${questionCounter})`);
+    shadow = { dispatched: true, questionNumber: questionCounter };
     fetch(`${SHADOW_COUNCIL_URL}/api/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -716,10 +895,10 @@ app.post('/api/ask', async (req, res) => {
           answer: a.answer,
         })),
       }),
-    }).catch(() => {}); // Silent — Shadow Council is optional
+    }).catch(err => console.warn(`[COUNCIL] Shadow Council dispatch failed (Q${questionCounter}, optional): ${err.message}`));
   }
 
-  res.write(`data: ${JSON.stringify({ type: 'complete', sessionUsage: { calls: sessionUsage.calls.length, totalInput: sessionUsage.totalInputTokens, totalOutput: sessionUsage.totalOutputTokens } })}\n\n`);
+  res.write(`data: ${JSON.stringify({ type: 'complete', shadow, sessionUsage: { calls: sessionUsage.calls.length, totalInput: sessionUsage.totalInputTokens, totalOutput: sessionUsage.totalOutputTokens } })}\n\n`);
   res.end();
 });
 
@@ -739,6 +918,12 @@ The original question was:
 
 Here are the answers from each model:
 ${answers.map(a => `### ${a.name} (${a.provider}):\n${a.answer}`).join('\n\n')}
+
+Evaluation priorities:
+1. Does the answer accomplish the user's stated goal, not just a nearby or easier goal?
+2. Does it distinguish the primary recommendation from caveats, scouting, or alternate interpretations?
+3. Does it avoid generic heuristics that conflict with the task's physical/logistical requirements?
+4. Is it concise, accurate, and useful?
 
 Rate EACH OTHER model's answer (not your own) on a scale of 1-100. Respond in this exact JSON format:
 {
@@ -792,8 +977,11 @@ Rate EACH OTHER model's answer (not your own) on a scale of 1-100. Respond in th
             try {
               evaluation = JSON.parse(jsonMatch[0]);
             } catch (e2) {
+              console.warn(`[COUNCIL] ${evaluatorId} evaluation JSON parse failed (${e2.message}); returning parseError flag`);
               evaluation = { raw: result.answer, parseError: true };
             }
+          } else {
+            console.warn(`[COUNCIL] ${evaluatorId} evaluation produced no JSON object (${e.message})`);
           }
         }
       }
@@ -862,6 +1050,11 @@ ${answers.map(a => `### ${a.name} (${a.provider}) [id: ${a.id}]:\n${a.answer}`).
 Here are the peer evaluations:
 ${evalSummary}
 
+Voting priorities:
+1. Pick the answer that best accomplishes the user's stated goal.
+2. Treat physical/logistical feasibility as a hard requirement.
+3. Use efficiency, convenience, cost, and safety as tie-breakers or caveats after feasibility.
+
 Vote for the SINGLE BEST answer. You CANNOT vote for yourself. Consider accuracy, completeness, clarity, and the peer evaluation feedback.
 
 Respond in this exact JSON format:
@@ -898,8 +1091,11 @@ Respond in this exact JSON format:
             try {
               vote = JSON.parse(jsonMatch[0]);
             } catch (e2) {
-              vote = { winner: otherIds[0], justification: 'Unable to parse vote response' };
+              console.warn(`[COUNCIL] vote JSON parse failed (${e2.message}); defaulting to first peer`);
+              vote = { winner: otherIds[0], justification: 'Unable to parse vote response', parseError: true };
             }
+          } else {
+            console.warn(`[COUNCIL] vote produced no JSON object (${e.message})`);
           }
         }
       }
@@ -1007,8 +1203,8 @@ app.post('/api/verify', async (req, res) => {
     await processInBatches(claimsToVerify, 3, 300, async (claim) => {
       sendEvent({ type: 'verification_progress', claimId: claim.id, status: 'searching' });
 
-      const searchQuery = generateSearchQuery(claim.text);
-      const searchResults = await searchBrave(searchQuery);
+      // Reasoning claims are checked by re-derivation; skip the (useless) web search for them.
+      const searchResults = isReasoningClaim(claim) ? [] : await searchBrave(generateSearchQuery(claim.text));
 
       sendEvent({ type: 'verification_progress', claimId: claim.id, status: 'analyzing' });
 
@@ -1181,7 +1377,31 @@ app.get('/api/health', (req, res) => {
     grok: !!process.env.XAI_API_KEY && process.env.XAI_API_KEY !== 'your-xai-key-here',
     brave_search: !!process.env.BRAVE_SEARCH_API_KEY && process.env.BRAVE_SEARCH_API_KEY !== 'your-brave-search-key-here',
   };
-  res.json({ status: 'ok', models: MODELS, modelOptions: MODEL_OPTIONS, keysConfigured: keys });
+  // Live Council needs >=2 configured providers for peer evaluation. Report a
+  // degraded status (not a blanket "ok") when live mode can't actually run, so
+  // a caller can't be misled into thinking providers are ready when they aren't.
+  // Fixture mode never needs keys, so it stays available regardless.
+  const providerIds = ['claude', 'gpt', 'gemini', 'grok'];
+  const configuredProviders = providerIds.filter(id => keys[id]);
+  const liveReady = configuredProviders.length >= 2;
+  res.json({
+    status: liveReady ? 'ok' : 'degraded',
+    live: {
+      ready: liveReady,
+      configuredProviders,
+      missingProviders: providerIds.filter(id => !keys[id]),
+      reason: liveReady ? null : 'Live Council needs at least two configured provider keys; fixture mode remains available.',
+    },
+    models: MODELS,
+    modelOptions: MODEL_OPTIONS,
+    keysConfigured: keys,
+    fixtureMode: {
+      available: true,
+      requiresProviderKeys: false,
+      questionsEndpoint: '/api/fixture/questions',
+      runEndpoint: '/api/fixture/run',
+    },
+  });
 });
 
 // ── Start ───────────────────────────────────────────────────

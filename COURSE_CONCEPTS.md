@@ -50,5 +50,5 @@
 
 - Code: `demo_fixture.mjs`, `lib/fixtureCouncil.mjs`, `scripts/secret_scan.mjs`
 - Video: mention the no-key reproducible path and validation commands
-- Docs: `QUALITY_OF_LIFE_BASELINE.md`, `RELEASE_CHECKLIST.md`
+- Docs: `docs/process/QUALITY_OF_LIFE_BASELINE.md`, `RELEASE_CHECKLIST.md`
 - Boundary: fixture mode is intentionally simple; retries, checkpoints, batching, and rate-limit controls belong to optional live/provider workflows, not the public demo

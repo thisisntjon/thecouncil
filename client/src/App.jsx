@@ -2031,6 +2031,10 @@ function MainApp() {
         const defaults = {};
         Object.entries(data.models || {}).forEach(([id, m]) => { defaults[id] = m.model; });
         setModelSelections(defaults);
+        const configuredModels = Object.entries(data.keysConfigured || {})
+          .filter(([id, configured]) => configured && MODEL_CONFIG[id])
+          .map(([id]) => id);
+        if (configuredModels.length > 0) setActiveModels(configuredModels);
       }
     }).catch(() => {});
   }, []);

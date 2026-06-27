@@ -6,11 +6,20 @@
   "description": "The Council: Multi-Agent Verification Swarm capstone demo with offline fixture mode.",
   "scripts": {
     "demo:fixture": "node demo_fixture.mjs",
-    "test": "node tests/capstone_smoke.mjs",
+    "demo:car-wash": "node demo_fixture.mjs \"I want to wash my car. The car wash is 50 meters away. Should I walk or drive?\"",
+    "lint": "eslint .",
+    "test": "node tests/ops_smoke.mjs && node tests/claims_smoke.mjs && node tests/capstone_smoke.mjs",
     "test:smoke": "node tests/capstone_smoke.mjs",
+    "test:ops": "node tests/ops_smoke.mjs",
+    "test:claims": "node tests/claims_smoke.mjs",
+    "test:adversarial": "node tests/adversarial_gauntlet.mjs",
     "secret:scan": "node scripts/secret_scan.mjs",
     "mcp:stub": "node mcp/server_stub.mjs",
     "mcp:self-test": "node mcp/server_stub.mjs --self-test",
+    "verify:capstone": "npm run demo:fixture && npm test && npm run secret:scan && npm run mcp:self-test",
+    "ui:fixture": "node scripts/fixture_ui_server.mjs",
+    "ui:live:preflight": "node scripts/live_preflight.mjs",
+    "live:feedback": "node scripts/live_feedback_loop.mjs",
     "build:client": "npm --prefix client run build"
   },
   "dependencies": {
@@ -18,5 +27,13 @@
     "@google/generative-ai": "^0.21.0",
     "openai": "^4.73.1",
     "dotenv": "^16.4.5"
+  },
+  "overrides": {
+    "form-data": "^4.0.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0"
   }
 }

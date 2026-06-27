@@ -1,0 +1,156 @@
+{
+  "mode": "fixture",
+  "scenarioId": "car_already_at_wash_50m",
+  "label": "Offline simulated fixture for car-already-at-wash counterfactual",
+  "question": "My car is already at the car wash. The car wash is 50 meters away. Should I walk or drive?",
+  "scenarioInterpretation": {
+    "likelyIntent": "The user needs to reach a car that is already at the wash.",
+    "primaryRecommendation": "walk",
+    "ambiguity": "Driving may be impossible or unnecessary because the car is already at the destination."
+  },
+  "agents": [
+    {
+      "id": "intent_framer",
+      "name": "Intent Framer",
+      "role": "Interprets the already-there condition",
+      "roleWeight": 0.3,
+      "answer": "The car is already at the wash, so the task is getting the person there, not transporting the car.",
+      "claims": ["aw1"]
+    },
+    {
+      "id": "distance_operator",
+      "name": "Distance Operator",
+      "role": "Evaluates the short walk",
+      "roleWeight": 0.25,
+      "answer": "Fifty meters is a short distance, so walking is the straightforward default.",
+      "claims": ["aw2"]
+    },
+    {
+      "id": "physical_logistics",
+      "name": "Physical Logistics Analyst",
+      "role": "Checks whether driving serves the task",
+      "roleWeight": 0.3,
+      "answer": "Since the car is already at the car wash, driving another vehicle is not needed for the stated goal.",
+      "claims": ["aw3"]
+    },
+    {
+      "id": "ambiguity_skeptic",
+      "name": "Ambiguity Skeptic",
+      "role": "Preserves safety and accessibility caveats",
+      "roleWeight": 0.15,
+      "answer": "Walking is best unless the route is unsafe, inaccessible, or the user cannot comfortably walk.",
+      "claims": ["aw4"]
+    }
+  ],
+  "claims": {
+    "aw1": "The car is already at the car wash, so the car does not need to be transported there.",
+    "aw2": "Fifty meters is a short distance for a person to walk.",
+    "aw3": "Driving is unnecessary for reaching a car that is already at the destination.",
+    "aw4": "Walking depends on a safe and accessible route."
+  },
+  "peerReviews": [
+    {
+      "reviewer": "intent_framer",
+      "target": "physical_logistics",
+      "score": 91,
+      "strength": "Correctly avoids transporting a car that is already there.",
+      "weakness": "Could mention whether another vehicle is available.",
+      "wouldRevise": false
+    },
+    {
+      "reviewer": "distance_operator",
+      "target": "ambiguity_skeptic",
+      "score": 88,
+      "strength": "Keeps accessibility caveats visible.",
+      "weakness": "Could still make the default recommendation clearer.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "physical_logistics",
+      "target": "intent_framer",
+      "score": 90,
+      "strength": "Correctly reframes the trip around the person.",
+      "weakness": "Should mention that driving another vehicle adds needless complexity.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "ambiguity_skeptic",
+      "target": "distance_operator",
+      "score": 86,
+      "strength": "Uses the 50-meter fact appropriately.",
+      "weakness": "Could caveat route safety.",
+      "wouldRevise": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "aw_e1",
+      "title": "Prompt fact: car already at wash",
+      "summary": "The user says the car is already at the car wash.",
+      "source": "fixtures/car_already_at_wash_fixture.json"
+    },
+    {
+      "id": "aw_e2",
+      "title": "Prompt fact: short distance",
+      "summary": "The car wash is 50 meters away.",
+      "source": "fixtures/car_already_at_wash_fixture.json"
+    }
+  ],
+  "verification": {
+    "aw1": {
+      "verdict": "supported",
+      "confidence": 0.97,
+      "evidence": ["aw_e1"],
+      "reasoning": "The prompt explicitly says the car is already at the wash.",
+      "roleId": "intent_framer",
+      "claimType": "location",
+      "roleWeight": 0.3,
+      "claimWeight": 1,
+      "supports": { "walk": 0.9, "drive": -0.5 },
+      "appliesWhen": ["car_already_there"]
+    },
+    "aw2": {
+      "verdict": "supported",
+      "confidence": 0.95,
+      "evidence": ["aw_e2"],
+      "reasoning": "Fifty meters is close enough for walking to be a practical default.",
+      "roleId": "distance_operator",
+      "claimType": "distance",
+      "roleWeight": 0.25,
+      "claimWeight": 0.8,
+      "supports": { "walk": 0.9 },
+      "appliesWhen": ["personal_travel"]
+    },
+    "aw3": {
+      "verdict": "supported",
+      "confidence": 0.9,
+      "evidence": ["aw_e1"],
+      "reasoning": "Driving does not help move the already-present car to the wash.",
+      "roleId": "physical_logistics",
+      "claimType": "task_requirement",
+      "roleWeight": 0.3,
+      "claimWeight": 1,
+      "supports": { "walk": 0.8, "drive": -0.4 },
+      "appliesWhen": ["car_already_there"]
+    },
+    "aw4": {
+      "verdict": "unresolved",
+      "confidence": 0.5,
+      "evidence": [],
+      "reasoning": "The prompt does not describe route safety or accessibility.",
+      "roleId": "ambiguity_skeptic",
+      "claimType": "accessibility_assumption",
+      "roleWeight": 0.15,
+      "claimWeight": 0.6,
+      "supports": { "caveat": 1 },
+      "appliesWhen": ["personal_travel"]
+    }
+  },
+  "synthesis": {
+    "finalAnswer": "Walk. If your car is already at the car wash and the wash is only 50 meters away, the task is getting yourself there, not moving the car. Driving another vehicle would be unnecessary unless walking is unsafe or inaccessible.",
+    "assumptionsAndCaveats": [
+      "Assumes the route is safe and accessible.",
+      "Assumes the user does not need to bring another vehicle or equipment."
+    ]
+  }
+}

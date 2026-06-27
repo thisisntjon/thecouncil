@@ -14,19 +14,27 @@ The Council separates answer generation from verification. Four Council agents a
 
 The project intentionally "slices the elephant": generation, critique, verification, and synthesis are separate roles instead of one monolithic prompt. That keeps context smaller, makes each step easier to inspect, and gives the final answer a visible trajectory.
 
+The model is only ~10% of this; the deterministic **harness** — redaction, role orchestration, the tool allowlist, claim verification, and synthesis — is the ~90% that makes the result trustworthy. The JSON export is a **trajectory-style audit trail** (proving success is earned, not a "fragile success trap"), the Markdown export is the **human-readable vibe diff** for sign-off, and preserved confidence + unresolved claims express *effective* trust rather than a binary pass.
+
 ## Why Agents Are Needed
 
-Verification is not one behavior. Generation, critique, claim extraction, evidence checking, and synthesis each require a different role. Splitting those roles makes the process more auditable than asking one model to answer and then self-grade.
+Multi-agent is not the default — it adds coordination cost and should only be used when a single agent hits a real boundary. This project hits that boundary: **high-stakes verification** is precisely where the value lives in the disagreement, critique, and claim-checking that a single self-grading prompt collapses. Verification is also not one behavior — generation, critique, claim extraction, evidence checking, and synthesis each need a different role. Splitting those roles is therefore a justified architectural choice, not multi-agent for its own sake, and it makes the process auditable instead of asking one model to answer and then grade itself.
 
 ## Public Demo Path
 
-The capstone demo uses fixture/offline mode:
+The recommended capstone demo is the dependency-free visual fixture UI — the dashboard makes the agents, peer critiques, claim verdicts, confidence, and synthesis immediately legible:
+
+```bash
+npm run ui:fixture
+```
+
+Then open `http://127.0.0.1:4173` (on Windows: `launch.bat ui`). For a command-line equivalent that writes the same JSON/Markdown reports:
 
 ```bash
 npm run demo:fixture
 ```
 
-It is simulated and public-safe. It does not call live providers, require keys, perform web search, or read private files.
+Both are simulated and public-safe, **reproducible** (re-running reproduces identical verification content; only the run timestamp differs), and do not call live providers, require keys, perform web search, or read private files.
 
 The expected behavior is also captured as a durable Gherkin-style spec in `specs/verification.feature`.
 
@@ -55,6 +63,6 @@ Fixture mode demonstrates the architecture, not live model quality. The MCP serv
 ## Future Work
 
 - Replace the MCP stub with an official MCP SDK implementation.
-- Add a one-click fixture UI mode.
 - Add richer fixture sets and evaluator metrics.
 - Add deployment packaging after live-mode boundaries are finalized.
+- Verifier calibration: tune confidence scoring for reasoning/meta/security questions.

@@ -1,0 +1,163 @@
+{
+  "mode": "fixture",
+  "scenarioId": "car_wash_price_check_50m",
+  "label": "Offline simulated fixture for car-wash price-check counterfactual",
+  "question": "I only want to check the price at the car wash. It is 50 meters away. Should I walk or drive?",
+  "scenarioInterpretation": {
+    "likelyIntent": "The user wants to personally check pricing, not bring the car for an immediate wash.",
+    "primaryRecommendation": "walk",
+    "ambiguity": "Driving can still be reasonable for mobility, safety, weather, or if the user decides to wash the car immediately."
+  },
+  "agents": [
+    {
+      "id": "intent_framer",
+      "name": "Intent Framer",
+      "role": "Separates price-checking from actual washing",
+      "roleWeight": 0.3,
+      "answer": "The user says they only want to check the price. That changes the task from moving the car to gathering information.",
+      "claims": ["pc1"]
+    },
+    {
+      "id": "distance_operator",
+      "name": "Distance Operator",
+      "role": "Evaluates the short personal trip",
+      "roleWeight": 0.25,
+      "answer": "Fifty meters is a short personal trip, so walking is the efficient default for a price check.",
+      "claims": ["pc2"]
+    },
+    {
+      "id": "physical_logistics",
+      "name": "Physical Logistics Analyst",
+      "role": "Checks whether the car needs to move",
+      "roleWeight": 0.3,
+      "answer": "Checking the price does not require the car to be at the wash, so driving the car is unnecessary for the stated task.",
+      "claims": ["pc3"]
+    },
+    {
+      "id": "ambiguity_skeptic",
+      "name": "Ambiguity Skeptic",
+      "role": "Preserves conditional exceptions",
+      "roleWeight": 0.15,
+      "answer": "Driving could still make sense if walking is unsafe, accessibility is a concern, or the user plans to wash the car immediately after checking.",
+      "claims": ["pc4"]
+    }
+  ],
+  "claims": {
+    "pc1": "The user only wants to check the price, not necessarily wash the car immediately.",
+    "pc2": "Fifty meters is a short distance for a person to walk.",
+    "pc3": "Checking a price does not require bringing the car to the wash.",
+    "pc4": "Driving may be reasonable if walking is unsafe, inaccessible, or the user decides to wash the car immediately."
+  },
+  "peerReviews": [
+    {
+      "reviewer": "intent_framer",
+      "target": "physical_logistics",
+      "score": 92,
+      "strength": "Correctly identifies that the car does not need to move for a price check.",
+      "weakness": "Should mention immediate-wash follow-up as a caveat.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "distance_operator",
+      "target": "ambiguity_skeptic",
+      "score": 86,
+      "strength": "Keeps accessibility and safety caveats visible.",
+      "weakness": "Could state the default recommendation more clearly.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "physical_logistics",
+      "target": "intent_framer",
+      "score": 90,
+      "strength": "Correctly reframes the task as information gathering.",
+      "weakness": "Could explicitly compare walk and drive.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "ambiguity_skeptic",
+      "target": "distance_operator",
+      "score": 88,
+      "strength": "Uses the 50-meter fact appropriately.",
+      "weakness": "Should avoid assuming every person can comfortably walk.",
+      "wouldRevise": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "pc_e1",
+      "title": "Prompt fact: price-check intent",
+      "summary": "The user says they only want to check the price.",
+      "source": "fixtures/car_wash_price_check_fixture.json"
+    },
+    {
+      "id": "pc_e2",
+      "title": "Prompt fact: short distance",
+      "summary": "The car wash is 50 meters away.",
+      "source": "fixtures/car_wash_price_check_fixture.json"
+    },
+    {
+      "id": "pc_e3",
+      "title": "Task applicability note",
+      "summary": "Gathering price information does not require moving the car.",
+      "source": "fixtures/car_wash_price_check_fixture.json"
+    }
+  ],
+  "verification": {
+    "pc1": {
+      "verdict": "supported",
+      "confidence": 0.96,
+      "evidence": ["pc_e1"],
+      "reasoning": "The prompt explicitly limits the task to checking the price.",
+      "roleId": "intent_framer",
+      "claimType": "intent",
+      "roleWeight": 0.3,
+      "claimWeight": 1,
+      "supports": { "walk": 1, "drive": -0.3 },
+      "appliesWhen": ["price_check"]
+    },
+    "pc2": {
+      "verdict": "supported",
+      "confidence": 0.95,
+      "evidence": ["pc_e2"],
+      "reasoning": "Fifty meters is close enough that walking is a practical default for personal travel.",
+      "roleId": "distance_operator",
+      "claimType": "distance",
+      "roleWeight": 0.25,
+      "claimWeight": 0.8,
+      "supports": { "walk": 0.9 },
+      "appliesWhen": ["personal_travel"]
+    },
+    "pc3": {
+      "verdict": "supported",
+      "confidence": 0.93,
+      "evidence": ["pc_e3"],
+      "reasoning": "The car does not need to be present for a price check.",
+      "roleId": "physical_logistics",
+      "claimType": "task_requirement",
+      "roleWeight": 0.3,
+      "claimWeight": 1,
+      "supports": { "walk": 0.9, "drive": -0.5 },
+      "appliesWhen": ["price_check"]
+    },
+    "pc4": {
+      "verdict": "partially_supported",
+      "confidence": 0.72,
+      "evidence": ["pc_e2"],
+      "reasoning": "The prompt does not state accessibility, safety, weather, or immediate-wash plans.",
+      "roleId": "ambiguity_skeptic",
+      "claimType": "conditional_caveat",
+      "roleWeight": 0.15,
+      "claimWeight": 0.6,
+      "supports": { "caveat": 1 },
+      "appliesWhen": ["accessibility", "safety", "immediate_wash"]
+    }
+  },
+  "synthesis": {
+    "finalAnswer": "Walk if you only want to check the price. The car wash is only 50 meters away, and checking pricing does not require bringing the car. Drive only if walking is unsafe or inaccessible, or if you decide you want to wash the car immediately after checking.",
+    "assumptionsAndCaveats": [
+      "Assumes the task is only checking price, not washing the car now.",
+      "Assumes walking 50 meters is safe and accessible for the user.",
+      "Drive if the user plans to proceed directly into the wash after checking."
+    ]
+  }
+}

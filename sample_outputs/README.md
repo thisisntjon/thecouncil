@@ -9,4 +9,10 @@ Run the fixture demo to generate:
 npm run demo:fixture
 ```
 
+To generate the weighted car-wash scenario instead:
+
+```bash
+npm run demo:car-wash
+```
+
 These files are generated from public-safe fixture data and can be used for screenshots, the Kaggle Writeup, and the video walkthrough.

@@ -1,0 +1,176 @@
+{
+  "mode": "fixture",
+  "scenarioId": "car_not_safe_to_drive_50m",
+  "label": "Offline simulated fixture for unsafe-to-drive counterfactual",
+  "question": "I want to wash my car. The car wash is 50 meters away, but the car is not safe to drive. Should I walk or drive?",
+  "scenarioInterpretation": {
+    "likelyIntent": "The user wants the car washed but has stated that driving the car is unsafe.",
+    "primaryRecommendation": "do_not_drive",
+    "ambiguity": "Walking may be useful to inspect or ask for help, but it will not bring the unsafe car to the wash."
+  },
+  "agents": [
+    {
+      "id": "safety_reviewer",
+      "name": "Safety Reviewer",
+      "role": "Prioritizes safety and legality",
+      "roleWeight": 0.4,
+      "answer": "Do not drive a car that is not safe to drive, even for 50 meters.",
+      "claims": ["ns1"]
+    },
+    {
+      "id": "physical_logistics",
+      "name": "Physical Logistics Analyst",
+      "role": "Checks whether walking completes the wash",
+      "roleWeight": 0.25,
+      "answer": "Walking to the wash can help you ask about options, but it does not move the unsafe car there.",
+      "claims": ["ns2", "ns3"]
+    },
+    {
+      "id": "practical_operator",
+      "name": "Practical Operator",
+      "role": "Suggests safe alternatives",
+      "roleWeight": 0.25,
+      "answer": "Use a mobile/detailing wash, repair the car first, or arrange safe transport rather than driving it.",
+      "claims": ["ns4"]
+    },
+    {
+      "id": "ambiguity_skeptic",
+      "name": "Ambiguity Skeptic",
+      "role": "Preserves what remains unknown",
+      "roleWeight": 0.1,
+      "answer": "The prompt does not say how unsafe the car is, but it is enough to reject driving as the recommendation.",
+      "claims": ["ns5"]
+    }
+  ],
+  "claims": {
+    "ns1": "A car that is not safe to drive should not be driven to the car wash.",
+    "ns2": "Walking 50 meters may be reasonable for asking the car wash about options.",
+    "ns3": "Walking does not bring the unsafe car to the wash.",
+    "ns4": "Safe alternatives include mobile washing, repair first, or safe transport.",
+    "ns5": "The exact severity of the unsafe condition is not specified."
+  },
+  "peerReviews": [
+    {
+      "reviewer": "safety_reviewer",
+      "target": "physical_logistics",
+      "score": 90,
+      "strength": "Correctly distinguishes walking to ask from moving the car.",
+      "weakness": "Should lead with the no-drive constraint.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "physical_logistics",
+      "target": "practical_operator",
+      "score": 92,
+      "strength": "Provides safe alternatives.",
+      "weakness": "Could say the wash can wait until the car is safe.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "practical_operator",
+      "target": "ambiguity_skeptic",
+      "score": 84,
+      "strength": "Keeps the unspecified severity visible.",
+      "weakness": "Should not soften the recommendation against driving.",
+      "wouldRevise": true
+    },
+    {
+      "reviewer": "ambiguity_skeptic",
+      "target": "safety_reviewer",
+      "score": 96,
+      "strength": "Correctly treats safety as a hard constraint.",
+      "weakness": "Could list alternatives.",
+      "wouldRevise": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ns_e1",
+      "title": "Prompt fact: unsafe car",
+      "summary": "The user says the car is not safe to drive.",
+      "source": "fixtures/car_not_safe_to_drive_fixture.json"
+    },
+    {
+      "id": "ns_e2",
+      "title": "Prompt fact: short distance",
+      "summary": "The car wash is 50 meters away.",
+      "source": "fixtures/car_not_safe_to_drive_fixture.json"
+    },
+    {
+      "id": "ns_e3",
+      "title": "Physical constraint note",
+      "summary": "Walking to the wash does not move the car.",
+      "source": "fixtures/car_not_safe_to_drive_fixture.json"
+    }
+  ],
+  "verification": {
+    "ns1": {
+      "verdict": "supported",
+      "confidence": 0.98,
+      "evidence": ["ns_e1"],
+      "reasoning": "The prompt states the car is not safe to drive, so driving should be rejected.",
+      "roleId": "safety_reviewer",
+      "claimType": "safety_constraint",
+      "roleWeight": 0.4,
+      "claimWeight": 1,
+      "supports": { "do_not_drive": 1, "drive": -1 },
+      "appliesWhen": ["unsafe_vehicle"]
+    },
+    "ns2": {
+      "verdict": "partially_supported",
+      "confidence": 0.75,
+      "evidence": ["ns_e2"],
+      "reasoning": "Walking is reasonable for asking about options, but not for washing the car immediately.",
+      "roleId": "physical_logistics",
+      "claimType": "conditional_caveat",
+      "roleWeight": 0.25,
+      "claimWeight": 0.5,
+      "supports": { "walk": 0.7, "caveat": 1 },
+      "appliesWhen": ["asking_for_options"]
+    },
+    "ns3": {
+      "verdict": "supported",
+      "confidence": 0.95,
+      "evidence": ["ns_e3"],
+      "reasoning": "Walking to the wash leaves the unsafe car behind.",
+      "roleId": "physical_logistics",
+      "claimType": "physical_constraint",
+      "roleWeight": 0.25,
+      "claimWeight": 0.8,
+      "supports": { "do_not_drive": 0.5, "walk": 0.1 },
+      "appliesWhen": ["actual_wash"]
+    },
+    "ns4": {
+      "verdict": "supported",
+      "confidence": 0.82,
+      "evidence": ["ns_e1"],
+      "reasoning": "The stated unsafe condition means the user should use a safe alternative rather than driving.",
+      "roleId": "practical_operator",
+      "claimType": "safe_alternative",
+      "roleWeight": 0.25,
+      "claimWeight": 0.7,
+      "supports": { "do_not_drive": 0.8, "caveat": 0.5 },
+      "appliesWhen": ["unsafe_vehicle"]
+    },
+    "ns5": {
+      "verdict": "unresolved",
+      "confidence": 0.45,
+      "evidence": [],
+      "reasoning": "The prompt does not specify the unsafe condition.",
+      "roleId": "ambiguity_skeptic",
+      "claimType": "severity_unknown",
+      "roleWeight": 0.1,
+      "claimWeight": 0.5,
+      "supports": { "caveat": 1 },
+      "appliesWhen": ["unsafe_vehicle"]
+    }
+  },
+  "synthesis": {
+    "finalAnswer": "Do not drive the car. Even though the car wash is only 50 meters away, the car is not safe to drive, so driving is the wrong recommendation. You can walk over to ask about options, but for washing the car use a safe alternative such as a mobile wash, repair first, or safe transport.",
+    "assumptionsAndCaveats": [
+      "Assumes the user's statement that the car is not safe to drive is accurate.",
+      "Walking may help with asking questions but does not move the car.",
+      "Do not drive until the car is safe and legal to operate."
+    ]
+  }
+}

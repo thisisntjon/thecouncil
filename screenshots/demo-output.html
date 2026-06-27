@@ -130,6 +130,12 @@
       white-space: normal;
       overflow-wrap: anywhere;
     }
+    .claim-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .claim-row:last-child { border-bottom: 0; }
+    .claim-row .txt { color: var(--ink); font-size: 15px; }
+    .verdict { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; padding: 4px 10px; border-radius: 999px; white-space: nowrap; color: var(--green); background: #ecf8f2; border: 1px solid #bce8d2; }
+    .peer { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-left: 4px solid var(--blue); border-radius: 6px; background: #f9fbff; }
+    .peer .score { font-weight: 800; color: var(--blue); }
     @media (max-width: 860px) {
       header { flex-direction: column; }
       .metrics { grid-template-columns: 1fr 1fr; }
@@ -178,9 +184,28 @@
       </article>
       <article class="panel">
         <h2>Generated Reports</h2>
-        <p>Relative output paths for public docs and demos:</p>
+        <p>Trajectory-style audit trail (JSON) + human-readable vibe diff (Markdown):</p>
         <code>sample_outputs/latest_fixture_report.json</code>
         <code>sample_outputs/latest_fixture_report.md</code>
+        <p style="margin-top: 14px;">Interactive browser UI (recommended capture):</p>
+        <code>npm run ui:fixture  →  http://127.0.0.1:4173</code>
+      </article>
+    </section>
+
+    <section class="synthesis" aria-label="Verified claims and peer critique">
+      <article class="panel">
+        <h2>Verified Claims (sample)</h2>
+        <div class="claim-row"><span class="txt">Single-agent systems are faster and simpler to operate.</span><span class="verdict">supported 90%</span></div>
+        <div class="claim-row"><span class="txt">Single-agent systems concentrate failure modes in one model response.</span><span class="verdict">supported 84%</span></div>
+        <div class="claim-row"><span class="txt">Multi-agent councils add coordination cost.</span><span class="verdict">supported 88%</span></div>
+      </article>
+      <article class="panel">
+        <h2>Peer Critique</h2>
+        <div class="peer">
+          <p><span class="score">architect → skeptic · 88/100</span></p>
+          <p style="margin-top:6px; color:var(--ink);">Strength: correctly warns that agent count is not the same as reliability.</p>
+        </div>
+        <p style="margin-top:12px;">Agents critique each other before synthesis — disagreement and weaknesses stay visible instead of being smoothed into one overconfident answer.</p>
       </article>
     </section>
   </main>

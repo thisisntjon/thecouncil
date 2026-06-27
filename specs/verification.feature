@@ -29,3 +29,19 @@ Feature: Multi-agent verification swarm
   Scenario: Public demo remains safe and reproducible
     When the validation commands run
     Then the fixture demo, tests, secret scan, and MCP self-test pass without live provider calls
+
+  Scenario: Weighted practical reasoning selects the applicable answer
+    Given the user asks "I want to wash my car. The car wash is 50 meters away. Should I walk or drive?"
+    When the Council fixture demo runs
+    Then the weighted scenario fixture is selected
+    And the final answer recommends driving the car for the actual wash
+    And the answer says walking is reasonable only for checking, paying, asking a question, or if the car is already at the wash
+    And the decision score for drive is higher than the decision score for walk
+    And unresolved assumptions remain visible in the report
+
+  Scenario: Counterfactual guardrails prevent overgeneralized driving advice
+    When guardrail fixture scenarios run
+    Then checking the car wash price recommends walking
+    And a car already at the wash recommends walking
+    And an unsafe-to-drive car rejects driving
+    And an unrelated coffee shop 50 meters away recommends walking

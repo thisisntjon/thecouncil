@@ -47,6 +47,16 @@ Show `SECURITY_AND_PRIVACY.md`, `COURSE_CONCEPTS.md`, `screenshots/demo-output.h
 
 "The default path is no-key. `.env` files are ignored, examples use placeholders, input redaction catches common sensitive patterns, and the fixture tool allowlist keeps the demo bounded. The JSON report gives reviewers a trajectory-style audit trail: agent answers, critiques, verified claims, confidence, and final synthesis. The Markdown report is the human-readable review layer."
 
+## (Optional, ~10-15s) - Evaluation Snapshot
+
+Include only if time allows; otherwise mention verbally in the close.
+
+Show `submission_assets/EVALUATION_SUMMARY.md`.
+
+Say:
+
+"I also ran ten hard questions through the full pipeline. All ten produced an auditable answer, a prompt-injection attempt was resisted, and — just as importantly — the evaluation surfaced honest weaknesses, like confidence under-reporting correct reasoning. The system reports its own limits instead of hiding them."
+
 ## 4:10-4:45 - Impact, Limitations, Next Steps
 
 "The Council is useful when a wrong answer is costly: research, policy, security, or strategy. The current capstone uses fixtures for reproducibility, so it should not be presented as live model quality. Next steps are an official MCP SDK server, richer evidence sets, and a one-click fixture UI."

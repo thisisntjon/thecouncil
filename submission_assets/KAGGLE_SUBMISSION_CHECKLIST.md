@@ -9,11 +9,13 @@
 - [x] Screenshot helper pages exist.
 - [x] README includes no-key quickstart.
 - [x] Fixture mode is clearly labeled simulated/offline.
+- [x] Weighted car-wash scenario works.
+- [x] Counterfactual guardrail scenarios are covered by smoke tests.
 - [x] MCP stub is described as a stub, not a production SDK server.
 - [~] Public GitHub link still needed: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`.
 - [~] Human license comfort still needed.
 - [~] Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
-- [~] Capture final screenshots/GIF from `screenshots/`.
+- [~] Capture final screenshots/GIF from `screenshots/` and/or `launch.bat ui`.
 - [ ] Add YouTube/video URL.
 - [ ] Paste final writeup into Kaggle.
 - [ ] Submit Kaggle entry.
@@ -23,5 +25,6 @@
 - Cover image from `screenshots/cover.html`
 - Architecture image from `screenshots/architecture.html`
 - Demo summary image from `screenshots/demo-output.html`
+- Interactive fixture UI from `launch.bat ui`
 - Public GitHub repository link: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`
 - YouTube/video demo link

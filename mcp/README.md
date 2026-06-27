@@ -25,6 +25,14 @@ The stub accepts one JSON-RPC message per line over stdio. It implements:
 - `list_verified_claims`
 - `get_architecture_summary`
 
+`run_fixture_council` uses the default fixture unless the caller provides one of the exact offline scenario questions exposed by `list_demo_questions`. The weighted car-wash question is:
+
+```text
+I want to wash my car. The car wash is 50 meters away. Should I walk or drive?
+```
+
+That question routes to the public-safe `car_wash_50m` fixture and returns role weights, decision scores, and caveats. Counterfactual guardrail questions are also listed by `list_demo_questions`.
+
 ## Self-Test
 
 ```bash
