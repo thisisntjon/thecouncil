@@ -8,7 +8,7 @@ Safe to publish: conditional.
 
 The code/docs are prepared for a Council-only capstone release after final human review of the license and after the user captures public-safe screenshots/GIFs from the helper pages. Kaggle submission still needs the final YouTube/video link and a final public repo/access decision.
 
-Public GitHub link: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`
+Public GitHub link: `https://github.com/thisisntjon/thecouncil`
 
 Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
 

@@ -4,7 +4,7 @@ Project: The Council: Multi-Agent Verification Swarm
 
 Track: Freestyle
 
-Public GitHub link: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`
+Public GitHub link: `https://github.com/thisisntjon/thecouncil`
 
 Repo access note: Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
 

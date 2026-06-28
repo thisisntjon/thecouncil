@@ -4,6 +4,7 @@ CLAUDE.md
 .claude/
 workflow/
 importantprompt.txt
+IMPORTANTKAGGLE.txt
 .env
 .env.*
 !.env.example
@@ -55,6 +56,7 @@ coverage/
 
 # UI-QA regenerable outputs (keep the report, result JSON, screens + visual baselines)
 artifacts/ui-qa/playwright-report/
+artifacts/session-closeout/
 **/test-results/
 **/playwright-report/
 

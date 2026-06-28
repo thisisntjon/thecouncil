@@ -79,7 +79,7 @@ HTML screenshot pages are dependency-free and use only public-safe fixture conte
 - Human license comfort is still required.
 - Final screenshots or GIFs still need to be captured from the public-safe helper pages.
 - Optional live-provider instructions are present but clearly marked opt-in; decide if you want to keep or reduce them.
-- Public GitHub link still needed: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`.
+- Public GitHub link still needed: `https://github.com/thisisntjon/thecouncil`.
 - YouTube/video link is still needed.
 - Kaggle submission still needs to be created.
 - Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.

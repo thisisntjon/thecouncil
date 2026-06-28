@@ -13,7 +13,7 @@
 - [x] Video script under 5 minutes.
 - [x] Kaggle writeup under 2,500 words.
 - [x] Screenshot/cover assets ready.
-- [~] Public GitHub link still needed: `<ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`.
+- [~] Public GitHub link still needed: `https://github.com/thisisntjon/thecouncil`.
 - [ ] YouTube link still needed.
 - [ ] Kaggle submission still needed.
 - [~] Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.

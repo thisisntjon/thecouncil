@@ -125,7 +125,7 @@ Repo visibility/public-link remains a human decision. Private repo is for stagin
 
 Placeholder to fill before submission:
 
-`Public GitHub link: <ADD FINAL PUBLIC REPO LINK BEFORE SUBMISSION>`
+`Public GitHub link: https://github.com/thisisntjon/thecouncil`
 
 ## Ready To Push?
 
