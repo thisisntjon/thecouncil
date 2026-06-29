@@ -42,9 +42,9 @@ This document summarizes how The Council maps to themes from the Kaggle/Google 5
 - No-key fixture mode
 - Secret scan and redaction helper
 
-## Why Fixture Mode Matters
+## Why a no-key reproducibility mode
 
-Fixture mode is the official public demo path because it is deterministic, safe, and reproducible. It avoids private data, live search, provider billing, API-key setup, and network instability. This keeps the submission focused on the agentic architecture: the harness, role separation, verification, and audit trail.
+The live agent is the demo. Alongside it, a deterministic no-key fixture mode reproduces the same pipeline offline — so a reviewer without provider keys can still run it end to end, and CI can too. It avoids private data, live search, provider billing, and network instability. Its evidence is simulated (it shows the architecture, not live model quality) and is never presented as live results.
 
 ## Core Agentic Pattern
 

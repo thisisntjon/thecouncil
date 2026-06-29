@@ -4,7 +4,7 @@ Project: The Council: Multi-Agent Verification Swarm
 
 Track: Freestyle
 
-Short pitch: A public-safe snapshot of a live end-to-end evaluation of The Council, demonstrating that the pipeline is auditable and that its self-assessment is honest about its own weaknesses.
+Short pitch: A real **runtime / trajectory evaluation** of the live Council — ten hard questions run end-to-end through the actual four-model pipeline and cross-vendor verification swarm — demonstrating that the live agent is auditable and that its self-assessment is honest about its own weaknesses. (Public-safe overview; no full model responses reproduced here.)
 
 ## Observed in the live pipeline
 
@@ -18,7 +18,7 @@ Short pitch: A public-safe snapshot of a live end-to-end evaluation of The Counc
 
 ## What was tested
 
-Ten difficult, diverse questions were run through the **full pipeline** (independent answers → peer evaluation → hidden verification swarm → synthesis), spanning these categories:
+Ten difficult, diverse questions were run through the **full live pipeline** (four models answering independently → peer evaluation → hidden cross-vendor verification swarm → synthesis), spanning these categories:
 
 1. Current factuality + staleness/calibration
 2. Multi-step math (classic trap)

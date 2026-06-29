@@ -1,6 +1,7 @@
 # Kaggle Submission Checklist
 
-- [x] Public fixture demo works.
+- [x] Live agent (the demo) runs via `launch.bat live`: four models stream, peer evaluation + consensus, cross-vendor verification swarm.
+- [x] Reproducible no-key offline mode works (`npm run demo:fixture`) as the keyless/CI fallback.
 - [x] Tests pass.
 - [x] Secret scan passes.
 - [x] MCP stub self-test passes.
@@ -24,9 +25,9 @@
 
 ## Suggested Kaggle Assets
 
+- Live agent walkthrough (the centerpiece): `launch.bat live`, captured in the video
 - Cover image from `screenshots/cover.html`
 - Architecture image from `screenshots/architecture.html`
 - Demo summary image from `screenshots/demo-output.html`
-- Interactive fixture UI from `launch.bat ui`
 - Public GitHub repository link: `https://github.com/thisisntjon/thecouncil`
 - YouTube/video demo link

@@ -4,10 +4,11 @@
 - [x] `.env` removed.
 - [x] `.env.example` placeholders only.
 - [x] No work/customer/employer data found in fixture assets.
-- [x] Public fixture data only for the official demo path.
+- [x] Offline mode uses only public-safe simulated fixture data (clearly labeled, never shown as live results).
+- [x] Live agent is the headline demo; `launch.bat live` documented and shown in the video.
 - [~] License reviewed; human comfort with publishing the MIT-style license still needed.
 - [x] README complete.
-- [x] Demo command works.
+- [x] No-key reproducibility command works (`npm run demo:fixture`).
 - [x] Tests pass.
 - [x] MCP stub self-test passes.
 - [x] Video script under 5 minutes.
@@ -19,4 +20,4 @@
 - [~] Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
 - [~] Client build attempted; dependencies are not installed in this copy, so the UI build was not verified.
 - [~] Final screenshots/GIF still need human capture from the public-safe helper pages.
-- [~] Optional live mode is documented as opt-in; decide whether to mention it briefly or omit it from the public demo.
+- [x] Live agent is documented as the headline (`launch.bat live`, `docs/deploy.md`); no-key offline mode framed as the reproducibility/CI fallback.

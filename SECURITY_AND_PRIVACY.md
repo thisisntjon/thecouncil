@@ -2,16 +2,16 @@
 
 ## Public-Safe Defaults
 
-- Fixture mode is default.
-- No real API keys are required.
+- The live agent uses your own provider keys via a gitignored `.env`; a deterministic no-key fixture mode reproduces the pipeline offline for keyless reviewers and CI.
+- No keys are committed to the repo; `.env.example` has placeholders only.
 - No work, customer, employer, legal, health, or private personal data is included in fixture data.
 - `.env` and `.env.*` files are ignored.
 - `.env.example` contains placeholders only.
 - The public screenshot helper pages use only simulated fixture content.
 
-## Optional Live Mode
+## Live mode (the demo)
 
-Live provider mode is optional. Users must provide their own keys locally. Live mode may cost money and may send prompts to external providers. Do not use live mode for the Kaggle demo unless you explicitly want a live provider walkthrough.
+The live agent is the headline demo; it calls real providers with your own keys (supplied locally in a gitignored `.env`) and costs money per run. We deliberately do **not** host it on a public no-login endpoint — that would be an uncapped spend surface on our keys — so it is shown in the video and documented in `docs/deploy.md`.
 
 ## Prompt-Injection and Unsafe Input Handling
 

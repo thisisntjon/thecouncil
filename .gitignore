@@ -74,3 +74,9 @@ research/**/claims*.json
 *.tar
 *.tar.gz
 *.zip
+
+# Internal audit/process reports — superseded by the 2026-06-29 live-first course-correction; not for the public repo
+JUDGE_GRADE_AUDIT_REPORT.md
+FILE_BY_FILE_PUBLICATION_AUDIT.md
+docs/process/FINAL_SUBMISSION_POLISH_REPORT.md
+docs/process/MULTI_AGENT_INVESTIGATION_REPORT.md

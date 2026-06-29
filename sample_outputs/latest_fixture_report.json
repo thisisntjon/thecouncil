@@ -5,7 +5,7 @@
   "fixture": "fixtures/car_wash_fixture.json",
   "scenarioId": "car_wash_50m",
   "label": "Offline simulated fixture for weighted practical-reasoning demo",
-  "generatedAt": "2026-06-28T03:55:44.455Z",
+  "generatedAt": "2026-06-29T19:38:03.563Z",
   "question": "I want to wash my car. The car wash is 50 meters away. Should I walk or drive?",
   "inputRisk": {
     "level": "low",

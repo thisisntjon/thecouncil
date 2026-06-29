@@ -16,6 +16,7 @@ if /I "%~1"=="ui-static" goto open_static_ui
 if /I "%~1"=="ui" goto run_fixture_ui
 if /I "%~1"=="ui-fixture" goto run_fixture_ui
 if /I "%~1"=="ui-live" goto run_live_ui
+if /I "%~1"=="live" goto run_live_ui
 if /I "%~1"=="live-feedback" goto run_live_feedback
 if /I "%~1"=="install-ui" goto install_ui
 if /I "%~1"=="custom" goto run_custom_arg
@@ -99,7 +100,7 @@ cls
 echo.
 echo   LIVE MODE   (optional - needs provider keys, may cost money)
 echo   --------------------------------------------------------------
-echo     1^)  Start live React UI        (server + client)
+echo     1^)  Start the live app       (API + shadow + client; reuses running)
 echo     2^)  Run live feedback loop
 echo     3^)  Install live UI dependencies
 echo     B^)  Back
@@ -128,6 +129,11 @@ if errorlevel 1 (
   exit /b 1
 )
 exit /b 0
+
+rem Probe an HTTP URL; exit /b 0 if reachable (service up), 1 if not.
+:probe
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { Invoke-WebRequest -UseBasicParsing -Uri '%~1' -TimeoutSec 2 | Out-Null; exit 0 } catch { exit 1 }"
+exit /b %errorlevel%
 
 :run_fixture
 call :preflight
@@ -212,12 +218,42 @@ if errorlevel 1 goto finish
 echo.
 node scripts\live_preflight.mjs --strict
 if errorlevel 1 goto finish
-echo Starting optional live UI...
-echo API: http://localhost:3001/api/health
-echo UI:  http://localhost:5173
-start "The Council API" "%ComSpec%" /k "cd /d ""%CD%\server"" && npm.cmd start"
-timeout /t 2 /nobreak >nul
-start "The Council UI" "%ComSpec%" /k "cd /d ""%CD%\client"" && npm.cmd run dev -- --host 127.0.0.1"
+echo Starting live UI (reusing anything already running)...
+echo   API:    http://localhost:3001/api/health
+echo   Shadow: http://localhost:3002/api/health
+echo   UI:     http://localhost:5173
+echo.
+
+rem --- API (server) on :3001 ---
+call :probe http://127.0.0.1:3001/api/health
+if errorlevel 1 (
+  echo Starting API...
+  start "The Council API" "%ComSpec%" /k "cd /d ""%CD%\server"" && npm.cmd start"
+) else (
+  echo Reusing API already on :3001.
+)
+
+rem --- Shadow Council verifier on :3002 (powers the cross-vendor verification swarm) ---
+call :probe http://127.0.0.1:3002/api/health
+if errorlevel 1 (
+  echo Starting Shadow Council verifier...
+  start "The Council Verifier" "%ComSpec%" /k "cd /d ""%CD%\shadow-council"" && npm.cmd start"
+) else (
+  echo Reusing Shadow verifier already on :3002.
+)
+
+rem --- React client (Vite) on :5173 ---
+call :probe http://127.0.0.1:5173
+if errorlevel 1 (
+  echo Starting React UI...
+  start "The Council UI" "%ComSpec%" /k "cd /d ""%CD%\client"" && npm.cmd run dev -- --host 127.0.0.1"
+) else (
+  echo Reusing React UI already on :5173.
+)
+
+echo.
+echo Opening http://localhost:5173 ...
+timeout /t 3 /nobreak >nul
 start "" "http://localhost:5173"
 goto finish
 
@@ -292,7 +328,8 @@ echo   launch.bat verify             full capstone verification
 echo   launch.bat test               smoke tests
 echo   launch.bat mcp                MCP self-test
 echo   launch.bat ui-static          open pre-rendered demo HTML
-echo   launch.bat ui-live            live React UI    (needs keys, may cost)
+echo   launch.bat live               start live app: API + shadow + client (reuses running)
+echo   launch.bat ui-live            same as 'live'   (needs keys, may cost)
 echo   launch.bat live-feedback      live feedback    (needs keys, may cost)
 echo   launch.bat install-ui         install live deps
 echo.

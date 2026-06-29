@@ -46,7 +46,7 @@ The model is ~10% of the system; the ~90% is the deterministic **harness** above
 
 ## Safety Boundary
 
-Fixture mode is the default public capstone path. It uses local fixture data and writes only local reports. Live mode is optional and requires user-provided keys.
+The live agent is the demo; it uses your own provider keys via a gitignored `.env`. A deterministic no-key fixture mode reproduces the same pipeline offline (it powers CI and lets a keyless reviewer run it); its data is simulated and written only to local reports — never presented as live results.
 
 See `docs/mode-matrix.md` for the exact distinction between public fixture UI/CLI mode, optional live provider mode, main Express verification, and the optional Shadow Council server.
 

@@ -1,35 +1,33 @@
 # Scope Freeze
 
-Date: 2026-06-26
+Original: 2026-06-26 · **Course-corrected: 2026-06-29**
 
-The Council remains the capstone. This is a release audit and submission polish pass, not a new-feature pass.
+> **Course correction (2026-06-29).** The 2026-06-26 freeze made the *offline fixture* the "official public
+> demo" and barred live provider calls from it. Re-checking the actual course (Days 1–5) and the competition
+> rubric, that was a **self-imposed misalignment**: the course expects a **real, live, evaluated agent**
+> ("prompt to production", real API/MCP calls, runtime/trajectory evaluation), and an offline replay is the
+> exact **"fragile success trap"** Day 4 warns about. The original rationale was operational safety only
+> (no key exposure) and never weighed this. Corrected stance: **the live multi-agent system is the demo;
+> the fixture is the no-key reproducibility / CI harness, not the project's identity.** The *secret-hygiene*
+> rules below were always correct and still hold.
 
-## Frozen Scope Rules
+The Council remains the capstone.
 
-- No new features unless they fix judged-submission blockers.
-- No live API dependency in the official public demo.
-- No course-companion pivot.
-- No raw transcripts, downloaded videos, full captions, or copied course content.
-- No RAG unless already present and trivial.
-- No new agents unless required for demo clarity.
-- No UI rewrite.
-- No real provider calls in the official demo.
-- Fixture/offline/no-key mode remains the official public path.
-- The Council remains the project.
+## Still in force
+- **Never commit secrets or live outputs.** `.env`, `runs/`, `logs/`, `generated-runs/` stay gitignored;
+  the `secret:scan` pre-commit hook enforces it. (This is the legitimate half of the original decision.)
+- No raw transcripts, downloaded videos, full captions, or copied course content in the public repo.
+- The Council remains the project (no course-companion pivot).
 
-## Allowed Safe Fixes
+## Corrected (these rules from the 2026-06-26 freeze were wrong)
+- ~~"No live API dependency / no real provider calls in the official demo."~~ → **The live agent is the
+  headline demo.** Fixture is the documented no-key reproducibility + CI fallback (it powers `npm test`).
+- ~~"Fixture/offline/no-key mode remains the official public path."~~ → It's the *fallback*, not the headline.
+- ~~"No UI rewrite."~~ → The React client was rebuilt (Tailwind + shadcn/ui) into the live hero and QA-gated
+  to WCAG AA. This is the real agent the course asks for.
 
-- Broken links.
-- Misleading wording.
-- Stale docs.
-- Root-doc clutter.
-- Small README improvements.
-- Missing caveats.
-- Typo/formatting fixes.
-- Checklist updates.
-- Public-safe screenshot helper copy.
-- Package script aliases that do not break anything.
-
-## Escalation Rule
-
-If a proposed change alters project behavior, depends on live providers, changes the submission story, or takes more than a small safe fix, document it as a blocker/risk instead of implementing it without explicit approval.
+## Still requires explicit approval
+- Public hosting of the live app on our keys (cost/abuse on a no-login endpoint) — decided **against**:
+  the rubric doesn't require deployment and we already clear ≥3 concepts. Deployability is shown via the
+  video + a documented reproducible deploy path + the public repo with setup.
+- Any change that alters core behavior or the submission story beyond this course-correction.

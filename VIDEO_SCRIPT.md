@@ -51,7 +51,7 @@ Say:
 
 Show `SECURITY_AND_PRIVACY.md`, `COURSE_CONCEPTS.md`, and the report audit trail.
 
-"The default path is no-key. `.env` files are ignored, examples use placeholders, input redaction catches common sensitive patterns, and a tool allowlist keeps the demo bounded. The JSON report is a trajectory-style audit trail: agent answers, critiques, verified claims, confidence, and final synthesis. I also ran ten hard questions through the pipeline — all produced an auditable answer, a prompt-injection attempt was resisted, and the evaluation surfaced honest weaknesses instead of hiding them."
+"Secret hygiene throughout: the live agent uses your own keys via a gitignored `.env` — examples use placeholders — input redaction catches common sensitive patterns, and a tool allowlist keeps it bounded. And anyone can reproduce the whole pipeline with no keys at all. The JSON report is a trajectory-style audit trail: agent answers, critiques, verified claims, confidence, and final synthesis. I also ran ten hard questions through the pipeline — all produced an auditable answer, a prompt-injection attempt was resisted, and the evaluation surfaced honest weaknesses instead of hiding them."
 
 ## 4:35-5:00 - Impact, Limitations, Close
 

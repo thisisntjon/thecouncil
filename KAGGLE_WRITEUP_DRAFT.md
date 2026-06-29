@@ -30,7 +30,7 @@ The verification flow follows seven stages:
 6. Confidence summary
 7. Final synthesis and audit export
 
-Live mode is served by an Express API plus a separate shadow-council verifier service behind the React UI. Fixture mode adds a reliable offline engine in `lib/`, public demo commands, smoke tests, a read-only MCP-style stub, submission assets, and a reusable verification skill.
+Live mode — the agent itself — is served by an Express API plus a separate shadow-council verifier service behind the React UI. The no-key offline mode adds a deterministic engine in `lib/`, reproducibility commands, smoke tests, a read-only MCP-style stub, submission assets, and a reusable verification skill.
 
 ## Demo Walkthrough
 
@@ -51,7 +51,7 @@ Memory is explicit and auditable rather than hidden: each run carries a run ID a
 ## Course Concepts
 
 - Agent / multi-agent system: four Council agents, peer critique, hidden verification swarm, final synthesis
-- Security features: no-key fixture mode, `.env` ignored, placeholder examples, redaction helper, input-risk classification, tool allowlist, secret scan
+- Security features: the live agent uses your own keys via a gitignored `.env` (placeholders only, `secret:scan` enforced), input redaction, input-risk classification, a tool allowlist; the no-key fixture mode also lets reviewers run safely
 - Deployability: one-command fixture demo, clear setup docs, reproducible validation commands
 - Agent skills: `skills/council-verification/SKILL.md` and `.claude/skills/add-fixture/`
 - MCP: `mcp/server_stub.mjs` exposes read-only fixture tools for the demo
@@ -60,11 +60,11 @@ Memory is explicit and auditable rather than hidden: each run carries a run ID a
 
 ## Security and Privacy
 
-The public demo does not require API keys, private data, live search, or provider calls. Fixture data is simulated and labeled. Live provider mode remains optional, disabled by default, and must use user-provided keys outside the public demo path.
+The live agent uses your own provider keys, supplied via a gitignored `.env` (only placeholder examples are committed, and `secret:scan` enforces it). We deliberately do not host the live app publicly — a no-login endpoint on private keys would be an abuse/cost risk — so it is shown in the video and documented in `docs/deploy.md`. The no-key offline mode requires no keys, private data, live search, or provider calls; its fixture data is simulated and labeled, never presented as live results.
 
 ## Limitations
 
-The fixture demo proves the workflow shape, not live model quality. The MCP implementation is a dependency-free stub, not a production MCP SDK server. Live mode requires provider keys, so the no-key fixture command is the most reliable review path for judges.
+The fixture demo proves the workflow shape, not live model quality, and its evidence is simulated — never live results. The MCP implementation is a dependency-free stub, not a production MCP SDK server. Live mode requires your own provider keys; the no-key fixture command lets a keyless reviewer reproduce the architecture without them.
 
 ## Evaluation Snapshot
 
