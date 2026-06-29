@@ -1,33 +1,30 @@
-# Scope Freeze
+# Scope
 
-Original: 2026-06-26 · **Course-corrected: 2026-06-29**
+The Council is a **live multi-agent verification swarm**: four frontier models (Claude, GPT, Gemini, Grok)
+answer independently, peer-critique each other, and a cross-vendor swarm re-checks every claim against a
+*different* vendor, with a full audit trail. **That live agent is the demo and the project.**
 
-> **Course correction (2026-06-29).** The 2026-06-26 freeze made the *offline fixture* the "official public
-> demo" and barred live provider calls from it. Re-checking the actual course (Days 1–5) and the competition
-> rubric, that was a **self-imposed misalignment**: the course expects a **real, live, evaluated agent**
-> ("prompt to production", real API/MCP calls, runtime/trajectory evaluation), and an offline replay is the
-> exact **"fragile success trap"** Day 4 warns about. The original rationale was operational safety only
-> (no key exposure) and never weighed this. Corrected stance: **the live multi-agent system is the demo;
-> the fixture is the no-key reproducibility / CI harness, not the project's identity.** The *secret-hygiene*
-> rules below were always correct and still hold.
+## Modes
 
-The Council remains the capstone.
+- **Live (the demo):** real provider calls via `server/` + `client/` + `shadow-council/`. Start with
+  `launch.bat live` (Windows) or the cross-platform npm steps in `README.md` / `docs/deploy.md`. Needs your
+  own provider keys in a gitignored `.env`.
+- **Offline reproducibility / CI:** a deterministic no-key replay (`lib/fixtureCouncil.mjs`) that runs the
+  same pipeline with no keys or network. It powers `npm test` and lets a keyless reviewer run it. Its
+  evidence is clearly labeled simulated — a test/reproducibility harness, not the headline, and never
+  presented as live results.
 
-## Still in force
-- **Never commit secrets or live outputs.** `.env`, `runs/`, `logs/`, `generated-runs/` stay gitignored;
-  the `secret:scan` pre-commit hook enforces it. (This is the legitimate half of the original decision.)
-- No raw transcripts, downloaded videos, full captions, or copied course content in the public repo.
-- The Council remains the project (no course-companion pivot).
+## Hosting
 
-## Corrected (these rules from the 2026-06-26 freeze were wrong)
-- ~~"No live API dependency / no real provider calls in the official demo."~~ → **The live agent is the
-  headline demo.** Fixture is the documented no-key reproducibility + CI fallback (it powers `npm test`).
-- ~~"Fixture/offline/no-key mode remains the official public path."~~ → It's the *fallback*, not the headline.
-- ~~"No UI rewrite."~~ → The React client was rebuilt (Tailwind + shadcn/ui) into the live hero and QA-gated
-  to WCAG AA. This is the real agent the course asks for.
+We deliberately do not host the live app on a public no-login endpoint: it runs on private provider keys,
+and the competition's public project link must be no-login/no-paywall, so a hosted endpoint would be an
+uncapped spend surface. Per the rubric, deployment to a public endpoint is not required — the live agent is
+shown in the video, a reproducible deploy path is in `docs/deploy.md`, and the public repo + setup
+instructions are the project link.
 
-## Still requires explicit approval
-- Public hosting of the live app on our keys (cost/abuse on a no-login endpoint) — decided **against**:
-  the rubric doesn't require deployment and we already clear ≥3 concepts. Deployability is shown via the
-  video + a documented reproducible deploy path + the public repo with setup.
-- Any change that alters core behavior or the submission story beyond this course-correction.
+## Invariants
+
+- Never commit secrets or live run outputs; `.env`, `runs/`, `logs/`, `generated-runs/` stay gitignored
+  (the `secret:scan` pre-commit hook enforces it).
+- No private/customer/employer/personal data; no copied course content in the public repo.
+- Keep the offline engine deterministic (tests assert exact strings).

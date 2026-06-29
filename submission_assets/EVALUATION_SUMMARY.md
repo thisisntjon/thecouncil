@@ -14,7 +14,7 @@ Short pitch: A real **runtime / trajectory evaluation** of the live Council — 
 - **A real bug was caught and fixed live:** logic/math answers that previously scored 0 verification confidence now score normally (the reasoning-mode fix).
 - **The evaluation reported its own weaknesses** (below) instead of hiding them — confidence under-reports correct reasoning, and the models verify with different strictness.
 
-> ⚠️ **Methodology & caveat:** Web search was **OFF** for this run, so factual claims used the conservative knowledge fallback; figures are **indicative (n = 10)**, not benchmark-grade. The detailed companion report (`../docs/process/COUNCIL_EVALUATION_REPORT.md`) contains verbatim model answers whose inline citations/URLs are **model-generated, not verified sources**. This summary is the public-safe overview; no full model responses are reproduced here.
+> ⚠️ **Methodology & caveat:** Web search was **OFF** for this run, so factual claims used the conservative knowledge fallback; figures are **indicative (n = 10)**, not benchmark-grade. Any inline citations/URLs in raw model output are **model-generated, not verified sources**. This summary is the public-safe overview; no full model responses are reproduced here.
 
 ## What was tested
 

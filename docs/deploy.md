@@ -32,6 +32,9 @@ COUNCIL_API_TOKEN=...      # require a bearer token on the API
 SHADOW_API_TOKEN=...       # require a bearer token on the verifier
 ```
 
+> Grok runs through the OpenAI SDK pointed at `https://api.x.ai/v1`, so the three SDK packages
+> (`@anthropic-ai/sdk`, `openai`, `@google/generative-ai`) cover all four vendors.
+
 ## Local / single-box
 
 ```bash

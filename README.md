@@ -10,15 +10,26 @@ The model is only ~10% of this system; the other ~90% is the **harness** — inp
 
 ### ▶ Start here — the live agent
 
-The real thing: four models (Claude, GPT, Gemini, Grok) stream their answers, the Council convenes for peer evaluation + a consensus score, and a **cross-vendor verification swarm** runs in parallel — every claim re-checked by a different vendor, with verdicts, confidence, and an audit trail.
+The real thing: four models (Claude, GPT, Gemini, Grok) stream their answers, the Council convenes for peer evaluation + a consensus score, and a **cross-vendor verification swarm** runs in parallel — every claim re-checked by a *different* vendor, with verdicts, confidence, and an audit trail.
+
+**1. Add your provider keys** — copy `.env.example` to `.env` and fill in the keys you have:
+`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY`. *(Grok uses the OpenAI-compatible
+SDK pointed at `api.x.ai`, so there are three SDK packages for four vendors.)*
+
+**2. Install + run the three services** (cross-platform — macOS/Linux/Windows):
 
 ```bash
-cp .env.example .env        # then add your own provider keys
-launch.bat install-ui       # one-time: install server/client/shadow deps
-launch.bat live             # starts API + shadow verifier + React UI, opens http://localhost:5173
+npm run live:install      # installs server + shadow-council + client deps (one time)
+# then, in three terminals:
+npm run live:server       # API on :3001
+npm run live:shadow       # cross-vendor verifier on :3002
+npm run live:client       # React UI on :5173
 ```
 
-`launch.bat live` is idempotent — it reuses anything already running and starts only what's down. (No Windows? Start the three services manually: `npm --prefix server start`, `npm --prefix shadow-council start`, `npm --prefix client run dev`, then open `http://localhost:5173`.)
+Open **http://localhost:5173**.
+
+**Windows shortcut:** `launch.bat install-ui` then `launch.bat live` does all of the above in one command
+(idempotent — it reuses anything already running and starts only what's down).
 
 ### Run without API keys (reproducibility / CI)
 

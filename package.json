@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "The Council: Multi-Agent Verification Swarm capstone demo with offline fixture mode.",
+  "description": "The Council — a live multi-agent cross-vendor verification swarm (Claude, GPT, Gemini, Grok), with a deterministic no-key offline mode for CI/reproducibility.",
   "scripts": {
     "demo:fixture": "node demo_fixture.mjs",
     "demo:car-wash": "node demo_fixture.mjs \"I want to wash my car. The car wash is 50 meters away. Should I walk or drive?\"",
@@ -20,7 +20,11 @@
     "ui:fixture": "node scripts/fixture_ui_server.mjs",
     "ui:live:preflight": "node scripts/live_preflight.mjs",
     "live:feedback": "node scripts/live_feedback_loop.mjs",
-    "build:client": "npm --prefix client run build"
+    "build:client": "npm --prefix client run build",
+    "live:install": "npm --prefix server install && npm --prefix shadow-council install && npm --prefix client install",
+    "live:server": "npm --prefix server start",
+    "live:shadow": "npm --prefix shadow-council start",
+    "live:client": "npm --prefix client run dev -- --host 127.0.0.1"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

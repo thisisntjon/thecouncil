@@ -1,7 +1,7 @@
 # The Council Fixture Report
 
 Mode: fixture (simulated/offline)
-Generated: 2026-06-29T19:38:03.563Z
+Generated: 2026-06-29T20:23:33.874Z
 
 ## Question
 

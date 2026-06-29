@@ -1,9 +1,9 @@
 # Architecture
 
-The Council has two layers:
+The Council is a live multi-agent verification agent, with a no-key offline mode for reproducibility:
 
-1. Existing app layer: React/Vite UI, Express API, shadow-council server, and Python Council implementation.
-2. Capstone fixture layer: no-key deterministic demo that simulates the full verification pipeline.
+1. **Live agent (the project):** React/Vite UI → Express API orchestrating four frontier models (Claude, GPT, Gemini, Grok) → the `shadow-council` cross-vendor verifier (each claim re-checked by a *different* vendor).
+2. **Offline reproducibility / CI:** a deterministic no-key engine (`lib/fixtureCouncil.mjs`) that replays the same pipeline with no keys or network — it powers `npm test`. Its evidence is simulated, not live results.
 
 ## Runtime Flow
 
@@ -13,7 +13,7 @@ User question
   -> Four independent Council agents
   -> Peer critique stage
   -> Hidden Verification Swarm
-  -> Claim verification against fixture evidence
+  -> Cross-vendor claim verification (fixture evidence in offline mode)
   -> Confidence summary
   -> Final synthesis
   -> JSON/Markdown audit export

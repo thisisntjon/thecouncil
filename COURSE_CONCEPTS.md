@@ -17,7 +17,7 @@
 
 - Code: `.gitignore`, `.env.example`, `lib/security.mjs`, `scripts/secret_scan.mjs`
 - Video: show fixture mode and secret scan
-- Docs: `SECURITY_AND_PRIVACY.md`, `RELEASE_CHECKLIST.md`, `README.md`
+- Docs: `SECURITY_AND_PRIVACY.md`, `README.md`
 - Boundary: fixture mode is the public path; live provider mode is optional and disabled by default
 
 ## 4. Deployability
@@ -50,5 +50,5 @@
 
 - Code: `demo_fixture.mjs`, `lib/fixtureCouncil.mjs`, `scripts/secret_scan.mjs`
 - Video: mention the no-key reproducible path and validation commands
-- Docs: `docs/process/QUALITY_OF_LIFE_BASELINE.md`, `RELEASE_CHECKLIST.md`
+- Docs: `README.md`, `docs/deploy.md`
 - Boundary: fixture mode is intentionally simple; retries, checkpoints, batching, and rate-limit controls belong to optional live/provider workflows, not the public demo

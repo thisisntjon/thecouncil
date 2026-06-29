@@ -75,8 +75,16 @@ research/**/claims*.json
 *.tar.gz
 *.zip
 
-# Internal audit/process reports — superseded by the 2026-06-29 live-first course-correction; not for the public repo
-JUDGE_GRADE_AUDIT_REPORT.md
+# Internal audit / evaluation / release-process reports — working artifacts, not part of the
+# public submission. Kept locally; excluded from the public repo as a consistent category.
+ADVERSARIAL_CONTENT_AUDIT.md
+ADVERSARIAL_GAUNTLET_REPORT.md
+EVIDENCE_INTEGRITY_AUDIT.md
 FILE_BY_FILE_PUBLICATION_AUDIT.md
-docs/process/FINAL_SUBMISSION_POLISH_REPORT.md
-docs/process/MULTI_AGENT_INVESTIGATION_REPORT.md
+JUDGE_GRADE_AUDIT_REPORT.md
+JUDGE_REPORT.md
+JUDGE_SCORECARD.md
+MEDIA_READINESS_AUDIT.md
+PRE_COMMIT_PACKAGING_REHEARSAL.md
+PUBLIC_RELEASE_DECISION_DRAFT.md
+docs/process/

@@ -1,8 +1,8 @@
 # Fixtures
 
-This directory contains public-safe fixture data for the no-key capstone demo.
+This directory contains public-safe fixture data for the no-key offline reproducibility mode (used by the tests and by a keyless reviewer).
 
-`council_fixture.json` is the default simulated/offline capstone fixture. It includes:
+`council_fixture.json` is the council fixture replayed by the offline mode (its evidence is simulated). It includes:
 
 - one safe demo question
 - four Council agent responses
