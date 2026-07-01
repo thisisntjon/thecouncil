@@ -6,6 +6,11 @@
 
 > Public code + setup: `TODO_PUBLIC_REPO_URL` · Demo video (≤5 min): `TODO_YOUTUBE_VIDEO_URL`
 
+<!-- Kaggle: attach docs/img/cover.png as the required cover image and docs/img/architecture.png
+     to the media gallery; the relative links below render on GitHub. -->
+
+![The Council — four independent agents, peer critique, hidden cross-vendor verification, auditable final answer](docs/img/cover.png)
+
 ## The Problem
 
 AI assistants return one polished answer even when the question is ambiguous, high-stakes, or evidence-sensitive. That single answer hides three things a careful user actually needs: which claims were genuinely checked, where the model was uncertain, and where it might be confidently wrong. Worse, the usual fix — asking a model to grade its own output — lets the same system that made an error also bless it. Self-grading is not verification.
@@ -22,7 +27,13 @@ The live, four-provider system is the project and the demo (shown in the video).
 
 More agents do not automatically mean better answers — coordination has a cost, so the right default is to start simple and only split when one agent hits a real boundary. High-stakes verification *is* that boundary. The value is precisely the disagreement, critique, and claim-checking that a single self-grading prompt collapses. So the pipeline "slices the elephant" into generation → critique → claim extraction → evidence checking → synthesis, keeping each step's context small and making overconfidence *inspectable*: the report shows what was supported, what was only partial, and what stays unresolved. That is effective trust, not a binary pass.
 
+## Where This Matters: A Concrete Use Case
+
+Picture a compliance analyst at a mid-size lender asking an AI whether a new marketing campaign triggers disclosure requirements. A single-model answer arrives polished and cites two regulations — one applied correctly, one subtly misread. The analyst can't tell which is which; neither can the model that wrote it. Run the same question through the Council and the failure mode changes shape: four models answer independently (disagreement itself is signal), the swarm extracts each regulatory claim and hands it to a *different* vendor to re-check, and the misread citation comes back **Refuted** with the reasoning attached — while the claims nobody could verify stay visibly *unresolved* instead of silently blessed. The analyst doesn't get "trust me"; they get a JSON audit trail they can attach to the decision record and a Markdown diff a reviewer can skim in two minutes. That's the pattern anywhere a wrong answer is expensive — regulatory checks, medical triage summaries, security advisories, due-diligence research: not a smarter oracle, but a deliberation you can *inspect*.
+
 ## Architecture
+
+![Architecture flow — redaction, four independent agents, peer critique, hidden cross-vendor verification swarm, confidence summary, synthesis + audit export](docs/img/architecture.png)
 
 The verification flow runs seven stages: (1) input redaction and risk classification; (2) four independent Council answers; (3) peer critique; (4) hidden-swarm claim extraction; (5) per-claim verification — cross-vendor in live mode; against fixture evidence offline; (6) a confidence summary; and (7) final synthesis with audit export.
 

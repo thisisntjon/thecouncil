@@ -1,6 +1,6 @@
 # Video Script
 
-Target length: 5 minutes or less. Estimated read time: about 3.5 minutes. Track: Freestyle.
+Target length: 5 minutes or less. Estimated read time: about 4 minutes. Track: Freestyle.
 
 ## 0:00-0:20 - Problem and Hook
 
@@ -53,6 +53,12 @@ Show `SECURITY_AND_PRIVACY.md`, `COURSE_CONCEPTS.md`, and the report audit trail
 
 "Secret hygiene throughout: the live agent uses your own keys via a gitignored `.env` — examples use placeholders — input redaction catches common sensitive patterns, and a tool allowlist keeps it bounded. And anyone can reproduce the whole pipeline with no keys at all. The JSON report is a trajectory-style audit trail: agent answers, critiques, verified claims, confidence, and final synthesis. I also ran ten hard questions through the pipeline — all produced an auditable answer, a prompt-injection attempt was resisted, and the evaluation surfaced honest weaknesses instead of hiding them."
 
-## 4:35-5:00 - Impact, Limitations, Close
+## 4:35-4:50 - The Build (vibe coding, all the way down)
 
-"The Council is useful when a wrong answer is costly: research, policy, security, or strategy. Fixture mode proves the workflow shape, not live model quality, and the MCP piece is a dependency-free stub rather than a production SDK server. The main takeaway is that reliable agentic systems are not just about adding agents — they're about separating roles, preserving disagreement, checking claims across vendors, and making the final answer auditable."
+Show a quick still of the Claude Code terminal / repo, then a beat of the Miracle edit-decision JSON.
+
+"The build itself was vibe-coded: natural language was the primary programming interface, with an AI coding agent doing the implementation and me directing. I even dogfooded the course — an LLM pipeline transcribed all five course days, turned them into a rubric, and audited this capstone against it. And this video? Produced the same way: a companion agent analyzed the raw screen recording, proposed a timestamped edit plan, rendered it with FFmpeg, and critiqued its own cuts — the same analyze, plan, verify, audit-trail discipline as The Council itself."
+
+## 4:50-5:00 - Impact, Limitations, Close
+
+"The Council is useful when a wrong answer is costly: research, policy, security, or strategy. Fixture mode proves the workflow shape, not live model quality, and the MCP piece is an honest stub. The takeaway: reliable agentic systems aren't about adding agents — they're about separating roles, preserving disagreement, checking claims across vendors, and making the final answer auditable."

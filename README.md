@@ -1,5 +1,7 @@
 # The Council: Multi-Agent Verification Swarm
 
+![The Council — four independent agents, peer critique, hidden cross-vendor verification, auditable final answer](docs/img/cover.png)
+
 **The Council turns one AI answer into a transparent deliberation: four frontier models answer a question independently, peer-critique each other, and then a hidden cross-vendor swarm re-checks every claim against a *different* model vendor — producing an evidence-backed final answer with a full audit trail.**
 
 Track: Freestyle · Submission writeup: [`KAGGLE_WRITEUP.md`](KAGGLE_WRITEUP.md)
@@ -57,14 +59,31 @@ Multi-agent adds coordination cost, so it has to earn its place. It does here be
 
 ## Architecture
 
-```text
-User Question
-  -> Input Redaction / Risk Check
-  -> Four Independent Council Agents (live: Claude, GPT, Gemini, Grok)
-  -> Peer Critique + Consensus
-  -> Hidden Cross-Vendor Verification Swarm (each claim checked by a different vendor)
-  -> Confidence Summary
-  -> Final Synthesis + Audit Export
+```mermaid
+flowchart TD
+    A["User question"] --> B["Input redaction + risk classification"]
+    B --> C["Claude<br/>Architect"]
+    B --> D["GPT<br/>Skeptic"]
+    B --> E["Gemini<br/>Operator"]
+    B --> F["Grok<br/>Researcher"]
+    C --> G["Peer critique + consensus score<br/>(no model may vote for itself)"]
+    D --> G
+    E --> G
+    F --> G
+    C -.-> H
+    D -.-> H
+    E -.-> H
+    F -.-> H
+    G --> K
+    subgraph S["Hidden Verification Swarm"]
+        H["Extract factual claims from each answer"]
+        H --> J["Re-check every claim with a DIFFERENT vendor<br/>(live: cross-vendor · offline: fixture evidence)"]
+        J --> V["Supported / Partial / Refuted verdicts<br/>with confidence"]
+    end
+    V --> K["Confidence + disagreement summary"]
+    K --> L["Final synthesis<br/>(unresolved claims surfaced, not hidden)"]
+    L --> M["Audit trail export<br/>JSON trajectory + Markdown report"]
+    S -.-> N["Read-only MCP stub<br/>(fixture tools)"]
 ```
 
 Live mode: React + Vite UI (`client/`) → Express API (`server/`) + Shadow Council verifier (`shadow-council/`). Offline mode: deterministic engine in `lib/fixtureCouncil.mjs`. See `ARCHITECTURE.md`, `docs/architecture.mmd`, `docs/mode-matrix.md`.
