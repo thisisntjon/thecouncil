@@ -93,7 +93,7 @@ Live mode: React + Vite UI (`client/`) → Express API (`server/`) + Shadow Coun
 - **Model + harness (10/90):** the LLM is ~10%; the harness — redaction, role orchestration, tool allowlist, cross-vendor verification, synthesis — is the ~90% that makes the system trustworthy.
 - **Multi-agent network, not a monolith ("slicing the elephant"):** four live models, peer critique, cross-vendor verification swarm, final synthesis — separated to avoid context rot, justified by the high-stakes verification goal.
 - **Trajectory-aware evaluation + effective trust:** the audit trail exposes the reasoning journey of a *live* run (guards against the "fragile success trap"), not just a final output.
-- **Security-first / least authority:** `.env` ignored, placeholders only, input redaction, input-risk classification, tool allowlist, secret scan. The keyless fixture mode also lets reviewers run safely.
+- **Security-first / least authority:** `.env` ignored, placeholders only, input redaction, input-risk classification, tool allowlist, secret scan. The keyless fixture mode also lets reviewers run safely. (`DEMO_GUIDE.md` includes a live prompt-injection demo question.)
 - **Agent skills:** `skills/council-verification/SKILL.md` and `.claude/skills/add-fixture/`.
 - **MCP (transport interoperability):** a dependency-free read-only MCP-style stub speaking JSON-RPC 2.0 over stdio at `mcp/server_stub.mjs` (honestly a stub, not a production SDK server).
 - **Deployability + reproducibility:** the live app runs from one launcher command; a reproducible deploy path is documented; the deterministic offline mode reproduces the pipeline identically for CI.
