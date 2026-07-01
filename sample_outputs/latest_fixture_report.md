@@ -1,7 +1,7 @@
 # The Council Fixture Report
 
 Mode: fixture (simulated/offline)
-Generated: 2026-07-01T23:20:36.617Z
+Generated: 2026-07-01T23:28:46.256Z
 
 ## Question
 
@@ -53,9 +53,9 @@ The recommendation depends on missing context: whether the car is already at the
 
 ## Verified Claims
 - cw1: supported (91%) role weight 0.25, claim weight 0.9 - The user likely wants to get the car washed, not merely travel personally to the car wash location.
-- cw2: supported (95%) role weight 0.35, claim weight 1 - To wash the car at a stationary car wash, the car must be brought to the wash.
+- cw2: supported (95%) role weight 0.35, claim weight 1 [re-derived independently] - To wash the car at a stationary car wash, the car must be brought to the wash.
 - cw3: supported (95%) role weight 0.25, claim weight 0.45 - Fifty meters is a short and reasonable distance for most people to walk.
-- cw4: supported (95%) role weight 0.35, claim weight 0.95 - Walking to the car wash does not move the car there if the car starts with the user.
+- cw4: supported (95%) role weight 0.35, claim weight 0.95 [re-derived independently] - Walking to the car wash does not move the car there if the car starts with the user.
 - cw5: partially_supported (75%) role weight 0.15, claim weight 0.6 - Walking is reasonable if the user only wants to inspect, pay, ask a question, or if the car is already at the wash.
 - cw6: unresolved (50%) role weight 0.15, claim weight 0.8 - The recommendation assumes the car is safe and legal to drive.
 
@@ -78,5 +78,5 @@ Drive the car to the car wash if your goal is to wash it there. The car wash is 
 - load_fixture: Loaded public fixture data from fixtures/car_wash_fixture.json.
 - redact_input: Input risk level: low.
 - extract_claims: Loaded 6 fixture claims.
-- verify_claims_against_fixture: Checked each claim against local fixture evidence.
+- verify_claims_against_fixture: Checked 4 claims against local fixture evidence; routed 2 reasoning claims to independent re-derivation.
 - write_audit_report: Report can be exported as JSON and Markdown.

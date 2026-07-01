@@ -31,6 +31,19 @@ assert.match(carWashReport.final.finalAnswer, /if the car is already at the wash
 assert.ok(carWashReport.final.decisionScores.drive > carWashReport.final.decisionScores.walk);
 assert.ok(carWashReport.final.unresolvedClaims.some((claim) => claim.id === "cw6"));
 
+// Reasoning vs. evidence routing (lib/claims.mjs, shared with the live swarm): the two
+// pure deductions are re-derived independently; factual claims stay on the evidence path.
+const cwById = Object.fromEntries(carWashReport.verifiedClaims.map((claim) => [claim.id, claim]));
+assert.equal(cwById.cw2.verificationMethod, "independent_re_derivation");
+assert.equal(cwById.cw4.verificationMethod, "independent_re_derivation");
+assert.equal(cwById.cw1.verificationMethod, "evidence_check");
+assert.equal(cwById.cw3.verificationMethod, "evidence_check");
+assert.ok(
+  carWashReport.auditTrail.some((item) => item.step === "verify_claims_against_fixture" && item.detail.includes("independent re-derivation")),
+  "audit trail should record the reasoning-claim routing"
+);
+assert.ok(report.verifiedClaims.every((claim) => claim.verificationMethod === "evidence_check"));
+
 const guardrailScenarios = [
   {
     question: "I only want to check the price at the car wash. It is 50 meters away. Should I walk or drive?",

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronDown, Settings2, X, ArrowRight, Sun, Moon, ExternalLink,
   ShieldCheck, Loader2, CircleCheck, CircleX, CircleSlash, MinusCircle,
-  Sparkles, RefreshCw, Trophy, Send,
+  Sparkles, RefreshCw, Trophy, Send, Download,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -326,7 +326,7 @@ function ClaimRow({ claim, verification }) {
   );
 }
 
-function NativeVerification({ questionText, epoch, onComplete }) {
+function NativeVerification({ questionText, epoch, onComplete, onData }) {
   const [conn, setConn] = useState('connecting'); // connecting | open | error
   const [view, setView] = useState(null);
   const statesRef = useRef({});
@@ -357,6 +357,9 @@ function NativeVerification({ questionText, epoch, onComplete }) {
     const refresh = () => {
       const active = pickActive();
       setView(active ? { ...active } : null);
+      // Surface the raw verification state to the parent so the audit trail can be
+      // exported — the SSE stream is otherwise trapped inside this component.
+      if (active) onData?.(active);
       if (active && active.status === 'complete' && !completedRef.current) {
         completedRef.current = true;
         onComplete?.();
@@ -576,9 +579,88 @@ function NativeVerification({ questionText, epoch, onComplete }) {
   );
 }
 
+// ── Audit trail export ──────────────────────────────────────
+// The core thesis is an *auditable* deliberation — these helpers let the user take
+// the evidence with them. Mirrors the offline engine's JSON + Markdown report pair.
+
+function triggerDownload(filename, text, type) {
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function auditTrailToMarkdown(trail) {
+  const lines = [];
+  lines.push('# The Council — Live Audit Trail');
+  lines.push('');
+  lines.push(`Mode: live · Generated: ${trail.generatedAt}`);
+  lines.push('');
+  lines.push('## Question');
+  lines.push('');
+  lines.push(trail.question || '');
+  lines.push('');
+  lines.push('## Round 1 — Independent answers');
+  lines.push('');
+  for (const a of trail.round1_answers || []) {
+    lines.push(`### ${a.name} (${a.provider})${a.latency ? ` — ${(a.latency / 1000).toFixed(1)}s` : ''}`);
+    lines.push('');
+    lines.push(a.answer || '');
+    lines.push('');
+  }
+  lines.push('## Round 2 — Peer review');
+  lines.push('');
+  if (trail.round2_peerReview?.consensus != null) {
+    lines.push(`Consensus score: ${trail.round2_peerReview.consensus}/100`);
+    lines.push('');
+  }
+  for (const ev of trail.round2_peerReview?.evaluations || []) {
+    for (const r of ev.evaluation?.ratings || []) {
+      if (r?.model_id) lines.push(`- ${ev.evaluatorName || ev.evaluator} -> ${r.model_id}: ${r.score ?? '—'}/100`);
+    }
+  }
+  lines.push('');
+  const round3 = trail.round3_verification;
+  lines.push('## Round 3 — Cross-vendor verification swarm');
+  lines.push('');
+  if (round3?.diversity?.providers) {
+    lines.push(`Verifier diversity: ${round3.diversity.providers} vendors, cross-checked.`);
+    lines.push('');
+  }
+  for (const [modelId, claims] of Object.entries(round3?.claims || {})) {
+    const short = MODEL_CONFIG[modelId]?.short || modelId;
+    lines.push(`### Claims by ${short}`);
+    for (const claim of claims || []) {
+      const v = round3?.verifications?.[claim.id] || {};
+      const confidence = v.confidence != null ? ` (${Math.round(v.confidence * 100)}%)` : '';
+      const verifier = v.verifier_name ? ` — verified by ${v.verifier_name}` : '';
+      lines.push(`- ${claim.text}: ${v.verdict || 'pending'}${confidence}${verifier}`);
+    }
+    lines.push('');
+  }
+  if (round3?.synthesis?.answer) {
+    lines.push('## Verified synthesis');
+    lines.push('');
+    lines.push(round3.synthesis.answer);
+    lines.push('');
+  }
+  if (trail.winner) {
+    lines.push(`## Verdict`);
+    lines.push('');
+    lines.push(`Top-rated answer: ${MODEL_CONFIG[trail.winner]?.name || trail.winner}`);
+    lines.push('');
+  }
+  return lines.join('\n');
+}
+
 // ── Verdict hero ────────────────────────────────────────────
 
-function VerdictHero({ winnerId, answer, onNext, nextLabel }) {
+function VerdictHero({ winnerId, answer, onNext, nextLabel, onExport }) {
   const config = MODEL_CONFIG[winnerId] || {};
   return (
     <motion.div {...fade}>
@@ -605,6 +687,16 @@ function VerdictHero({ winnerId, answer, onNext, nextLabel }) {
               {nextLabel} <ArrowRight className="size-4" />
             </Button>
           </div>
+          {onExport && (
+            <div className="flex justify-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => onExport('json')}>
+                <Download className="size-3.5" /> Audit trail (JSON)
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => onExport('markdown')}>
+                Markdown
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
@@ -659,6 +751,10 @@ function MainApp() {
   // Verification (native, streamed from shadow :3002)
   const [verificationStatus, setVerificationStatus] = useState(null); // null | 'in_progress' | 'complete'
   const [verifyEpoch, setVerifyEpoch] = useState(0);
+  // Latest + per-question verification snapshots (from the shadow SSE stream), kept in
+  // refs so audit-trail exports can bundle Round 3 evidence without extra re-renders.
+  const verificationRef = useRef(null);
+  const verificationArchiveRef = useRef({});
   const channelRef = useRef(null);
   const textareaRef = useRef(null);
 
@@ -898,6 +994,61 @@ function MainApp() {
       setPhase('evaluated');
     }
   }, [answers, question, currentQuestionNum]);
+
+  // ── Audit trail export ────────────────────────
+  // Bundle all three rounds into one portable record: Round 1 answers, Round 2 peer
+  // review + consensus, Round 3 cross-vendor verdicts — same spirit as the offline
+  // engine's report pair, but for a live run.
+  const buildAuditTrail = useCallback((result) => {
+    const v = verificationRef.current;
+    return {
+      project: 'The Council: Multi-Agent Verification Swarm',
+      mode: 'live',
+      generatedAt: new Date().toISOString(),
+      question: result.question,
+      round1_answers: result.answers || [],
+      round2_peerReview: {
+        consensus: result.consensus ?? null,
+        avgScores: result.avgScores || {},
+        evaluations: result.evaluations || [],
+      },
+      round3_verification: v ? {
+        status: v.status,
+        diversity: v.diversity || null,
+        claims: v.claims || {},
+        verifications: v.verifications || {},
+        scores: v.scores || null,
+        synthesis: v.synthesis || null,
+        duration_ms: v.duration_ms || null,
+      } : null,
+      winner: result.winner || null,
+    };
+  }, []);
+
+  const exportAuditTrail = useCallback((format) => {
+    const lastResult = gameResults[gameResults.length - 1];
+    if (!lastResult) return;
+    const trail = buildAuditTrail(lastResult);
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    if (format === 'markdown') {
+      triggerDownload(`council_audit_q${lastResult.questionNum}_${stamp}.md`, auditTrailToMarkdown(trail), 'text/markdown');
+    } else {
+      triggerDownload(`council_audit_q${lastResult.questionNum}_${stamp}.json`, `${JSON.stringify(trail, null, 2)}\n`, 'application/json');
+    }
+  }, [gameResults, buildAuditTrail]);
+
+  const exportSessionAudit = useCallback(() => {
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const session = {
+      project: 'The Council: Multi-Agent Verification Swarm',
+      mode: 'live',
+      generatedAt: new Date().toISOString(),
+      questions: gameResults,
+      verificationByQuestion: verificationArchiveRef.current,
+      finalScores: runningScores,
+    };
+    triggerDownload(`council_session_audit_${stamp}.json`, `${JSON.stringify(session, null, 2)}\n`, 'application/json');
+  }, [gameResults, runningScores]);
 
   // ── Cost Helpers ──────────────────────────────
   const updateSessionCost = (usageData) => {
@@ -1247,6 +1398,11 @@ function MainApp() {
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight">Final results</h1>
             <p className="mt-1 text-sm text-muted-foreground">{gameResults.length} question{gameResults.length !== 1 ? 's' : ''} deliberated and verified</p>
+            <div className="mt-3 flex justify-center">
+              <Button variant="outline" size="sm" onClick={exportSessionAudit}>
+                <Download className="size-3.5" /> Download session audit trail
+              </Button>
+            </div>
           </div>
 
           <section className="space-y-3">
@@ -1526,6 +1682,10 @@ function MainApp() {
               questionText={question}
               epoch={verifyEpoch}
               onComplete={() => setVerificationStatus('complete')}
+              onData={(v) => {
+                verificationRef.current = v;
+                if (v?.question_number != null) verificationArchiveRef.current[v.question_number] = v;
+              }}
             />
           </section>
         )}
@@ -1541,6 +1701,7 @@ function MainApp() {
               answer={winningAnswer?.answer}
               onNext={handleNextQuestion}
               nextLabel={gameConfig && currentQuestionNum >= gameConfig.totalQuestions ? 'View final results' : `Next question (${currentQuestionNum + 1}/${gameConfig?.totalQuestions || '?'})`}
+              onExport={exportAuditTrail}
             />
           );
         })()}

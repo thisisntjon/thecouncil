@@ -5,7 +5,7 @@
   "fixture": "fixtures/car_wash_fixture.json",
   "scenarioId": "car_wash_50m",
   "label": "Offline simulated fixture for weighted practical-reasoning demo",
-  "generatedAt": "2026-07-01T23:20:36.617Z",
+  "generatedAt": "2026-07-01T23:28:46.256Z",
   "question": "I want to wash my car. The car wash is 50 meters away. Should I walk or drive?",
   "inputRisk": {
     "level": "low",
@@ -155,6 +155,7 @@
       "reasoning": "The user states the task as washing the car, so task completion is the likely intent.",
       "roleId": "intent_framer",
       "claimType": "intent",
+      "verificationMethod": "evidence_check",
       "roleWeight": 0.25,
       "claimWeight": 0.9,
       "supports": {
@@ -181,6 +182,8 @@
       "reasoning": "A stationary car wash cannot wash a car that has not been brought to it.",
       "roleId": "physical_logistics",
       "claimType": "physical_requirement",
+      "category": "logical_deduction",
+      "verificationMethod": "independent_re_derivation",
       "roleWeight": 0.35,
       "claimWeight": 1,
       "supports": {
@@ -206,6 +209,7 @@
       "reasoning": "Fifty meters is close enough that walking is reasonable for a person.",
       "roleId": "practical_operator",
       "claimType": "distance",
+      "verificationMethod": "evidence_check",
       "roleWeight": 0.25,
       "claimWeight": 0.45,
       "supports": {
@@ -233,6 +237,8 @@
       "reasoning": "If the car starts with the user, walking the person to the wash leaves the car behind.",
       "roleId": "physical_logistics",
       "claimType": "physical_constraint",
+      "category": "logical_deduction",
+      "verificationMethod": "independent_re_derivation",
       "roleWeight": 0.35,
       "claimWeight": 0.95,
       "supports": {
@@ -258,6 +264,7 @@
       "reasoning": "Walking is a good conditional branch, but only when the task is inspection/payment or the car is already there.",
       "roleId": "ambiguity_skeptic",
       "claimType": "conditional_caveat",
+      "verificationMethod": "evidence_check",
       "roleWeight": 0.15,
       "claimWeight": 0.6,
       "supports": {
@@ -285,6 +292,7 @@
       "reasoning": "The prompt does not say whether the car is safe and legal to drive, so this remains an assumption.",
       "roleId": "ambiguity_skeptic",
       "claimType": "safety_assumption",
+      "verificationMethod": "evidence_check",
       "roleWeight": 0.15,
       "claimWeight": 0.8,
       "supports": {
@@ -320,6 +328,7 @@
         "reasoning": "The prompt does not say whether the car is safe and legal to drive, so this remains an assumption.",
         "roleId": "ambiguity_skeptic",
         "claimType": "safety_assumption",
+        "verificationMethod": "evidence_check",
         "roleWeight": 0.15,
         "claimWeight": 0.8,
         "supports": {
@@ -362,7 +371,7 @@
     },
     {
       "step": "verify_claims_against_fixture",
-      "detail": "Checked each claim against local fixture evidence."
+      "detail": "Checked 4 claims against local fixture evidence; routed 2 reasoning claims to independent re-derivation."
     },
     {
       "step": "write_audit_report",

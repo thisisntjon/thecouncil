@@ -19,6 +19,6 @@
 - [ ] Merge to `main` and confirm `origin/main` HEAD equals the final submitted commit before flipping the repo public (judges land on the default branch).
 - [ ] Kaggle submission still needed.
 - [~] Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
-- [~] Client build attempted; dependencies are not installed in this copy, so the UI build was not verified.
+- [x] Client build verified from a fresh clone (`npm run live:install` + `vite build`, 2026-07-01); keyless fresh-clone path (`demo:fixture` + `npm test` + `verify:capstone`) also verified.
 - [~] Final screenshots/GIF still need human capture from the public-safe helper pages.
 - [x] Live agent is documented as the headline (`launch.bat live`, `docs/deploy.md`); no-key offline mode framed as the reproducibility/CI fallback.
