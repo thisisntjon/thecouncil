@@ -34,6 +34,9 @@ function startNode(args, env) {
 
 async function stop(child) {
   if (!child || child.killed) return;
+  // A child that already exited on its own will never emit "exit" again — awaiting it
+  // would leave an unsettled top-level await that swallows the real test error.
+  if (child.exitCode !== null) return;
   child.kill();
   await new Promise((resolve) => child.once("exit", resolve));
 }
@@ -98,7 +101,19 @@ async function withShadowServer(testFn) {
   }
 }
 
-await withCouncilServer(async (base) => {
+// The live-server auth tests need server/ and shadow-council/ dependencies (installed
+// by `npm run live:install`). A fresh keyless clone doesn't have them — skip those
+// suites loudly rather than break the "no keys, no network" test promise. The static
+// dashboard-escaping assertions below still run either way.
+const liveDepsInstalled =
+  fs.existsSync(path.join(ROOT, "server", "node_modules", "express")) &&
+  fs.existsSync(path.join(ROOT, "shadow-council", "node_modules", "express"));
+
+if (!liveDepsInstalled) {
+  console.log("SKIP: live server dependencies not installed (run `npm run live:install` for full security-controls coverage).");
+}
+
+if (liveDepsInstalled) await withCouncilServer(async (base) => {
   const fixture = await postJson(`${base}/api/fixture/run`, { question: "I want to wash my car. The car wash is 50 meters away. Should I walk or drive?" });
   assert.equal(fixture.status, 200, "offline fixture route should remain public");
 
@@ -112,7 +127,7 @@ await withCouncilServer(async (base) => {
   assert.equal(noAuthAsk.status, 401, "provider-backed ask route must reject missing auth before streaming");
 });
 
-await withShadowServer(async (base) => {
+if (liveDepsInstalled) await withShadowServer(async (base) => {
   const noAuthVerify = await postJson(`${base}/api/verify`, {
     question_number: 1,
     question: "Will this spend keys?",
