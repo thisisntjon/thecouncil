@@ -25,6 +25,14 @@ The live agent is the headline demo; it calls real providers with your own keys 
 
 This is a demo guardrail, not a complete DLP or security product.
 
+## Live server controls
+
+The live API (`server/`, `shadow-council/`) adds server-side controls: timing-safe bearer-token auth
+(`crypto.timingSafeEqual`), fixed-window per-IP rate limiting on provider routes (HTTP 429 when
+exceeded), and a default bind to loopback (`127.0.0.1`) so the keyed API is not network-exposed unless
+you deliberately override the host. These protect a locally-run live agent; they are not a substitute
+for a hardened public deployment (which we intentionally do not provide).
+
 ## Redaction Behavior
 
 The fixture runner redacts obvious sensitive patterns before placing the question in the report. It does not inspect private files or call external APIs.

@@ -14,8 +14,8 @@ launch.bat live      # starts API + shadow verifier + React UI; reuses anything 
 Then open `http://localhost:5173` and drive it:
 
 1. **Setup** — pick the question count, confirm the four Council members (Claude, GPT, Gemini, Grok).
-2. **Ask** a question (a good one below). **Round 1** — all four models stream their answers live, with
-   per-model latency and web search.
+2. **Ask** a question (a good one below). **Round 1** — the four models answer live (most stream
+   token-by-token; Grok renders on completion), with per-model latency and web search.
 3. **Convene the Council** — **Round 2** peer evaluation: each model scores the others, with strengths,
    weaknesses, and a **consensus score**.
 4. **Round 3 — the cross-vendor verification swarm** runs in parallel: each claim is re-checked by a
@@ -36,6 +36,10 @@ A logic trap: it *feels* like "short distance → walk," but the goal is to wash
 car at the wash → **drive**. Live, you'll often see two models fall for the trap and the verification swarm
 surface the correct answer. (Also good: "What are the tradeoffs between single-agent and multi-agent
 verification for AI-assisted decision making?")
+
+Note: the walkthrough above runs with web search **on**; the writeup's headline three-question run was
+captured with web search **off**, so its verification is models cross-checking each other, not external
+lookups.
 
 ## Run without API keys (reproducibility / CI)
 

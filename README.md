@@ -2,7 +2,7 @@
 
 **The Council turns one AI answer into a transparent deliberation: four frontier models answer a question independently, peer-critique each other, and then a hidden cross-vendor swarm re-checks every claim against a *different* model vendor — producing an evidence-backed final answer with a full audit trail.**
 
-Track: Freestyle
+Track: Freestyle · Submission writeup: [`KAGGLE_WRITEUP.md`](KAGGLE_WRITEUP.md)
 
 The model is only ~10% of this system; the other ~90% is the **harness** — input redaction, role-separated orchestration, a tool allowlist, cross-vendor claim verification, and synthesis — that turns a single model into an auditable deliberation. **The project is the live agent.** A deterministic offline mode (no keys) exists too, but only as a reproducibility/CI fallback — see below.
 
@@ -10,7 +10,7 @@ The model is only ~10% of this system; the other ~90% is the **harness** — inp
 
 ### ▶ Start here — the live agent
 
-The real thing: four models (Claude, GPT, Gemini, Grok) stream their answers, the Council convenes for peer evaluation + a consensus score, and a **cross-vendor verification swarm** runs in parallel — every claim re-checked by a *different* vendor, with verdicts, confidence, and an audit trail.
+The real thing: four models (Claude, GPT, Gemini, Grok) answer — most streaming token-by-token, Grok rendering on completion — the Council convenes for peer evaluation + a consensus score, and a **cross-vendor verification swarm** runs in parallel — every claim re-checked by a *different* vendor, with verdicts, confidence, and an audit trail.
 
 **1. Add your provider keys** — copy `.env.example` to `.env` and fill in the keys you have:
 `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY`. *(Grok uses the OpenAI-compatible

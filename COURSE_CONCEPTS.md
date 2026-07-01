@@ -36,7 +36,7 @@
 
 - Code: `lib/fixtureCouncil.mjs`, `sample_outputs/latest_fixture_report.json`
 - Video: show verified claims and confidence summary
-- Docs: `KAGGLE_WRITEUP_DRAFT.md`, `ARCHITECTURE.md`
+- Docs: `KAGGLE_WRITEUP.md`, `ARCHITECTURE.md`
 - Output: JSON/Markdown reports preserve agent answers, peer critiques, verified claims, confidence, unresolved claims, and final synthesis
 - Course framing: the JSON report is a trajectory-style audit trail, and the Markdown report is a compact human-review "vibe diff"
 

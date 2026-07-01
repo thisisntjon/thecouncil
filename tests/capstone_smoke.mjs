@@ -155,7 +155,7 @@ function listPublishableFiles(root) {
 for (const required of [
   "README.md",
   "CAPSTONE.md",
-  "KAGGLE_WRITEUP_DRAFT.md",
+  "KAGGLE_WRITEUP.md",
   "VIDEO_SCRIPT.md",
   "ARCHITECTURE.md",
   "COURSE_CONCEPTS.md",
@@ -167,6 +167,7 @@ for (const required of [
   "docs/mode-matrix.md",
   "docs/demo-flow.md",
   "skills/council-verification/SKILL.md",
+  ".claude/skills/add-fixture/SKILL.md",
   "mcp/README.md",
   "mcp/server_stub.mjs"
 ]) {

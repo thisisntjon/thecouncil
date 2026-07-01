@@ -16,6 +16,7 @@
 - [x] Screenshot/cover assets ready.
 - [~] Public GitHub link still needed: `https://github.com/thisisntjon/thecouncil`.
 - [ ] YouTube link still needed.
+- [ ] Merge to `main` and confirm `origin/main` HEAD equals the final submitted commit before flipping the repo public (judges land on the default branch).
 - [ ] Kaggle submission still needed.
 - [~] Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
 - [~] Client build attempted; dependencies are not installed in this copy, so the UI build was not verified.

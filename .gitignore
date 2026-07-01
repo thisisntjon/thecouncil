@@ -1,7 +1,9 @@
 # Secrets and local configuration
 CLAUDE.local.md
 CLAUDE.md
-.claude/
+# .claude/ is local-only EXCEPT skills/, which is a shipped deliverable (README "Agent skills")
+.claude/*
+!.claude/skills/
 workflow/
 importantprompt.txt
 IMPORTANTKAGGLE.txt
@@ -54,8 +56,8 @@ build/
 .cache/
 coverage/
 
-# UI-QA regenerable outputs (keep the report, result JSON, screens + visual baselines)
-artifacts/ui-qa/playwright-report/
+# UI-QA outputs — internal QA evidence, not part of the public submission
+artifacts/ui-qa/
 artifacts/session-closeout/
 **/test-results/
 **/playwright-report/
@@ -87,4 +89,5 @@ JUDGE_SCORECARD.md
 MEDIA_READINESS_AUDIT.md
 PRE_COMMIT_PACKAGING_REHEARSAL.md
 PUBLIC_RELEASE_DECISION_DRAFT.md
+UI_OVERHAUL_BRIEF.md
 docs/process/
