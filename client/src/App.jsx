@@ -629,7 +629,8 @@ function auditTrailToMarkdown(trail) {
   lines.push('## Round 3 — Cross-vendor verification swarm');
   lines.push('');
   if (round3?.diversity?.providers) {
-    lines.push(`Verifier diversity: ${round3.diversity.providers} vendors, cross-checked.`);
+    const providers = [].concat(round3.diversity.providers);
+    lines.push(`Verifier diversity: ${providers.length} vendors (${providers.join(', ')}), cross-checked.`);
     lines.push('');
   }
   for (const [modelId, claims] of Object.entries(round3?.claims || {})) {
