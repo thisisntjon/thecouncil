@@ -16,9 +16,9 @@
 - [x] Screenshot/cover assets ready.
 - [~] Public GitHub link still needed: `https://github.com/thisisntjon/thecouncil`.
 - [x] YouTube link: https://youtu.be/zlXHusbgrLQ (filled in KAGGLE_WRITEUP.md 2026-07-01).
-- [ ] Merge to `main` and confirm `origin/main` HEAD equals the final submitted commit before flipping the repo public (judges land on the default branch).
+- [x] Merged to `main` (fast-forward, 2026-07-01). After pushing, confirm `git rev-parse origin/main` equals the final submitted commit before flipping the repo public (judges land on the default branch).
 - [ ] Kaggle submission still needed.
 - [~] Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
 - [x] Client build verified from a fresh clone (`npm run live:install` + `vite build`, 2026-07-01); keyless fresh-clone path (`demo:fixture` + `npm test` + `verify:capstone`) also verified.
-- [~] Final screenshots/GIF still need human capture from the public-safe helper pages.
+- [x] Cover + architecture PNGs committed at `docs/img/` (rendered from the public-safe helper pages); attach both to the Kaggle media gallery.
 - [x] Live agent is documented as the headline (`launch.bat live`, `docs/deploy.md`); no-key offline mode framed as the reproducibility/CI fallback.
