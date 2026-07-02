@@ -829,7 +829,7 @@ Respond in this exact JSON format:
   "reasoning": "1-2 sentence explanation"
 }`;
 
-    const { id: verifierId, caller } = requireVerifier();
+    const { id: verifierId, caller } = requireVerifier(claimAuthorId(claim));
     console.log(`[COUNCIL] Verify claim ${claim.id} (web) → verifier: ${verifierId}`);
     const result = await caller(
       'You are a precise fact-checker. Respond ONLY with valid JSON.',
@@ -867,7 +867,7 @@ Respond in this exact JSON format:
   "reasoning": "1-2 sentence explanation"
 }`;
 
-  const { id: verifierId, caller } = requireVerifier();
+  const { id: verifierId, caller } = requireVerifier(claimAuthorId(claim));
   console.log(`[COUNCIL] Verify claim ${claim.id} (knowledge) → verifier: ${verifierId}`);
   const result = await caller(
     'You are a precise fact-checker. Respond ONLY with valid JSON. Be conservative.',

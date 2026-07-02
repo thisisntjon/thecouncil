@@ -49,6 +49,9 @@ On Windows: `launch.bat fixture`. Reports land in `sample_outputs/`.
 npm run verify:capstone     # demo:fixture + npm test + secret:scan + mcp:self-test
 ```
 
+No install step needed — the entire offline path is dependency-free (`node:` builtins only), so a
+fresh clone runs it immediately. (`npm run lint` is the exception; run `npm install` first.)
+
 ## What the live agent does
 
 You ask a question; four models answer independently (with web search). You "Convene the Council" → peer evaluation surfaces strengths, weaknesses, disagreement, and a consensus score. In parallel, the **cross-vendor verification swarm** extracts each model's claims and re-checks them against a *different* vendor — so the verifier is never the author — producing Supported/Partial/Refuted verdicts with confidence and citations. The final verdict preserves confidence and unresolved claims instead of hiding uncertainty (effective trust, not a binary pass). The JSON audit trail records every critique and intermediate verdict — a **trajectory-style record** so a reviewer can confirm the answer was *earned*, not a "fragile success trap" reached by a flawed path.
@@ -70,7 +73,7 @@ flowchart TD
     B --> D["GPT<br/>Skeptic"]
     B --> E["Gemini<br/>Operator"]
     B --> F["Grok<br/>Researcher"]
-    C --> G["Peer critique + consensus score<br/>(no model may vote for itself)"]
+    C --> G["Peer critique + consensus score<br/>(no model may score itself)"]
     D --> G
     E --> G
     F --> G

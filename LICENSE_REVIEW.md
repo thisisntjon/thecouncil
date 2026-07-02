@@ -1,13 +1,13 @@
 # License Review
 
-The selected source project included a `LICENSE` file that appears to be MIT-style.
+This repository ships an MIT license (`LICENSE`).
 
 ## Current Status
 
-- License file copied: yes
-- Third-party dependencies copied: no `node_modules` folders are included
-- Generated build artifacts copied: removed
-- Fixture data: locally authored for this capstone copy
+- License file present: yes
+- Third-party dependencies: no `node_modules` folders are committed
+- Generated build artifacts: not committed
+- Fixture data: locally authored for this capstone
 - Package lockfiles: retained for reproducible installs; targeted checks found no private registry token or local path leak markers
 
 ## Before Public Release

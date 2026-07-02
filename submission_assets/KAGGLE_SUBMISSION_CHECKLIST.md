@@ -5,7 +5,7 @@
 - [x] Tests pass.
 - [x] Secret scan passes.
 - [x] MCP stub self-test passes.
-- [x] Kaggle writeup is under 2,500 words (1,038), states Track: Freestyle, and frames live UI as the demo with fixture as the no-key reproducible path.
+- [x] Kaggle writeup is under 2,500 words (~2,215), states Track: Freestyle, and frames live UI as the demo with fixture as the no-key reproducible path.
 - [x] Video script + shot list under 5 minutes; centerpiece is the live shadcn UI, with the no-key fixture demo as the reproducible path.
 - [x] Screenshot helper pages exist.
 - [x] README includes no-key quickstart.

@@ -29,7 +29,7 @@ GOOGLE_API_KEY=...
 XAI_API_KEY=...            # (GROK_API_KEY is accepted as an alias)
 # Optional hardening for a shared instance:
 COUNCIL_API_TOKEN=...      # require a bearer token on the API
-SHADOW_API_TOKEN=...       # require a bearer token on the verifier
+SHADOW_COUNCIL_TOKEN=...   # require a bearer token on the verifier
 ```
 
 > Grok runs through the OpenAI SDK pointed at `https://api.x.ai/v1`, so the three SDK packages
@@ -75,7 +75,7 @@ gcloud run deploy council-verifier --source shadow-council  --set-env-vars "$(ca
 
 ## If you do host it publicly
 
-Set `COUNCIL_API_TOKEN` + `SHADOW_API_TOKEN`, put a **hard daily spend cap** on each provider account, and
+Set `COUNCIL_API_TOKEN` + `SHADOW_COUNCIL_TOKEN`, put a **hard daily spend cap** on each provider account, and
 rate-limit the API — a no-login endpoint on live keys is otherwise an open spend surface.
 
 ## No-key reproducibility (CI)

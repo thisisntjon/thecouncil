@@ -61,7 +61,7 @@ Swarm members (verifiers):
 | Claude | 78 |
 | Gemini | 72 |
 
-_Scores blend the system's own peer ratings, verification confidence, reliability, and a correctness read. See the companion report for methodology and per-question detail._
+_Scores blend the system's own peer ratings, verification confidence, reliability, and a correctness read. Grok answered in all ten runs (its raw answers and peer ratings are in the run artifacts); these blended tables cover the three members with consolidated scores. See the companion report for methodology and per-question detail._
 
 ## Takeaway
 

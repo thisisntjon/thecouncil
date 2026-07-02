@@ -735,12 +735,16 @@ async function improvementLoop(questionNum, allClaims, verifications) {
 
   if (weakClaims.length === 0) return [];
 
-  // Cap at 5 re-investigations, run in parallel
+  // Cap at 5 re-investigations, run in parallel. Like the primary swarm pass, each
+  // re-check goes to a verifier from a DIFFERENT vendor than the claim's author, so
+  // the improvement loop can never let a model upgrade its own weak claim.
   const toRetry = weakClaims.slice(0, 5);
   const improvements = [];
+  const pool = diverseProviders();
 
-  await Promise.allSettled(toRetry.map(async (claim) => {
+  await Promise.allSettled(toRetry.map(async (claim, idx) => {
     const old = verifications[claim.id];
+    const providerId = pool.length ? pickVerifier(claimAuthor(claim), pool, idx) : 'claude';
 
     const prompt = `You are a thorough fact-checking investigator doing a DEEP re-investigation. A previous attempt to verify this claim was inconclusive. Try different search strategies — broader terms, specific names, or alternative phrasings.
 
@@ -758,11 +762,12 @@ Search the web using different terms than before. Respond in this exact JSON for
 }`;
 
     try {
-      const result = await callClaudeWithWebSearch(prompt, 5);
+      const result = await callVerifierWithSearch(providerId, prompt);
       const parsed = parseJSON(result.text);
 
       if (parsed && parsed.verdict !== 'unverifiable' && (parsed.confidence || 0) > (old.confidence || 0)) {
         verifications[claim.id] = {
+          verifiedBy: providerId,
           verdict: parsed.verdict,
           confidence: parsed.confidence,
           reasoning: parsed.reasoning,

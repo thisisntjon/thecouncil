@@ -18,13 +18,13 @@
 - Code: `.gitignore`, `.env.example`, `lib/security.mjs`, `scripts/secret_scan.mjs`
 - Video: show fixture mode and secret scan
 - Docs: `SECURITY_AND_PRIVACY.md`, `README.md`
-- Boundary: fixture mode is the public path; live provider mode is optional and disabled by default
+- Boundary: fixture mode is the keyless public path; live provider mode is the demo and needs your own keys
 
 ## 4. Deployability
 
-- Code: root `package.json` scripts
-- Video: run `npm run demo:fixture`
-- Docs: `DEMO_GUIDE.md`, `README.md`
+- Code: root `package.json` scripts, `launch.bat`, `docs/deploy.md`
+- Video: the live app via `launch.bat live` (centerpiece), with `npm run demo:fixture` as the no-key reproducible path
+- Docs: `DEMO_GUIDE.md`, `README.md`, `docs/deploy.md`
 
 ## 5. Agent Skills / Reusable Agent Capabilities
 
