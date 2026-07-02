@@ -81,7 +81,7 @@ The submission clears the "at least three of six" bar comfortably, and is explic
 
 ## Security and Privacy
 
-The live agent uses *your own* provider keys via a gitignored `.env` (only placeholders are committed, checked by a `secret:scan` pre-commit hook and release step). Input is redacted and risk-classified before use, and tool access is bounded by a small declared allowlist the agent cannot exceed. The no-key offline mode needs no keys, network, or private data, and its fixture evidence is simulated and labeled — never presented as live.
+The live agent uses *your own* provider keys via a gitignored `.env` (only placeholders are committed, checked by a `secret:scan` pre-commit hook and release step). Its protections are server-side: keys never reach the browser, the API binds to loopback with timing-safe bearer auth and per-IP rate limiting. Input to the offline pipeline is redacted and risk-classified before it enters any report, and tool access there is bounded by a small declared allowlist the engine cannot exceed. The no-key offline mode needs no keys, network, or private data, and its fixture evidence is simulated and labeled — never presented as live.
 
 ## Evaluation Snapshot
 
