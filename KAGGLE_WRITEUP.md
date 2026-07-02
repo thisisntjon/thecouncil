@@ -4,7 +4,7 @@
 
 **Track: Freestyle**
 
-> Public code + setup: `TODO_PUBLIC_REPO_URL` · Demo video (≤5 min): `TODO_YOUTUBE_VIDEO_URL`
+> Code + setup: https://github.com/thisisntjon/thecouncil · Demo video (≤5 min): https://www.youtube.com/watch?v=zlXHusbgrLQ
 
 <!-- Kaggle: attach docs/img/cover.png as the required cover image and docs/img/architecture.png
      to the media gallery; the relative links below render on GitHub. -->

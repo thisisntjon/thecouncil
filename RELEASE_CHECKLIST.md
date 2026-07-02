@@ -15,7 +15,7 @@
 - [x] Kaggle writeup under 2,500 words.
 - [x] Screenshot/cover assets ready.
 - [~] Public GitHub link still needed: `https://github.com/thisisntjon/thecouncil`.
-- [ ] YouTube link still needed.
+- [x] YouTube link: https://youtu.be/zlXHusbgrLQ (filled in KAGGLE_WRITEUP.md 2026-07-01).
 - [ ] Merge to `main` and confirm `origin/main` HEAD equals the final submitted commit before flipping the repo public (judges land on the default branch).
 - [ ] Kaggle submission still needed.
 - [~] Repo visibility/access remains a human decision. Private repo is for staging only; final Kaggle submission should use a public repo or an access method confirmed by Kaggle.
