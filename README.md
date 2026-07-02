@@ -53,6 +53,10 @@ npm run verify:capstone     # demo:fixture + npm test + secret:scan + mcp:self-t
 
 You ask a question; four models answer independently (with web search). You "Convene the Council" → peer evaluation surfaces strengths, weaknesses, disagreement, and a consensus score. In parallel, the **cross-vendor verification swarm** extracts each model's claims and re-checks them against a *different* vendor — so the verifier is never the author — producing Supported/Partial/Refuted verdicts with confidence and citations. The final verdict preserves confidence and unresolved claims instead of hiding uncertainty (effective trust, not a binary pass). The JSON audit trail records every critique and intermediate verdict — a **trajectory-style record** so a reviewer can confirm the answer was *earned*, not a "fragile success trap" reached by a flawed path.
 
+**See it for real:** curated, redacted audit trails from an actual live run ship in
+`sample_outputs/live_runs/` — including the run where the swarm refuted a winning-looking
+kinetic-energy claim at **0.99 confidence** that peer review had missed.
+
 ### Why a council, not a single agent?
 
 Multi-agent adds coordination cost, so it has to earn its place. It does here because the task is **high-stakes verification**: the value is exactly the disagreement, critique, and claim-checking a single prompt collapses. The pipeline "slices the elephant" — generation, critique, fact-checking, and synthesis are separate roles — so no single context has to generate *and* police itself, avoiding the context rot that degrades a monolithic prompt. A live run demonstrates this vividly: models often split on the answer, and the cross-vendor verification resolves it.

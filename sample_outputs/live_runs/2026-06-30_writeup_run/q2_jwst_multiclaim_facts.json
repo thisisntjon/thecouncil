@@ -1,0 +1,1187 @@
+{
+  "label": "REAL LIVE RUN — captured 2026-06-30 (headless, web search OFF). Not fixture data.",
+  "project": "The Council: Multi-Agent Verification Swarm",
+  "mode": "live",
+  "capturedAt": "2026-06-30T20:16:01.575Z",
+  "question": "State these facts about the James Webb Space Telescope, and explicitly flag any you are not fully sure of: (a) its launch date, (b) the location/orbit it operates from, (c) its primary mirror diameter, and (d) the name of its primary near-infrared camera.",
+  "category": "multi-claim factuality + calibration (several discrete verifiable claims)",
+  "round1_answers": [
+    {
+      "id": "claude",
+      "name": "Claude Haiku 4.5",
+      "provider": "Anthropic",
+      "status": "success",
+      "latency": 2845,
+      "answer": "I'm confident about all of these facts based on my training knowledge:\n\n**(a) Launch date:** December 25, 2021 (Christmas Day)\n\n**(b) Location/orbit:** It operates from the second Lagrange point (L2), approximately 1 million miles from Earth on the side opposite the Sun. This is a gravitationally stable point where the telescope can maintain a stable position relative to Earth and Sun.\n\n**(c) Primary mirror diameter:** 6.5 meters (approximately 21.3 feet). The mirror is made up of 18 hexagonal beryllium segments coated with gold.\n\n**(d) Primary near-infrared camera:** The Near Infrared Camera (NIRCam) is its primary near-infrared imaging instrument.\n\n**Confidence flag:** I am fully confident in all four of these facts. They are well-established, fundamental specifications of the JWST that have been consistent since its launch and operation began."
+    },
+    {
+      "id": "grok",
+      "name": "Grok 4.3",
+      "provider": "xAI",
+      "status": "success",
+      "latency": 8732,
+      "answer": "**All facts below are confirmed from official NASA sources and Wikipedia (cross-checked for consistency as of 2026).**\n\n(a) **Launch date**: December 25, 2021 (on an Ariane 5 rocket from Kourou, French Guiana).[[1]](https://science.nasa.gov/mission/webb/)\n\n(b) **Location/orbit**: It operates in a halo orbit around the Sun-Earth L2 Lagrange point, approximately 1.5 million km (about 1 million miles) from Earth—not in Earth orbit like Hubble.[[2]](https://science.nasa.gov/mission/webb/orbit/)\n\n(c) **Primary mirror diameter**: 6.5 meters (composed of 18 hexagonal beryllium segments).[[3]](https://science.nasa.gov/asset/webb/webb-telescopes-mirror-size-and-material/)\n\n(d) **Primary near-infrared camera**: NIRCam (Near Infrared Camera), Webb’s main near-IR imager (0.6–5 μm range).[[4]](https://science.nasa.gov/mission/webb/nircam/)\n\nNo uncertainties to flag."
+    },
+    {
+      "id": "gpt",
+      "name": "GPT-5.4 mini",
+      "provider": "OpenAI",
+      "status": "success",
+      "latency": 9077,
+      "answer": "Here are the facts about the James Webb Space Telescope (JWST), along with notes on the certainty of each:\n\na) Launch date  \n• JWST was launched on **25 December 2021** at 12:20 UTC from the Guiana Space Centre in French Guiana aboard an Ariane 5 rocket. ([en.wikipedia.org](https://en.wikipedia.org/wiki/James_Webb_Space_Telescope?utm_source=openai))  \n• Certainty: High. (Multiple reliable sources agree.)\n\nb) The location/orbit it operates from  \n• It operates in a halo (or Lissajous-type) orbit around the **Sun–Earth L₂ Lagrange point**, approximately 1.5 million kilometers from Earth, on the side opposite the Sun. ([en.wikipedia.org](https://en.wikipedia.org/wiki/James_Webb_Space_Telescope?utm_source=openai))  \n• Certainty: High.\n\nc) Its primary mirror diameter  \n• The primary mirror is made up of 18 hexagonal segments that combine to form a mirror approximately **6.5 meters** in diameter (flat-to-flat). ([jwst-docs.stsci.edu](https://jwst-docs.stsci.edu/jwst-observatory-hardware/jwst-telescope?utm_source=openai))  \n• Certainty: High.\n\nd) Name of its primary near-infrared camera  \n• The primary near-infrared camera is called **NIRCam** (Near-InfraRed Camera). It covers wavelengths from about **0.6 to 5.0 microns**. ([science.nasa.gov](https://science.nasa.gov/mission/webb/nircam?utm_source=openai))  \n• Certainty: High.\n\nIf you like, I can also provide more details (e.g. resolution, field of view) for these components."
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini 3.5 Flash",
+      "provider": "Google",
+      "status": "success",
+      "latency": 11440,
+      "answer": "The goal is to provide four precise, verified physical and operational parameters of the James Webb Space Telescope (JWST) while explicitly identifying any areas of uncertainty. \n\nThe primary facts are:\n*   **(a) Launch Date:** December 25, 2021.\n*   **(b) Location/Orbit:** A halo orbit around the Sun-Earth Lagrange Point 2 (L2), which is approximately 1.5 million kilometers (1 million miles) from Earth.\n*   **(c) Primary Mirror Diameter:** 6.5 meters (21.3 feet).\n*   **(d) Primary Near-Infrared Camera:** NIRCam (Near-Infrared Camera).\n*   *Certainty Flag:* I am **100% confident** in all four of these facts; there is no ambiguity or scientific dispute regarding them.\n\nTo challenge the assumptions often baked into these metrics, several technical nuances and edge cases must be noted:\n1.  **Launch Date:** While universally recorded as December 25, 2021, based on UTC (12:20 UTC) and local Kourou time (9:20 a.m. local), certain eastern time zones experienced the launch on December 26.\n2.  **Orbit:** L2 is not a fixed point where the telescope \"sits.\" JWST actually orbits the Sun while continuously looping around the mathematical L2 point in a wide halo orbit to avoid Earth's shadow, ensuring its solar panels remain illuminated.\n3.  **Mirror Diameter:** The \"6.5-meter\" specification is a calculated equivalent diameter representing the total light-collecting area of the 18 hexagonal segments combined. The actual physical edge-to-edge span varies depending on whether you measure flat-to-flat or corner-to-corner across the hexagonal geometry. \n4.  **Primary Camera:** While NIRCam is the primary optical imager and was critical for aligning the telescope's mirror segments, it is not the only near-infrared instrument. It operates alongside NIRSpec (spectrograph) and NIRISS (imager/spectrograph), which share the near-infrared workload."
+    }
+  ],
+  "round2_evaluations": [
+    {
+      "evaluator": "gpt",
+      "evaluatorName": "GPT-5.4 mini",
+      "status": "success",
+      "evaluation": {
+        "ratings": [
+          {
+            "model_id": "claude",
+            "score": 95,
+            "reasoning": "Accurately states all four JWST facts and clearly says it is fully confident. It is concise and directly answers the prompt, with only minor extra explanatory detail.",
+            "strength": "accurate and direct",
+            "weakness": "slightly verbose"
+          },
+          {
+            "model_id": "grok",
+            "score": 92,
+            "reasoning": "All four facts are correct and it explicitly flags no uncertainties, satisfying the task well. The answer is slightly less concise than necessary and adds source/citation clutter, but remains clear.",
+            "strength": "well-sourced and accurate",
+            "weakness": "unnecessary citation clutter"
+          },
+          {
+            "model_id": "gemini",
+            "score": 79,
+            "reasoning": "The core facts are correct and it addresses the prompt, but it overexplains with technical nuances that are not needed and blur the main task. It also implicitly shifts into caveats despite claiming full confidence, which makes it less cleanly aligned with the instruction to explicitly flag uncertainty.",
+            "strength": "factually correct",
+            "weakness": "overly verbose and tangential"
+          }
+        ],
+        "reflection": "The answers confirm the JWST facts are straightforward and widely known. The best responses are the ones that stay focused on the four requested items and clearly separate confidence from extra context.",
+        "would_change": false,
+        "revised_position": null
+      }
+    },
+    {
+      "evaluator": "gemini",
+      "evaluatorName": "Gemini 3.5 Flash",
+      "status": "success",
+      "evaluation": {
+        "ratings": [
+          {
+            "model_id": "claude",
+            "score": 95,
+            "reasoning": "Claude Haiku 4.5 provided a highly accurate, clean, and well-structured response that directly answered all four parts and explicitly stated its complete confidence.",
+            "strength": "Clean formatting and direct answers",
+            "weakness": "none"
+          },
+          {
+            "model_id": "grok",
+            "score": 97,
+            "reasoning": "Grok provided precise facts with both metric and imperial units, added helpful context (like the Ariane 5 rocket), and included high-quality reference links.",
+            "strength": "Precise data and source citation",
+            "weakness": "none"
+          },
+          {
+            "model_id": "gpt",
+            "score": 96,
+            "reasoning": "GPT-5.4 mini gave a very structured response that systematically evaluated certainty for each individual point and provided useful source links.",
+            "strength": "Individual certainty tracking",
+            "weakness": "none"
+          }
+        ],
+        "reflection": "The other models demonstrated that direct, concise answers with embedded source citations can be highly effective for this task. While my breakdown of physical nuances was thorough, their straightforward confirmations met the user's requirements perfectly.",
+        "would_change": false,
+        "revised_position": null
+      }
+    },
+    {
+      "evaluator": "grok",
+      "evaluatorName": "Grok 4.3",
+      "status": "success",
+      "evaluation": {
+        "ratings": [
+          {
+            "model_id": "claude",
+            "score": 88,
+            "reasoning": "Directly states the four facts with explicit confidence flag and no extraneous details, fully meeting the query requirements.",
+            "strength": "Clear and concise with explicit confidence statement",
+            "weakness": "Lacks any source citations or minor technical precision"
+          },
+          {
+            "model_id": "gpt",
+            "score": 95,
+            "reasoning": "Provides precise facts, high-certainty ratings, and useful references while staying focused on the requested items.",
+            "strength": "High precision with citations and explicit certainty notes",
+            "weakness": "none"
+          },
+          {
+            "model_id": "gemini",
+            "score": 65,
+            "reasoning": "Correctly lists facts but dilutes the response with unnecessary edge-case discussions that do not address actual uncertainties in the core facts.",
+            "strength": "Acknowledges minor technical nuances",
+            "weakness": "Overcomplicates with non-uncertainty caveats"
+          }
+        ],
+        "reflection": "All models converged on identical core facts; GPT's sourcing and explicit certainty phrasing stood out as most aligned with the query's precision demands.",
+        "would_change": false,
+        "revised_position": null
+      }
+    },
+    {
+      "evaluator": "claude",
+      "evaluatorName": "Claude Haiku 4.5",
+      "status": "success",
+      "evaluation": {
+        "ratings": [
+          {
+            "model_id": "grok",
+            "score": 92,
+            "reasoning": "Grok provides all four facts with high accuracy and appropriate confidence declarations. The facts are correct, well-sourced, and clearly stated without unnecessary hedging.",
+            "strength": "Clean, direct answers with proper citations; confident and accurate on all points",
+            "weakness": "Slightly less pedagogical detail than some competitors; could have noted minor distance variations (1-1.5M km) with more explicit clarity"
+          },
+          {
+            "model_id": "gpt",
+            "score": 88,
+            "reasoning": "GPT provides accurate facts with reasonable sourcing and explicitly rates certainty levels for each item. The answer directly addresses the task with high-confidence ratings across all points, though the format is somewhat more verbose.",
+            "strength": "Explicit confidence ratings for each fact; good sourcing and willingness to offer additional details",
+            "weakness": "Slightly verbose presentation; could have been more concise in addressing the core question"
+          },
+          {
+            "model_id": "gemini",
+            "score": 72,
+            "reasoning": "Gemini provides accurate core facts and claims 100% confidence, but then undermines this confidence declaration by introducing extensive caveats and nuances that suggest uncertainty or incompleteness in the initial answer. This violates the task's structure of stating facts then flagging uncertainties.",
+            "strength": "Provides valuable technical nuances about L2 orbital mechanics and mirror measurement specificity; demonstrates sophisticated understanding",
+            "weakness": "Major structural flaw: claims 100% confidence then immediately contradicts this with significant caveats; misaligns answer structure with task requirements; conflates technical nuance with uncertainty, confusing the response"
+          }
+        ],
+        "reflection": "Reading these answers reinforced that direct, structured responses perform better when the task explicitly asks for fact-statement followed by confidence flagging. Gemini's technical nuances are intellectually interesting but destructive to task compliance when presented after a blanket confidence claim. The best responses (Grok, GPT) balance accuracy with appropriate epistemic humility.",
+        "would_change": false,
+        "revised_position": null
+      }
+    }
+  ],
+  "round3_verification": {
+    "claims": {
+      "grok": [
+        {
+          "id": "grok-1",
+          "text": "The James Webb Space Telescope launched on December 25, 2021.",
+          "category": "temporal",
+          "verifiable": true
+        },
+        {
+          "id": "grok-2",
+          "text": "The James Webb Space Telescope launched on an Ariane 5 rocket.",
+          "category": "other",
+          "verifiable": true
+        },
+        {
+          "id": "grok-3",
+          "text": "The James Webb Space Telescope launched from Kourou, French Guiana.",
+          "category": "other",
+          "verifiable": true
+        },
+        {
+          "id": "grok-4",
+          "text": "The James Webb Space Telescope operates in a halo orbit around the Sun-Earth L2 Lagrange point.",
+          "category": "other",
+          "verifiable": true
+        },
+        {
+          "id": "grok-5",
+          "text": "The Sun-Earth L2 Lagrange point is approximately 1.5 million km (about 1 million miles) from Earth.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "grok-6",
+          "text": "The James Webb Space Telescope's primary mirror has a diameter of 6.5 meters.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "grok-7",
+          "text": "The James Webb Space Telescope's primary mirror is composed of 18 hexagonal beryllium segments.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "grok-8",
+          "text": "NIRCam (Near Infrared Camera) is Webb's primary near-infrared imaging instrument, covering the 0.6–5 μm wavelength range.",
+          "category": "definition",
+          "verifiable": true
+        }
+      ],
+      "gpt": [
+        {
+          "id": "gpt-1",
+          "text": "JWST was launched on 25 December 2021 at 12:20 UTC.",
+          "category": "temporal",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-2",
+          "text": "JWST was launched from the Guiana Space Centre in French Guiana.",
+          "category": "other",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-3",
+          "text": "JWST was launched aboard an Ariane 5 rocket.",
+          "category": "other",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-4",
+          "text": "JWST operates in a halo (or Lissajous-type) orbit around the Sun–Earth L2 Lagrange point.",
+          "category": "other",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-5",
+          "text": "The Sun–Earth L2 Lagrange point is approximately 1.5 million kilometers from Earth on the side opposite the Sun.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-6",
+          "text": "JWST's primary mirror is made up of 18 hexagonal segments.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-7",
+          "text": "JWST's primary mirror is approximately 6.5 meters in diameter (flat-to-flat).",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-8",
+          "text": "JWST's primary near-infrared camera is called NIRCam (Near-InfraRed Camera) and covers wavelengths from about 0.6 to 5.0 microns.",
+          "category": "statistic",
+          "verifiable": true
+        }
+      ],
+      "gemini": [
+        {
+          "id": "gemini-1",
+          "text": "The James Webb Space Telescope launched on December 25, 2021.",
+          "category": "temporal",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-2",
+          "text": "JWST launched at 12:20 UTC on December 25, 2021.",
+          "category": "temporal",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-3",
+          "text": "JWST orbits in a halo orbit around the Sun-Earth Lagrange Point 2 (L2).",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-4",
+          "text": "The Sun-Earth L2 point is approximately 1.5 million kilometers from Earth.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-5",
+          "text": "JWST's primary mirror has a diameter of 6.5 meters (21.3 feet).",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-6",
+          "text": "JWST's primary mirror is composed of 18 hexagonal segments.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-7",
+          "text": "NIRCam (Near-Infrared Camera) is the primary optical imager on JWST.",
+          "category": "definition",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-8",
+          "text": "JWST carries NIRSpec (a near-infrared spectrograph) and NIRISS (a near-infrared imager/spectrograph) alongside NIRCam.",
+          "category": "statistic",
+          "verifiable": true
+        }
+      ],
+      "claude": [
+        {
+          "id": "claude-1",
+          "text": "The James Webb Space Telescope launched on December 25, 2021.",
+          "category": "temporal",
+          "verifiable": true
+        },
+        {
+          "id": "claude-2",
+          "text": "The James Webb Space Telescope operates from the second Lagrange point (L2).",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "claude-3",
+          "text": "The second Lagrange point (L2) is approximately 1 million miles from Earth.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "claude-4",
+          "text": "The L2 point is on the side of Earth opposite the Sun.",
+          "category": "definition",
+          "verifiable": true
+        },
+        {
+          "id": "claude-5",
+          "text": "The James Webb Space Telescope's primary mirror has a diameter of 6.5 meters.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "claude-6",
+          "text": "6.5 meters is approximately 21.3 feet.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "claude-7",
+          "text": "The James Webb Space Telescope's primary mirror is made up of 18 hexagonal segments.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "claude-8",
+          "text": "The mirror segments of the James Webb Space Telescope are made of beryllium coated with gold.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "claude-9",
+          "text": "The Near Infrared Camera (NIRCam) is the primary near-infrared imaging instrument on the James Webb Space Telescope.",
+          "category": "definition",
+          "verifiable": true
+        }
+      ]
+    },
+    "verifications": {
+      "grok-5": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple authoritative sources (NASA, ESA) agree that the Sun–Earth L2 point is approximately 1.5 million kilometers (~1 million miles) from Earth. The distance is consistently reported in scientific and space agency publications, and corresponds to about 0.01 astronomical units. Any variation comes from halo orbit around L2, not the claim itself.",
+        "sources": [
+          {
+            "url": "https://science.nasa.gov/asset/webb/webbs-orbit-at-sun-earth-lagrange-point-2-l2/?utm_source=openai",
+            "title": "Webb's Orbit at Sun-Earth Lagrange Point 2 (L2) - NASA Science"
+          }
+        ]
+      },
+      "grok-3": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Official records from NASA and the European Space Agency confirm that the James Webb Space Telescope was launched on December 25, 2021. The launch took place on an Ariane 5 rocket from the Guiana Space Centre (Europe's Spaceport) located in Kourou, French Guiana.",
+        "sources": [
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEqBaZPh7UcyKrDokbpIliy0t5qNqChRT4I4WnrtFXn3jRTMXdiNVbJCJk7CtogNVHw-rJZDFQ-fu_eFk6SqT2KI_hIax5Z18zcDhmAPG7iSfr9wGS0vW4AfllfhTyHjZI=",
+            "title": "youtube.com"
+          },
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEnSJneQtPPP1bvcaFIrzn1P_7LIeb-ItnxFyF8Fb2B-U46uNu0xg-mRKLdhdj-VpFfLzHp7I_XumyWysAVkmQLcArinSubxOGtQjYFWHeo05kCPJjV1j2zT9D1_oOrg17BPw==",
+            "title": "nasa.gov"
+          },
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFZ1wuFKwLYJp62CSKLW1EmSrJTLJIn_Ajm8poGoLneNdSKEkcqmbhMEtLYEm0S324mNr1JOA5Mx0wzpQnsvy8TubazrDgWI9LoUgemN85byrqZ0Rlz2-BQyNs6Hf5UdrY=",
+            "title": "youtube.com"
+          },
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGvaBAFX_ggcPiVrcfa-1yadsIz0V59P_FYalCa9YTQKld-3ES9B-5wtM8hBw1t0o043E3FSnpHjrHnlKZjmBtmtnzsAIBhcKoeqT9cZFGCqvPl8_vdFWDPRGr04qxUI54=",
+            "title": "youtube.com"
+          }
+        ]
+      },
+      "grok-6": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Official data from NASA, the European Space Agency (ESA), and the Space Telescope Science Institute confirm that the James Webb Space Telescope's primary mirror has a diameter of 6.5 meters (approximately 21.3 feet). This mirror consists of 18 individual hexagonal gold-plated beryllium segments that function together as a single 6.5-meter-wide reflecting surface.",
+        "sources": [
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHrDDS3pq47ev_s_pdEBrlpPNWPP9JEEprtqkbv3GbuwQVdmhvQRx06me7AC7dqwvEiWX2qmyS8sc21ChS-EYOuwQZ0W0K6V1R6P5xgowMu7qCmy5vdfKbbu_I4sWVVBRsdwFWWsNiIR7l7oyPRcFbyUqRX24YoHxBKLFHxQAvYqOgP",
+            "title": "nasa.gov"
+          },
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEYMUbLKu1atfiuMEpmxjSiduDUP_WZpazzWRuEGd8TqAKziQMqlLcjaxlV_0lzrwwcMsDkMh35dkGNrJW6OdsEYTA10r2k8bEPKdz9b4vNt0kVR5svRDTTqmIGayVIeQ==",
+            "title": "esawebb.org"
+          },
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEtoU_zSD7x4bGV4GI0lOBjw7zauvZCWDw89NZr0OarAh-TLRIgrquLOPNbsfqTTquAtjURLVbnohGSh1E21eKwQTssZAPgkHWYtVfd8p4oNgiSlNCJQ_ZAROWGZkzaffP6jPF0j4yALtJ3gZvB8WUvgYDtQnRhHEJn",
+            "title": "stsci.edu"
+          },
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFHd834iAtzfR1J5XlzZxq6uYaV-rBc4u8BqHuDpJM6nthhr50PP9aatj-sB9xMMPn-YkfeL4k1lquxD2Z1BiiQZNjajme1ONkElJyQQRPn1Gtv9cMGJc2PqRvqTKroug3EQBXxODty4uOj_MfN",
+            "title": "wikipedia.org"
+          }
+        ]
+      },
+      "gpt-3": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "The James Webb Space Telescope (JWST) was successfully launched into space on December 25, 2021, aboard an Ariane 5 rocket (flight VA256) from Europe's Spaceport in Kourou, French Guiana. This launch vehicle was provided by the European Space Agency (ESA) as part of its partnership contribution to the mission.",
+        "sources": []
+      },
+      "grok-2": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple reliable sources (NASA, ESA, Arianespace) clearly report that the JWST was launched aboard an Ariane 5 rocket on December 25, 2021, VA-256 from French Guiana. The documentation is consistent and widely corroborated.",
+        "sources": [
+          {
+            "url": "https://science.nasa.gov/mission/webb/launch/?utm_source=openai",
+            "title": "Launch - NASA Science"
+          },
+          {
+            "url": "https://www.ariane.group/en/news/ariane-5-will-launch-the-james-webb-space-telescope-on-a-mission-to-look-back-to-the-dawn-of-time/?utm_source=openai",
+            "title": "Ariane 5 VA256 with James Webb Space Telescope"
+          },
+          {
+            "url": "https://science.nasa.gov/wp-content/uploads/2024/08/webbmediakit.pdf?utm_source=openai",
+            "title": "Webb Telescope Launch Media Kit"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/launch/?utm_source=openai",
+            "title": "Launch - NASA Science"
+          }
+        ]
+      },
+      "grok-8": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple authoritative sources state that NIRCam is Webb’s primary near-infrared imager, and indicate that its operating wavelength range is from about 0.6 micrometers up to 5 micrometers. These details match almost exactly the claim in question.",
+        "sources": [
+          {
+            "url": "https://science.nasa.gov/mission/webb/nircam?utm_source=openai",
+            "title": "NIRCam - NASA Science"
+          }
+        ]
+      },
+      "gpt-6": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Official documentation from NASA, ESA, and the Space Telescope Science Institute confirms that the James Webb Space Telescope's primary mirror consists of exactly 18 hexagonal segments. These gold-plated beryllium segments were designed to fold so they could fit inside the launch vehicle and are precisely aligned to act as a single, 6.5-meter-wide mirror.",
+        "sources": []
+      },
+      "gpt-1": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Multiple authoritative sources, including Wikipedia, NASA, and ESA-affiliated sites, explicitly confirm the JWST launch occurred on 25 December 2021 at precisely 12:20 UTC (equivalent to 7:20 a.m. EST). No sources contradict this timing, and launch timelines and official mission pages align exactly with the claim.",
+        "sources": []
+      },
+      "gpt-4": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple authoritative sources, including NASA and ESA, explicitly describe JWST as operating in a halo orbit around the Sun-Earth L2 point, with some noting it can also be characterized as Lissajous-type. Official NASA pages state it completes circuits in a 'halo orbit' every ~168 days, varying 250k-830k km from L2. Technical discussions confirm halo/Lissajous options were acceptable and JWST uses a halo orbit.",
+        "sources": []
+      },
+      "gpt-7": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple official NASA sources and consistent secondary references (including Wikipedia) state that JWST's primary mirror has a diameter of 6.5 meters, composed of 18 hexagonal segments each 1.32 m flat-to-flat. This matches the claim's specification of 'flat-to-flat' exactly; one technical paper notes a slightly larger circumscribed (point-to-point) diameter of ~6.64 m, but this does not contradict the standard flat-to-flat measurement used by NASA.",
+        "sources": []
+      },
+      "gemini-1": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Multiple authoritative sources, including NASA's official mission pages and Wikipedia, unanimously confirm that the James Webb Space Telescope launched on December 25, 2021, at 7:20 a.m. EST on an Ariane 5 rocket from French Guiana.",
+        "sources": [
+          {
+            "url": "https://science.nasa.gov/mission/webb/webb-mission-timeline/",
+            "title": "Mission Timeline - James Webb Space Telescope"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/",
+            "title": "James Webb Space Telescope - NASA Science"
+          },
+          {
+            "url": "https://www.esa.int/Science_Exploration/Space_Science/James_Webb_Space_Telescope_to_launch_in_October_2021",
+            "title": "ESA - James Webb Space Telescope to launch in October 2021"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/launch/",
+            "title": "Webb's Launch"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/James_Webb_Space_Telescope",
+            "title": "James Webb Space Telescope - Wikipedia"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/about-overview/",
+            "title": "Overview - NASA Science"
+          },
+          {
+            "url": "https://science.nasa.gov/asset/webb/jwst-launch-last-view-of-the-telescope/",
+            "title": "JWST Launch: Last View of the Telescope - NASA Science"
+          },
+          {
+            "url": "https://www.nasa.gov/solar-system/nasas-webb-telescope-launches-to-see-first-galaxies-distant-worlds/",
+            "title": "NASA's Webb Telescope Launches to See First Galaxies, Distant Worlds - NASA Science"
+          },
+          {
+            "url": "https://www.nasa.gov/news-release/nasa-readies-james-webb-space-telescope-for-december-launch/",
+            "title": "NASA Readies James Webb Space Telescope for December Launch - NASA"
+          },
+          {
+            "url": "https://science.nasa.gov/asset/webb/james-webb-space-telescope-launch-highlights/",
+            "title": "James Webb Space Telescope Launch Highlights - NASA Science"
+          }
+        ]
+      },
+      "gemini-4": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple authoritative sources (NASA, ESA, etc.) state that the Sun-Earth L2 point lies about 1.5 million kilometers from Earth in the anti-sunward direction. This is well-established in space mission documentation.",
+        "sources": [
+          {
+            "url": "https://www.esa.int/Science_Exploration/Space_Science/Herschel/L2_the_second_Lagrangian_Point?utm_source=openai",
+            "title": "ESA - L2, the second Lagrangian Point"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/orbit/?utm_source=openai",
+            "title": "Orbit - NASA Science"
+          },
+          {
+            "url": "https://orbitalradar.com/glossary/l2?utm_source=openai",
+            "title": "What Is L2? Sun–Earth Lagrange Point 2 — JWST's Home | Orbital Radar"
+          },
+          {
+            "url": "https://www.esa.int/Science_Exploration/Space_Science/Herschel/L2_the_second_Lagrangian_Point?utm_source=openai",
+            "title": "ESA - L2, the second Lagrangian Point"
+          }
+        ]
+      },
+      "gemini-2": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple authoritative sources, including Wikipedia, NASA, and ESA-affiliated sites, explicitly confirm the JWST launch occurred at precisely 12:20 UTC on December 25, 2021, via Ariane 5 from French Guiana. Cross-referenced reports (e.g., rocketlaunch.live, CNN) align without discrepancy on the UTC timestamp.",
+        "sources": []
+      },
+      "grok-1": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Multiple authoritative sources — including NASA's official website, Wikipedia, Space.com, and the Planetary Society — all confirm that the James Webb Space Telescope launched on December 25, 2021, at 7:20 AM ET aboard an Ariane 5 rocket from Kourou, French Guiana. There is no conflicting information from any source.",
+        "sources": [
+          {
+            "url": "https://science.nasa.gov/mission/webb/launch/",
+            "title": "Webb's Launch"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/",
+            "title": "James Webb Space Telescope - NASA Science"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/Timeline_of_the_James_Webb_Space_Telescope",
+            "title": "Timeline of the James Webb Space Telescope - Wikipedia"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/James_Webb_Space_Telescope",
+            "title": "James Webb Space Telescope - Wikipedia"
+          }
+        ]
+      },
+      "claude-1": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "Multiple reliable sources, including NASA, confirm that the James Webb Space Telescope (JWST) launched on December 25, 2021 at 7:20 AM Eastern Time (12:20 UTC) aboard an Ariane 5 rocket from the European Spaceport in French Guiana. There is no credible source contradicting this date.",
+        "sources": [
+          {
+            "url": "https://science.nasa.gov/mission/webb/launch/?utm_source=openai",
+            "title": "Launch - NASA Science"
+          }
+        ]
+      },
+      "gemini-8": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple authoritative sources (STScI JWST instrumentation page, NASA science overview) explicitly list JWST's four science instruments as MIRI, NIRCam (primary near-IR imager), NIRSpec (versatile near-IR spectrograph, 0.6-5.3 μm), and NIRISS (near-IR imager and slitless spectrograph, 0.6-5 μm, often paired with FGS). NIRSpec and NIRISS are confirmed as distinct instruments carried alongside NIRCam, with complementary capabilities.",
+        "sources": []
+      },
+      "gpt-2": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Multiple authoritative sources — including NASA's official Science website, NASA's Scientific Visualization Studio, and ESA — all confirm that JWST launched from the Guiana Space Centre (Europe's Spaceport) in Kourou, French Guiana on December 25, 2021. The launch was carried out by an Arianespace Ariane 5 rocket as part of ESA's contribution to the mission.",
+        "sources": [
+          {
+            "url": "https://svs.gsfc.nasa.gov/gallery/jwst/",
+            "title": "NASA Scientific Visualization Studio | James Webb Space Telescope"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/launch/",
+            "title": "Webb's Launch"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/launch/",
+            "title": "Webb's Launch"
+          }
+        ]
+      },
+      "claude-2": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Official records and mission details from NASA and the European Space Agency confirm that the James Webb Space Telescope (JWST) operates in a halo/Lissajous orbit around the second Sun-Earth Lagrange point (L2). This location is roughly 1.5 million kilometers (1 million miles) from Earth, providing a gravitationally stable and cold environment crucial for the telescope's infrared observations.",
+        "sources": []
+      },
+      "gemini-5": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple authoritative sources, including NASA pages and Wikipedia, consistently state that JWST's primary mirror diameter is 6.5 meters (often specified as 21 ft or 21 ft 4 in / ~21.3 ft). This matches the claim exactly, with the feet conversion aligning to standard metric-to-imperial rounding (6.5 m ≈ 21.325 ft). Minor outliers (e.g., one page listing 6.6 m) do not override the consensus from official documentation.",
+        "sources": []
+      },
+      "claude-4": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple authoritative sources agree that the Sun-Earth L2 Lagrange point lies along the Earth-Sun line on the side of Earth opposite the Sun, at about 1.5 million km away.",
+        "sources": [
+          {
+            "url": "https://www.esa.int/Science_Exploration/Space_Science/Herschel/L2_the_second_Lagrangian_Point?utm_source=openai",
+            "title": "ESA - L2, the second Lagrangian Point"
+          },
+          {
+            "url": "https://sci.esa.int/web/euclid/-/29537-the-second-lagrangian-point-l2?utm_source=openai",
+            "title": "ESA Science & Technology - The second Lagrangian point, L2"
+          },
+          {
+            "url": "https://orbitalradar.com/glossary/l2?utm_source=openai",
+            "title": "What Is L2? Sun–Earth Lagrange Point 2 — JWST's Home | Orbital Radar"
+          },
+          {
+            "url": "https://plancksatellite.org.uk/mission/orbit/?utm_source=openai",
+            "title": "Planck’s orbit – Planck Satellite"
+          }
+        ]
+      },
+      "claude-6": {
+        "verdict": "supported",
+        "confidence": 0.9,
+        "reasoning": "1 m ≈ 3.28084 ft so 6.5 × 3.28084 = 21.32546 ft, which rounds to the stated 21.3 ft approximation.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "gemini-7": {
+        "verdict": "partially_supported",
+        "confidence": 0.85,
+        "reasoning": "NIRCam is indeed the primary imager aboard JWST for wavelengths from about 0.6 to 5 µm (near-infrared), but it is not an ‘optical’ imager in the full visible light sense. The claim would be correct if rephrased as ‘primary near-infrared imager’ rather than ‘optical’.",
+        "sources": [
+          {
+            "url": "https://science.nasa.gov/mission/webb/nircam?utm_source=openai",
+            "title": "NIRCam - NASA Science"
+          },
+          {
+            "url": "https://academic.oup.com/mnras/article/486/3/3087/5479254?utm_source=openai",
+            "title": "Maximizing the power of deep extragalactic imaging surveys with the James Webb Space Telescope | Monthly Notices of the Royal Astronomical Society | Oxford Academic"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/science-overview/science-explainers/webbs-scientific-instruments?utm_source=openai",
+            "title": "Webb's Scientific Instruments - NASA Science"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/nircam?utm_source=openai",
+            "title": "NIRCam - NASA Science"
+          }
+        ]
+      },
+      "claude-3": {
+        "verdict": "supported",
+        "confidence": 0.9,
+        "reasoning": "Multiple authoritative sources including NASA, ESA, and Wikipedia consistently state that Sun-Earth L2 is located about 1.5 million km (roughly 930,000–932,000 miles) from Earth, which is routinely approximated as '1 million miles' or 'approximately 1 million miles' in official descriptions and mission contexts (e.g., JWST). This matches the claim's wording of 'approximately.'",
+        "sources": []
+      },
+      "claude-5": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Official documentation from NASA, ESA, and the Space Telescope Science Institute confirms that the James Webb Space Telescope's primary mirror has a total diameter of 6.5 meters (21.3 feet). This primary mirror is made up of 18 hexagonal beryllium segments that function together as a single, large optical element.",
+        "sources": []
+      },
+      "grok-7": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "Multiple authoritative sources — including NASA's official science pages, Wikipedia, and peer-reviewed arxiv papers on JWST — consistently confirm that the primary mirror is composed of exactly 18 hexagonal beryllium segments. The only detail the claim omits is that the segments are gold-plated on their reflective surface, but the core claim about the number, shape, and material is fully accurate.",
+        "sources": [
+          {
+            "url": "https://en.wikipedia.org/wiki/James_Webb_Space_Telescope",
+            "title": "James Webb Space Telescope - Wikipedia"
+          },
+          {
+            "url": "https://arxiv.org/pdf/2304.04869",
+            "title": "The James Webb Space Telescope Mission"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/webbs-mirrors/",
+            "title": "Webb's Mirrors - NASA Science"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/webbs-mirrors/",
+            "title": "Webb's Mirrors - NASA Science"
+          },
+          {
+            "url": "https://www.space.com/nasa-james-webb-space-telescope-mirror-explained",
+            "title": "NASA's James Webb Space Telescope has a shiny giant mirror made of gold hexagons. Here's why."
+          }
+        ]
+      },
+      "gpt-5": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "Multiple authoritative sources — including NASA, ESA, and Wikipedia — consistently confirm that the Sun-Earth L2 Lagrange point is located approximately 1.5 million kilometers from Earth on the side opposite the Sun. Numerical calculations place the precise distance at ~1,477,000 km, which rounds accurately to '~1.5 million km.' Both the distance and the directional description in the claim are correct.",
+        "sources": [
+          {
+            "url": "https://www.esa.int/Science_Exploration/Space_Science/L2_the_second_Lagrangian_Point",
+            "title": "ESA - L2, the second Lagrangian Point"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/Lagrange_point",
+            "title": "Lagrange point - Wikipedia"
+          },
+          {
+            "url": "https://science.nasa.gov/asset/webb/webbs-orbit-at-sun-earth-lagrange-point-2-l2/",
+            "title": "Webb's Orbit at Sun-Earth Lagrange Point 2 (L2) - NASA Science"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/List_of_objects_at_Lagrange_points",
+            "title": "List of objects at Lagrange points - Wikipedia"
+          },
+          {
+            "url": "https://www.space.com/30302-lagrange-points.html",
+            "title": "Lagrange Points: Parking Places in Space"
+          },
+          {
+            "url": "https://www.johndcook.com/blog/2021/12/28/lagrange-points-l1-and-l2/",
+            "title": "Finding Lagrange points L1 and L2"
+          }
+        ]
+      },
+      "claude-7": {
+        "verdict": "supported",
+        "confidence": 0.98,
+        "reasoning": "Authoritative sources—such as NASA, the European Space Agency, and technical literature—consistently state that the JWST’s primary mirror is composed of 18 hexagonal mirror segments. These sources further confirm that these segments flatten out to act as one large, 6.5-meter diameter mirror. The hexagonal segments design is well-documented and central to JWST’s optics architecture. ([jwst-docs.stsci.edu](https://jwst-docs.stsci.edu/jwst-observatory-hardware/jwst-telescope?utm_source=openai))",
+        "sources": [
+          {
+            "url": "https://jwst-docs.stsci.edu/jwst-observatory-hardware/jwst-telescope?utm_source=openai",
+            "title": "JWST Telescope - JWST User Documentation"
+          },
+          {
+            "url": "https://science.nasa.gov/mission/webb/webbs-mirrors/?utm_source=openai",
+            "title": "Webb's Mirrors - NASA Science"
+          }
+        ]
+      },
+      "claude-8": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "NASA documentation confirms that the mirror segments of the James Webb Space Telescope are indeed constructed from beryllium and coated with an extremely thin layer of gold. Beryllium was selected for its strength, light weight, and stability at cryogenic temperatures, while the gold coating was applied to maximize the mirrors' reflectivity of infrared light.",
+        "sources": []
+      },
+      "gemini-6": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Every authoritative source consulted — including NASA's official Webb telescope pages, ESA/Webb, the JWST User Documentation (STScI), and Wikipedia's Optical Telescope Element article — unanimously confirms that JWST's primary mirror is composed of exactly 18 hexagonal segments. The claim contains no inaccuracies.",
+        "sources": [
+          {
+            "url": "https://webb.nasa.gov/content/observatory/ote/mirrors/index.html",
+            "title": "mirrors - James Webb Telescope - NASA"
+          },
+          {
+            "url": "https://jwst-docs.stsci.edu/jwst-observatory-hardware/jwst-telescope",
+            "title": "JWST Telescope - JWST User Documentation"
+          },
+          {
+            "url": "https://esawebb.org/about/general/mirrors/",
+            "title": "Mirrors | ESA/Webb"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/Optical_Telescope_Element",
+            "title": "Optical Telescope Element - Wikipedia"
+          }
+        ]
+      },
+      "claude-9": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple official NASA, ESA, and STScI sources explicitly describe NIRCam as JWST's 'primary near-infrared imager' or 'primary imager' in the 0.6-5 μm near-IR range. This is consistent across technical descriptions, instrument overviews, and mission pages, distinguishing it from other JWST instruments like NIRSpec or MIRI. No contradictory information was found.",
+        "sources": []
+      },
+      "gpt-8": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "Every element of the claim is confirmed by multiple authoritative sources including NASA's official JWST website, the Space Telescope Science Institute, the JWST User Documentation (JDox), and the University of Arizona (NIRCam's developer). NIRCam is indeed JWST's primary near-infrared camera, its full name is 'Near-InfraRed Camera,' and it covers precisely 0.6 to 5.0 microns.",
+        "sources": [
+          {
+            "url": "https://en.wikipedia.org/wiki/NIRCam",
+            "title": "NIRCam - Wikipedia"
+          },
+          {
+            "url": "https://www.stsci.edu/jwst/instrumentation/instruments",
+            "title": "Science Instruments | STScI"
+          },
+          {
+            "url": "https://webb.nasa.gov/content/observatory/instruments/nircam.html",
+            "title": "NIRCam (NASA) - James Webb Telescope"
+          },
+          {
+            "url": "https://jwst-docs.stsci.edu/jwst-near-infrared-camera",
+            "title": "JWST Near Infrared Camera - JWST User Documentation"
+          },
+          {
+            "url": "https://jwst-docs.stsci.edu/jwst-near-infrared-camera",
+            "title": "JWST Near Infrared Camera - JWST User Documentation"
+          }
+        ]
+      },
+      "grok-4": {
+        "verdict": "supported",
+        "confidence": 0.97,
+        "reasoning": "Multiple NASA sources, peer-reviewed papers, and technical documentation uniformly confirm that JWST operates in a 'halo orbit' around the Sun-Earth L2 Lagrange point, approximately 1.5 million km from Earth. The orbit is highly elliptical, roughly perpendicular to the Sun-Earth axis, and requires periodic station-keeping burns to maintain stability. One pre-launch paper used the term 'Lissajous orbit,' but official and post-launch sources consistently classify it as a halo orbit.",
+        "sources": [
+          {
+            "url": "https://science.nasa.gov/mission/webb/orbit/",
+            "title": "Webb's Orbit"
+          },
+          {
+            "url": "https://science.nasa.gov/asset/webb/webbs-orbit-at-sun-earth-lagrange-point-2-l2/",
+            "title": "Webb's Orbit at Sun-Earth Lagrange Point 2 (L2) - NASA Science"
+          },
+          {
+            "url": "https://webbtelescope.org/contents/media/images/4201-Image",
+            "title": "Webb's Orbit - NASA Science"
+          },
+          {
+            "url": "https://arxiv.org/pdf/2602.02134",
+            "title": "JWST NIRSpec's Cosmic Ray Experience at L2"
+          },
+          {
+            "url": "https://arxiv.org/pdf/2602.02134",
+            "title": "JWST NIRSpec's Cosmic Ray Experience at L2"
+          },
+          {
+            "url": "https://arxiv.org/pdf/1809.09702",
+            "title": "The Origins Space Telescope (OST) Mission Concept Study Interim Report"
+          }
+        ]
+      },
+      "gemini-3": {
+        "verdict": "supported",
+        "confidence": 0.93,
+        "reasoning": "Multiple authoritative sources — including NASA, ESA, and peer-reviewed papers — confirm that JWST performs a 'halo orbit' around the Sun-Earth L2 Lagrange point, approximately 1.5 million km from Earth. There is a minor terminological nuance, as Wikipedia describes it as a 'Lissajous orbit,' but scientific comparisons clarify that JWST's orbit is a 'perfectly periodic Halo,' and NASA's official materials consistently use the 'halo orbit' designation.",
+        "sources": [
+          {
+            "url": "https://science.nasa.gov/asset/webb/webbs-orbit-at-sun-earth-lagrange-point-2-l2/",
+            "title": "Webb's Orbit at Sun-Earth Lagrange Point 2 (L2) - NASA Science"
+          },
+          {
+            "url": "https://science.nasa.gov/asset/webb/webbs-orbit-at-sun-earth-lagrange-point-2-l2/",
+            "title": "Webb's Orbit at Sun-Earth Lagrange Point 2 (L2) - NASA Science"
+          },
+          {
+            "url": "https://arxiv.org/pdf/2602.02134",
+            "title": "JWST NIRSpec's Cosmic Ray Experience at L2"
+          },
+          {
+            "url": "https://science.nasa.gov/asset/webb/webbs-orbit-at-sun-earth-lagrange-point-2-l2/",
+            "title": "Webb's Orbit at Sun-Earth Lagrange Point 2 (L2) - NASA Science"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/James_Webb_Space_Telescope",
+            "title": "James Webb Space Telescope - Wikipedia"
+          },
+          {
+            "url": "https://arxiv.org/pdf/1809.09702",
+            "title": "The Origins Space Telescope (OST) Mission Concept Study Interim Report"
+          },
+          {
+            "url": "https://science.nasa.gov/asset/webb/webbs-orbit-at-sun-earth-lagrange-point-2-l2/",
+            "title": "Webb's Orbit at Sun-Earth Lagrange Point 2 (L2) - NASA Science"
+          },
+          {
+            "url": "https://arxiv.org/pdf/2602.02134",
+            "title": "JWST NIRSpec's Cosmic Ray Experience at L2"
+          }
+        ]
+      }
+    },
+    "scores": {
+      "grok": {
+        "total_claims": 8,
+        "verified": 8,
+        "partially_supported": 0,
+        "refuted": 0,
+        "unverifiable": 0,
+        "score": 100
+      },
+      "gpt": {
+        "total_claims": 8,
+        "verified": 8,
+        "partially_supported": 0,
+        "refuted": 0,
+        "unverifiable": 0,
+        "score": 100
+      },
+      "gemini": {
+        "total_claims": 8,
+        "verified": 7,
+        "partially_supported": 1,
+        "refuted": 0,
+        "unverifiable": 0,
+        "score": 93.8
+      },
+      "claude": {
+        "total_claims": 9,
+        "verified": 9,
+        "partially_supported": 0,
+        "refuted": 0,
+        "unverifiable": 0,
+        "score": 100
+      }
+    },
+    "synthesis": {
+      "answer": "## James Webb Space Telescope: Key Facts\n\n**(a) Launch Date:** The James Webb Space Telescope launched on **December 25, 2021, at 12:20 UTC** [1][9][17]. It lifted off aboard an Ariane 5 rocket [2][11] from the Guiana Space Centre in Kourou, French Guiana [3][10].\n\n**(b) Location/Orbit:** JWST operates in a **halo orbit around the Sun-Earth L2 (second Lagrange) point** [4][18], situated approximately **1.5 million kilometers (about 1 million miles) from Earth** on the side opposite the Sun [5][13][27]. This gravitationally stable location allows the telescope to maintain a fixed orientation relative to Earth and Sun, which is ideal for its thermal and observational requirements.\n\n**(c) Primary Mirror Diameter:** JWST's primary mirror has a diameter of **6.5 meters (approximately 21.3 feet)** [6][20]. It is composed of **18 hexagonal segments** made of beryllium coated with gold [7][21][31].\n\n**(d) Primary Near-Infrared Camera:** The primary near-infrared camera is called **NIRCam (Near-InfraRed Camera)** [8][16][22][32]. It serves as Webb's primary optical imager and covers wavelengths from approximately **0.6 to 5.0 microns** [8][16].\n\n> ✅ **Confidence note:** All four facts above are well-supported by multiple concordant verified sources and carry high confidence. No claims required flagging as uncertain.",
+      "citations": [
+        {
+          "index": 1,
+          "claim": "The James Webb Space Telescope launched on December 25, 2021.",
+          "source": {
+            "url": "https://science.nasa.gov/mission/webb/launch/",
+            "title": "Webb's Launch"
+          }
+        },
+        {
+          "index": 2,
+          "claim": "The James Webb Space Telescope launched on an Ariane 5 rocket.",
+          "source": {
+            "url": "https://science.nasa.gov/mission/webb/launch/?utm_source=openai",
+            "title": "Launch - NASA Science"
+          }
+        },
+        {
+          "index": 3,
+          "claim": "The James Webb Space Telescope launched from Kourou, French Guiana.",
+          "source": {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEqBaZPh7UcyKrDokbpIliy0t5qNqChRT4I4WnrtFXn3jRTMXdiNVbJCJk7CtogNVHw-rJZDFQ-fu_eFk6SqT2KI_hIax5Z18zcDhmAPG7iSfr9wGS0vW4AfllfhTyHjZI=",
+            "title": "youtube.com"
+          }
+        },
+        {
+          "index": 4,
+          "claim": "The James Webb Space Telescope operates in a halo orbit around the Sun-Earth L2 Lagrange point.",
+          "source": {
+            "url": "https://science.nasa.gov/mission/webb/orbit/",
+            "title": "Webb's Orbit"
+          }
+        },
+        {
+          "index": 5,
+          "claim": "The Sun-Earth L2 Lagrange point is approximately 1.5 million km (about 1 million miles) from Earth.",
+          "source": {
+            "url": "https://science.nasa.gov/asset/webb/webbs-orbit-at-sun-earth-lagrange-point-2-l2/?utm_source=openai",
+            "title": "Webb's Orbit at Sun-Earth Lagrange Point 2 (L2) - NASA Science"
+          }
+        },
+        {
+          "index": 6,
+          "claim": "The James Webb Space Telescope's primary mirror has a diameter of 6.5 meters.",
+          "source": {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHrDDS3pq47ev_s_pdEBrlpPNWPP9JEEprtqkbv3GbuwQVdmhvQRx06me7AC7dqwvEiWX2qmyS8sc21ChS-EYOuwQZ0W0K6V1R6P5xgowMu7qCmy5vdfKbbu_I4sWVVBRsdwFWWsNiIR7l7oyPRcFbyUqRX24YoHxBKLFHxQAvYqOgP",
+            "title": "nasa.gov"
+          }
+        },
+        {
+          "index": 7,
+          "claim": "The James Webb Space Telescope's primary mirror is composed of 18 hexagonal beryllium segments.",
+          "source": {
+            "url": "https://en.wikipedia.org/wiki/James_Webb_Space_Telescope",
+            "title": "James Webb Space Telescope - Wikipedia"
+          }
+        },
+        {
+          "index": 8,
+          "claim": "NIRCam (Near Infrared Camera) is Webb's primary near-infrared imaging instrument, covering the 0.6–5 μm wavelength range.",
+          "source": {
+            "url": "https://science.nasa.gov/mission/webb/nircam?utm_source=openai",
+            "title": "NIRCam - NASA Science"
+          }
+        },
+        {
+          "index": 9,
+          "claim": "JWST was launched on 25 December 2021 at 12:20 UTC.",
+          "source": null
+        },
+        {
+          "index": 10,
+          "claim": "JWST was launched from the Guiana Space Centre in French Guiana.",
+          "source": {
+            "url": "https://svs.gsfc.nasa.gov/gallery/jwst/",
+            "title": "NASA Scientific Visualization Studio | James Webb Space Telescope"
+          }
+        },
+        {
+          "index": 11,
+          "claim": "JWST was launched aboard an Ariane 5 rocket.",
+          "source": null
+        },
+        {
+          "index": 12,
+          "claim": "JWST operates in a halo (or Lissajous-type) orbit around the Sun–Earth L2 Lagrange point.",
+          "source": null
+        },
+        {
+          "index": 13,
+          "claim": "The Sun–Earth L2 Lagrange point is approximately 1.5 million kilometers from Earth on the side opposite the Sun.",
+          "source": {
+            "url": "https://www.esa.int/Science_Exploration/Space_Science/L2_the_second_Lagrangian_Point",
+            "title": "ESA - L2, the second Lagrangian Point"
+          }
+        },
+        {
+          "index": 14,
+          "claim": "JWST's primary mirror is made up of 18 hexagonal segments.",
+          "source": null
+        },
+        {
+          "index": 15,
+          "claim": "JWST's primary mirror is approximately 6.5 meters in diameter (flat-to-flat).",
+          "source": null
+        },
+        {
+          "index": 16,
+          "claim": "JWST's primary near-infrared camera is called NIRCam (Near-InfraRed Camera) and covers wavelengths from about 0.6 to 5.0 microns.",
+          "source": {
+            "url": "https://en.wikipedia.org/wiki/NIRCam",
+            "title": "NIRCam - Wikipedia"
+          }
+        },
+        {
+          "index": 17,
+          "claim": "JWST launched at 12:20 UTC on December 25, 2021.",
+          "source": null
+        },
+        {
+          "index": 18,
+          "claim": "JWST orbits in a halo orbit around the Sun-Earth Lagrange Point 2 (L2).",
+          "source": {
+            "url": "https://science.nasa.gov/asset/webb/webbs-orbit-at-sun-earth-lagrange-point-2-l2/",
+            "title": "Webb's Orbit at Sun-Earth Lagrange Point 2 (L2) - NASA Science"
+          }
+        },
+        {
+          "index": 19,
+          "claim": "The Sun-Earth L2 point is approximately 1.5 million kilometers from Earth.",
+          "source": {
+            "url": "https://www.esa.int/Science_Exploration/Space_Science/Herschel/L2_the_second_Lagrangian_Point?utm_source=openai",
+            "title": "ESA - L2, the second Lagrangian Point"
+          }
+        },
+        {
+          "index": 20,
+          "claim": "JWST's primary mirror has a diameter of 6.5 meters (21.3 feet).",
+          "source": null
+        },
+        {
+          "index": 21,
+          "claim": "JWST's primary mirror is composed of 18 hexagonal segments.",
+          "source": {
+            "url": "https://webb.nasa.gov/content/observatory/ote/mirrors/index.html",
+            "title": "mirrors - James Webb Telescope - NASA"
+          }
+        },
+        {
+          "index": 22,
+          "claim": "NIRCam (Near-Infrared Camera) is the primary optical imager on JWST.",
+          "source": {
+            "url": "https://science.nasa.gov/mission/webb/nircam?utm_source=openai",
+            "title": "NIRCam - NASA Science"
+          }
+        },
+        {
+          "index": 23,
+          "claim": "JWST carries NIRSpec (a near-infrared spectrograph) and NIRISS (a near-infrared imager/spectrograph) alongside NIRCam.",
+          "source": null
+        },
+        {
+          "index": 24,
+          "claim": "The James Webb Space Telescope launched on December 25, 2021.",
+          "source": {
+            "url": "https://science.nasa.gov/mission/webb/launch/?utm_source=openai",
+            "title": "Launch - NASA Science"
+          }
+        },
+        {
+          "index": 25,
+          "claim": "The James Webb Space Telescope operates from the second Lagrange point (L2).",
+          "source": null
+        },
+        {
+          "index": 26,
+          "claim": "The second Lagrange point (L2) is approximately 1 million miles from Earth.",
+          "source": null
+        },
+        {
+          "index": 27,
+          "claim": "The L2 point is on the side of Earth opposite the Sun.",
+          "source": {
+            "url": "https://www.esa.int/Science_Exploration/Space_Science/Herschel/L2_the_second_Lagrangian_Point?utm_source=openai",
+            "title": "ESA - L2, the second Lagrangian Point"
+          }
+        },
+        {
+          "index": 28,
+          "claim": "The James Webb Space Telescope's primary mirror has a diameter of 6.5 meters.",
+          "source": null
+        },
+        {
+          "index": 29,
+          "claim": "6.5 meters is approximately 21.3 feet.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 30,
+          "claim": "The James Webb Space Telescope's primary mirror is made up of 18 hexagonal segments.",
+          "source": {
+            "url": "https://jwst-docs.stsci.edu/jwst-observatory-hardware/jwst-telescope?utm_source=openai",
+            "title": "JWST Telescope - JWST User Documentation"
+          }
+        },
+        {
+          "index": 31,
+          "claim": "The mirror segments of the James Webb Space Telescope are made of beryllium coated with gold.",
+          "source": null
+        },
+        {
+          "index": 32,
+          "claim": "The Near Infrared Camera (NIRCam) is the primary near-infrared imaging instrument on the James Webb Space Telescope.",
+          "source": null
+        }
+      ]
+    },
+    "duration_ms": 54106
+  }
+}

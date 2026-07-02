@@ -25,6 +25,7 @@ instructions are the project link.
 ## Invariants
 
 - Never commit secrets or live run outputs; `.env`, `runs/`, `logs/`, `generated-runs/` stay gitignored
-  (the `secret:scan` pre-commit hook enforces it).
+  (the `secret:scan` pre-commit hook enforces it). One curated exception: the redacted three-question
+  audit-trail pack in `sample_outputs/live_runs/`, published deliberately as writeup evidence.
 - No private/customer/employer/personal data; no copied course content in the public repo.
 - Keep the offline engine deterministic (tests assert exact strings).

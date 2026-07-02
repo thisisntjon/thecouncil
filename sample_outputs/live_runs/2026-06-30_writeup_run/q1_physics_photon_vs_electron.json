@@ -1,0 +1,1146 @@
+{
+  "label": "REAL LIVE RUN — captured 2026-06-30 (headless, web search OFF). Not fixture data.",
+  "project": "The Council: Multi-Agent Verification Swarm",
+  "mode": "live",
+  "capturedAt": "2026-06-30T20:16:01.575Z",
+  "question": "A photon and a free electron each have a de Broglie wavelength of exactly 1.0 nm. Which one carries more total energy, and by approximately what factor? Show the key steps and give the two energies in electron-volts.",
+  "category": "graduate physics (GPQA-style), single definite answer, re-derivable",
+  "round1_answers": [
+    {
+      "id": "gpt",
+      "name": "GPT-5.4 mini",
+      "provider": "OpenAI",
+      "status": "success",
+      "latency": 7693,
+      "answer": "Let the de Broglie wavelength be λ = 1.0 nm for both the photon and the free electron.  We want their *total energies* in eV and compare them.\n\n---\n\n## 1. Photon energy\n\nFor a photon, λ = 1.0 nm →  \nE_photon = hc/λ  \nUsing h c ≈ 1240 eV·nm,  \nE_photon = 1240 eV·nm / 1.0 nm = **1.240×10³ eV** ≈ **1.24 keV**.\n\n---\n\n## 2. Electron energy\n\nFor a free electron, λ = h/p ⇒ p = h/λ.  We use relativistic energy:\n\n\\[ E_{\\rm total} = \\sqrt{(pc)^2 + (m c^2)^2} \\]\n\n- h c/λ for λ = 1.0 nm gives p c = hc/λ ≈ 1240 eV.  \n- Electron rest energy m c² ≈ 511 000 eV = 511 keV.\n\nSo  \nE_electron ≈ sqrt((1.24×10³ eV)² + (5.11×10⁵ eV)²)  \n≈ 5.11×10⁵ eV × sqrt(1 + (1.24×10³ / 5.11×10⁵)²)  \n≈ 5.11×10⁵ eV × (1 + few ×10⁻⁶)  \n≈ **5.11×10⁵ eV** (≈ 511 keV) (to within <0.001 % above rest energy).\n\n---\n\n## 3. Comparison & factor\n\n- Photon: ~1.24 keV  \n- Electron total energy: ~511 keV  \n\nThus the electron carries **much more total energy**.  The factor is about:\n\n\\[\n\\frac{E_{\\rm electron}}{E_{\\rm photon}} \\approx \\frac{511\\,000}{1\\,240} \\approx 412\n\\]\n\n---\n\n## 4. Summary\n\n- Photon with λ = 1.0 nm → E_photon ≈ 1.24 keV  \n- Electron with the same λ → E_total ≈ 511 keV  \n- The electron energy is about **400× greater** than the photon energy under these conditions.\n\n---\n\nCaveats: the electron’s *kinetic* energy is only ~1.24 keV (same p c contribution), but its *total* energy includes its large rest‐mass energy, which dominates. If you only compare kinetic energies, they are roughly equal."
+    },
+    {
+      "id": "claude",
+      "name": "Claude Haiku 4.5",
+      "provider": "Anthropic",
+      "status": "success",
+      "latency": 9917,
+      "answer": "I'll work through this step-by-step, finding the total energy for each particle given their de Broglie wavelengths.\n\n## Setting up the de Broglie relation\n\nThe de Broglie wavelength is:\n$$\\lambda = \\frac{h}{p}$$\n\nwhere h = 6.626 × 10⁻³⁴ J·s and p is momentum.\n\nFor both particles with λ = 1.0 nm = 1.0 × 10⁻⁹ m:\n$$p = \\frac{h}{\\lambda} = \\frac{6.626 \\times 10^{-34}}{1.0 \\times 10^{-9}} = 6.626 \\times 10^{-25} \\text{ kg·m/s}$$\n\n## Energy of the photon\n\nFor a photon, E = pc:\n$$E_{photon} = pc = (6.626 \\times 10^{-25})(3.0 \\times 10^8) = 1.988 \\times 10^{-16} \\text{ J}$$\n\nConverting to eV (1 eV = 1.602 × 10⁻¹⁹ J):\n$$E_{photon} = \\frac{1.988 \\times 10^{-16}}{1.602 \\times 10^{-19}} \\approx \\boxed{1240 \\text{ eV}}$$\n\n## Energy of the electron\n\nFor the electron, I need to check if relativistic treatment is necessary. The electron rest energy is 511 keV, so let me use the relativistic formula:\n$$E^2 = (pc)^2 + (m_e c^2)^2$$\n\nwhere $m_e c^2 = 511$ keV = 511,000 eV.\n\n$$(pc)_{electron} = (6.626 \\times 10^{-25})(3.0 \\times 10^8) = 1.988 \\times 10^{-16} \\text{ J} = 1240 \\text{ eV}$$\n\n$$E_{electron} = \\sqrt{(1240)^2 + (511,000)^2} = \\sqrt{1.538 \\times 10^6 + 2.611 \\times 10^{11}}$$\n$$E_{electron} \\approx \\sqrt{2.611 \\times 10^{11}} \\approx 511,000 \\text{ eV}$$\n\nThe kinetic energy is negligible here:\n$$KE = E - m_e c^2 \\approx 511,001 - 511,000 \\approx 1.5 \\text{ eV}$$\n\n## Answer\n\n**The photon carries significantly more total energy:**\n\n- **Photon: 1,240 eV** (essentially all kinetic energy)\n- **Electron: 511,001 eV** (mostly rest mass energy)\n\nWait—I need to reconsider what \"total energy\" means in your question:\n\n**If you mean kinetic energy alone**, the **photon carries about 830× more** (1,240 eV vs. 1.5 eV).\n\n**If you mean total relativistic energy** (including rest mass), the **electron carries about 412× more** (511,001 eV vs. 1,240 eV).\n\nThe key insight: the electron's total energy is dominated by its rest mass, while the photon's energy is entirely kinetic. In typical physics usage, \"total energy\" of a massive particle usually refers to relativistic E = γmc², making the electron's answer dominant."
+    },
+    {
+      "id": "grok",
+      "name": "Grok 4.3",
+      "provider": "xAI",
+      "status": "success",
+      "latency": 9963,
+      "answer": "The de Broglie wavelength \\(\\lambda = h/p = 1.0\\) nm is identical for both particles, so both have the same momentum magnitude \\(p = h/\\lambda\\).\n\nFor the photon, total energy is \\(E_\\gamma = pc = hc/\\lambda\\). With \\(hc \\approx 1240\\) eV nm this gives \\(E_\\gamma = 1240\\) eV exactly.\n\nFor the free electron, \\(pc = 1240\\) eV. The electron rest energy \\(mc^2 = 511\\) keV greatly exceeds \\(pc\\), confirming the non-relativistic regime. Kinetic energy is therefore\n\\[\nK = \\frac{(pc)^2}{2mc^2} = \\frac{(1240)^2}{2 \\times 5.11 \\times 10^5} \\approx 1.505~\\text{eV}.\n\\]\nTotal electron energy is \\(E_e = mc^2 + K \\approx 5.110015 \\times 10^5\\) eV.\n\nThus the electron carries far more total energy (by a factor of \\(\\approx 412\\)).\n\n(The superficially attractive claim that the energies must be equal because momenta are equal fails, because a photon has no rest mass while the electron does.)"
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini 3.5 Flash",
+      "provider": "Google",
+      "status": "success",
+      "latency": 19515,
+      "answer": "To determine which particle carries more total energy, we must address a key assumption regarding the term \"total energy\" for a massive particle like an electron. By the strict definitions of relativistic physics, **total energy** includes rest-mass energy ($E = K + m_0c^2$). Under this definition, the **free electron carries vastly more total energy** than the photon by a factor of approximately **412**. \n\n### Key Steps and Calculations\n\n1. **Calculate Photon Energy ($E_p$):**\n   A photon's energy is entirely electromagnetic and is defined by:\n   $$E_p = \\frac{hc}{\\lambda}$$\n   Using $hc \\approx 1240 \\text{ eV}\\cdot\\text{nm}$ and $\\lambda = 1.0 \\text{ nm}$:\n   $$E_p \\approx \\frac{1240 \\text{ eV}\\cdot\\text{nm}}{1.0 \\text{ nm}} \\approx \\mathbf{1240 \\text{ eV}} \\text{ (or } 1.24 \\text{ keV)}$$\n\n2. **Calculate Electron Kinetic Energy ($K_e$):**\n   An electron with a $1.0\\text{ nm}$ wavelength is highly non-relativistic, so we can calculate its kinetic energy using:\n   $$K_e = \\frac{p^2}{2m_e} = \\frac{h^2}{2m_e\\lambda^2}$$\n   Using Planck's constant $h \\approx 6.626 \\times 10^{-34} \\text{ J}\\cdot\\text{s}$ and electron mass $m_e \\approx 9.109 \\times 10^{-31} \\text{ kg}$:\n   $$K_e \\approx 2.41 \\times 10^{-19} \\text{ J} \\approx \\mathbf{1.50 \\text{ eV}}$$\n\n3. **Calculate Electron Total Energy ($E_e$):**\n   The true physical total energy of a free electron must include its rest mass energy ($m_e c^2 \\approx 511,000 \\text{ eV}$):\n   $$E_e = K_e + m_e c^2 \\approx 1.50 \\text{ eV} + 511,000 \\text{ eV} \\approx \\mathbf{511,001.5 \\text{ eV}} \\text{ (or } 511 \\text{ keV)}$$\n\n4. **Comparison (Strict Total Energy):**\n   $$\\text{Factor} = \\frac{E_e}{E_p} \\approx \\frac{511,001.5 \\text{ eV}}{1240 \\text{ eV}} \\approx \\mathbf{412}$$\n\n---\n\n### Caveat and Alternate Interpretation (Kinetic Energy Only)\nIf this question is framed under the common classroom or textbook assumption that \"energy of a de Broglie particle\" refers *only* to its **kinetic energy** (ignoring the rest mass of the electron), the conclusion is reversed. \n\nUnder this alternate assumption, the **photon carries more energy** than the electron by a factor of approximately **824** ($\\frac{1240 \\text{ eV}}{1.50 \\text{ eV}} \\approx 824$)."
+    }
+  ],
+  "round2_evaluations": [
+    {
+      "evaluator": "gpt",
+      "evaluatorName": "GPT-5.4 mini",
+      "status": "success",
+      "evaluation": {
+        "ratings": [
+          {
+            "model_id": "claude",
+            "score": 82,
+            "reasoning": "Mostly correct and careful, with the right photon energy and a good relativistic setup. However, it introduces an incorrect kinetic-energy value (~1.5 eV) and then creates ambiguity by focusing on the alternate interpretation instead of cleanly answering the stated total-energy question.",
+            "strength": "Clear step-by-step derivation",
+            "weakness": "Ambiguous final framing"
+          },
+          {
+            "model_id": "grok",
+            "score": 91,
+            "reasoning": "Accurate and concise: it correctly computes the photon energy, the electron momentum, and the electron total energy, and it directly answers that the electron carries more total energy by about 412×. The only minor issue is that its non-relativistic remark is a bit loose given the very small kinetic energy, but the final result is sound.",
+            "strength": "Correct physics and factor",
+            "weakness": "Minor wording imprecision"
+          },
+          {
+            "model_id": "gemini",
+            "score": 88,
+            "reasoning": "It gives the correct primary conclusion and factor, with the right photon and electron energies, and it explicitly notes the definition of total energy. The main weakness is that it over-explains the alternate interpretation and briefly muddies the answer by presenting the kinetic-energy caveat as if it were equally central.",
+            "strength": "Correct conclusion with values",
+            "weakness": "Overly caveated"
+          }
+        ],
+        "reflection": "The key distinction is whether 'total energy' for the electron includes rest mass energy; under the standard relativistic meaning, it does, making the electron much larger in energy. The best answers stayed focused on that interpretation and gave the numerical comparison cleanly.",
+        "would_change": false,
+        "revised_position": null
+      }
+    },
+    {
+      "evaluator": "grok",
+      "evaluatorName": "Grok 4.3",
+      "status": "success",
+      "evaluation": {
+        "ratings": [
+          {
+            "model_id": "gpt",
+            "score": 95,
+            "reasoning": "Accurately computes photon and electron total energies, clearly distinguishes total vs kinetic with precise factor of ~412.",
+            "strength": "Precise relativistic calculation and caveat distinction",
+            "weakness": "none"
+          },
+          {
+            "model_id": "claude",
+            "score": 78,
+            "reasoning": "Reaches correct conclusion on total energy but initially states the opposite for photon, reducing clarity and conciseness.",
+            "strength": "Explicitly notes total vs kinetic distinction",
+            "weakness": "Conflicting statements before resolution"
+          },
+          {
+            "model_id": "gemini",
+            "score": 88,
+            "reasoning": "Correctly prioritizes total relativistic energy for electron by factor ~412 with solid steps and clear caveat.",
+            "strength": "Strong emphasis on definition of total energy",
+            "weakness": "Slightly less numerical detail than GPT"
+          }
+        ],
+        "reflection": "All models converge on electron dominating total energy (including rest mass) by ~412x when definitions are explicit.",
+        "would_change": false,
+        "revised_position": null
+      }
+    },
+    {
+      "evaluator": "gemini",
+      "evaluatorName": "Gemini 3.5 Flash",
+      "status": "success",
+      "evaluation": {
+        "ratings": [
+          {
+            "model_id": "gpt",
+            "score": 98,
+            "reasoning": "Excellent, clear, and logically sound response. It accurately calculates the photon energy, electron total energy, and correctly concludes that the electron has more total energy by a factor of ~412, while also providing the kinetic energy comparison as a caveat.",
+            "strength": "Clear structure and accurate calculations",
+            "weakness": "none"
+          },
+          {
+            "model_id": "claude",
+            "score": 82,
+            "reasoning": "Though the math is correct, the response contains a glaring contradiction in the final 'Answer' section, where it first boldly states 'The photon carries significantly more total energy' before immediately showing numbers that contradict this and executing a 'Wait' correction.",
+            "strength": "Correct mathematical derivations",
+            "weakness": "Contradictory and messy final reasoning structure"
+          },
+          {
+            "model_id": "grok",
+            "score": 96,
+            "reasoning": "Very concise and accurate. It uses the correct approximations for non-relativistic kinetic energy to find the precise total energy of the electron and gets the correct factor of 412.",
+            "strength": "High precision and concise explanation",
+            "weakness": "Could have explicitly highlighted the kinetic energy comparison as a secondary interpretation more clearly"
+          }
+        ],
+        "reflection": "All models correctly identified the mathematical formulas needed. Reading the other responses highlighted the importance of clear, non-contradictory formatting, as Claude's self-correction in the final output looked unpolished despite correct math.",
+        "would_change": false,
+        "revised_position": null
+      }
+    },
+    {
+      "evaluator": "claude",
+      "evaluatorName": "Claude Haiku 4.5",
+      "status": "success",
+      "evaluation": {
+        "ratings": [
+          {
+            "model_id": "gpt",
+            "score": 92,
+            "reasoning": "Correctly identifies that electron carries ~412× more total energy, with accurate calculations (1.24 keV vs 511 keV). Explicitly acknowledges the distinction between total energy (including rest mass) and kinetic energy, noting this caveat clearly at the end.",
+            "strength": "Clear step-by-step derivation; correct final answer; transparent about what 'total energy' means; acknowledges the physical subtlety",
+            "weakness": "Could have been slightly more emphatic upfront about the definition of 'total energy' before presenting the answer"
+          },
+          {
+            "model_id": "grok",
+            "score": 88,
+            "reasoning": "Correctly calculates both energies (1240 eV for photon, ~511 keV for electron) and identifies the ~412× factor. Uses non-relativistic approximation for kinetic energy, which is appropriate. Addresses the conceptual confusion directly.",
+            "strength": "Efficient presentation; correct numerical answer; explicitly refutes the false intuition that equal momenta imply equal energies; acknowledges rest mass is the key difference",
+            "weakness": "Slightly less detailed exposition than some competitors; could have shown full relativistic formula alongside the non-relativistic approximation for completeness"
+          },
+          {
+            "model_id": "gemini",
+            "score": 78,
+            "reasoning": "Provides correct calculations and identifies 412× factor as the primary answer. However, it prominently elevates an alternate interpretation (kinetic energy only) as nearly coequal in status, which risks confusing the reader about what the question actually asks.",
+            "strength": "Thorough numerical work; acknowledges both interpretations explicitly; clear layout and detailed step-by-step calculations",
+            "weakness": "The 'Caveat and Alternate Interpretation' section treats kinetic-energy-only as a reasonable primary answer when the question explicitly asks for 'total energy,' potentially undermining confidence in the correct answer"
+          }
+        ],
+        "reflection": "All three models correctly identify that the electron carries ~412× more total energy than the photon when including rest mass. The key differentiator is how each handles the pedagogical ambiguity: GPT and Grok lead decisively with the correct interpretation and acknowledge the caveat; Gemini presents both as nearly equivalent in validity, which dilutes the primary answer despite being technically transparent.",
+        "would_change": false,
+        "revised_position": null
+      }
+    }
+  ],
+  "round3_verification": {
+    "claims": {
+      "grok": [
+        {
+          "id": "grok-1",
+          "text": "If two particles have the same de Broglie wavelength λ, they have the same momentum magnitude p = h/λ.",
+          "category": "definition",
+          "verifiable": true
+        },
+        {
+          "id": "grok-2",
+          "text": "The total energy of a photon is E = pc = hc/λ.",
+          "category": "definition",
+          "verifiable": true
+        },
+        {
+          "id": "grok-3",
+          "text": "hc ≈ 1240 eV·nm.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "grok-4",
+          "text": "For a photon with de Broglie wavelength λ = 1.0 nm, the total energy is E_γ = 1240 eV.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "grok-5",
+          "text": "The rest energy of an electron is mc² = 511 keV.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "grok-6",
+          "text": "For a free electron with pc = 1240 eV, since mc² = 511 keV greatly exceeds pc, the electron is in the non-relativistic regime and its kinetic energy is K = (pc)²/(2mc²) ≈ 1.505 eV.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "grok-7",
+          "text": "The total energy of the electron is E_e = mc² + K ≈ 5.110015 × 10⁵ eV.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "grok-8",
+          "text": "The ratio of the electron's total energy to the photon's total energy is approximately 412 when both have de Broglie wavelength 1.0 nm.",
+          "category": "computation",
+          "verifiable": true
+        }
+      ],
+      "claude": [
+        {
+          "id": "claude-1",
+          "text": "The de Broglie wavelength formula is λ = h/p, where h is Planck's constant and p is momentum.",
+          "category": "definition",
+          "verifiable": true
+        },
+        {
+          "id": "claude-2",
+          "text": "Planck's constant h = 6.626 × 10⁻³⁴ J·s.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "claude-3",
+          "text": "For a de Broglie wavelength of 1.0 nm = 1.0 × 10⁻⁹ m, the momentum is p = 6.626 × 10⁻²⁵ kg·m/s.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "claude-4",
+          "text": "The energy of a photon with momentum p is E = pc.",
+          "category": "definition",
+          "verifiable": true
+        },
+        {
+          "id": "claude-5",
+          "text": "A photon with momentum 6.626 × 10⁻²⁵ kg·m/s has energy approximately 1240 eV.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "claude-6",
+          "text": "The electron rest energy m_e c² = 511 keV = 511,000 eV.",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "claude-7",
+          "text": "Using the relativistic energy-momentum relation E² = (pc)² + (m_e c²)², an electron with pc = 1240 eV has total energy approximately 511,001 eV.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "claude-8",
+          "text": "The kinetic energy of the electron (total energy minus rest mass energy) is approximately 1.5 eV when its de Broglie wavelength is 1.0 nm.",
+          "category": "computation",
+          "verifiable": true
+        }
+      ],
+      "gemini": [
+        {
+          "id": "gemini-1",
+          "text": "A photon's energy is given by E_p = hc/λ, where h is Planck's constant, c is the speed of light, and λ is the wavelength.",
+          "category": "definition",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-2",
+          "text": "The product hc ≈ 1240 eV·nm.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-3",
+          "text": "A photon with wavelength 1.0 nm has energy approximately 1240 eV (1.24 keV).",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-4",
+          "text": "An electron with de Broglie wavelength 1.0 nm has kinetic energy K_e = h²/(2m_e λ²) ≈ 2.41 × 10⁻¹⁹ J ≈ 1.50 eV.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-5",
+          "text": "The rest-mass energy of an electron is m_e c² ≈ 511,000 eV (511 keV).",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-6",
+          "text": "The total relativistic energy of a free electron equals its kinetic energy plus its rest-mass energy: E_e = K_e + m_e c².",
+          "category": "definition",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-7",
+          "text": "The ratio of the electron's total energy to the photon's energy for the same 1.0 nm wavelength is approximately 511,001.5 eV / 1240 eV ≈ 412.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "gemini-8",
+          "text": "If only kinetic energy is compared, the photon carries more energy than the electron by a factor of approximately 1240 eV / 1.50 eV ≈ 824.",
+          "category": "computation",
+          "verifiable": true
+        }
+      ],
+      "gpt": [
+        {
+          "id": "gpt-1",
+          "text": "For a photon, the energy is given by E = hc/λ, where hc ≈ 1240 eV·nm.",
+          "category": "definition",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-2",
+          "text": "A photon with wavelength λ = 1.0 nm has energy E_photon = 1240 eV·nm / 1.0 nm = 1240 eV ≈ 1.24 keV.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-3",
+          "text": "For a free electron with de Broglie wavelength λ = 1.0 nm, the momentum satisfies p = h/λ, giving pc = hc/λ ≈ 1240 eV.",
+          "category": "derivation",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-4",
+          "text": "The rest mass energy of an electron is m_e c² ≈ 511,000 eV (511 keV).",
+          "category": "statistic",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-5",
+          "text": "The relativistic total energy of the electron with pc ≈ 1240 eV and rest energy 511,000 eV is E_electron = sqrt((1240 eV)² + (511,000 eV)²) ≈ 511,000 eV (≈ 511 keV), differing from the rest energy by less than 0.001%.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-6",
+          "text": "The ratio of the electron's total energy to the photon's energy for the same de Broglie wavelength of 1.0 nm is approximately 511,000 / 1,240 ≈ 412.",
+          "category": "computation",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-7",
+          "text": "The electron's kinetic energy for λ = 1.0 nm (non-relativistic approximation using p²/2m) is approximately equal to the photon's energy of ~1.24 keV for the same wavelength.",
+          "category": "logical_deduction",
+          "verifiable": true
+        },
+        {
+          "id": "gpt-8",
+          "text": "For an electron with λ = 1.0 nm, the rest mass energy dominates over the kinetic energy contribution, making the total energy approximately equal to the rest mass energy.",
+          "category": "logical_deduction",
+          "verifiable": true
+        }
+      ]
+    },
+    "verifications": {
+      "claude-5": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "For a photon, E = pc. Using p = 6.626×10^-25 kg·m/s and c ≈ 3.00×10^8 m/s gives E ≈ 1.99×10^-16 J. Converting to electronvolts by dividing by 1.602×10^-19 J/eV yields about 1.24×10^3 eV, i.e. approximately 1240 eV.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "grok-8": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "For a photon, total energy is E=hc/\\lambda. For an electron with de Broglie wavelength \\lambda=1.0 nm, p=h/\\lambda and E=\\sqrt{(pc)^2+(m_ec^2)^2}; plugging in gives E_\\gamma \\approx 1.24 keV and E_e \\approx 511 keV + tiny kinetic correction, so the ratio E_e/E_\\gamma is about 511/1.24 \\approx 412.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "grok-4": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "For a photon, E = hc/λ. Using hc ≈ 1240 eV·nm and λ = 1.0 nm, E = 1240 eV·nm / 1.0 nm = 1240 eV, which matches the claim exactly.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "claude-8": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "Using de Broglie p = h/λ with λ = 1.0 nm gives p ≈ 6.63×10^-25 kg·m/s. Since this is nonrelativistic for an electron, K = p^2/(2m_e) ≈ 2.4×10^-19 J ≈ 1.5 eV, so the claim is correct.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "claude-3": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Using the de Broglie relation p = h / lambda, with Planck's constant h = 6.626 x 10^-34 kg*m^2/s and wavelength lambda = 1.0 x 10^-9 m, the momentum is indeed p = (6.626 x 10^-34) / (1.0 x 10^-9) = 6.626 x 10^-25 kg*m/s.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "grok-6": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Since $mc^2 = 511,000\\text{ eV}$ is much larger than $pc = 1240\\text{ eV}$, the non-relativistic approximation $K \\approx (pc)^2 / (2mc^2)$ is highly accurate, yielding $(1240)^2 / (2 \\times 511,000) \\approx 1.5045\\text{ eV}$, which rounds to $1.505\\text{ eV}$.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "gemini-4": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "Using de Broglie λ = h/p, the nonrelativistic kinetic energy is K = p²/(2m_e) = h²/(2m_e λ²). Substituting λ = 1.0 nm gives K ≈ (6.626×10⁻³⁴)² / [2(9.11×10⁻³¹)(10⁻⁹)²] ≈ 2.41×10⁻¹⁹ J, which equals about 1.50 eV.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "claude-2": {
+        "verdict": "supported",
+        "confidence": 0.9,
+        "reasoning": "The claim that Planck's constant h ≈ 6.626 × 10⁻³⁴ J·s is consistent with the defined and accepted SI value of exactly 6.626 070 15 × 10⁻³⁴ J·s. Sources such as NIST and the SI defining constant description confirm that value. The claim is thus accurate to the significant figures given (three decimal places), though slightly rounded.",
+        "sources": [
+          {
+            "url": "https://www.nist.gov/si-redefinition/meet-constants?utm_source=openai",
+            "title": "Meet the Constants | NIST"
+          }
+        ]
+      },
+      "claude-7": {
+        "verdict": "supported",
+        "confidence": 0.9,
+        "reasoning": "E = sqrt((1240 eV)^2 + (511000 eV)^2) expands via binomial approx to 511000 + (1240)^2/(2*511000) ≈ 511000 + 1.505, hence ~511001.5 eV which rounds to the stated value.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "gemini-3": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "Using E = hc/λ with hc ≈ 1240 eV·nm, for λ = 1.0 nm: E = 1240 eV·nm / 1.0 nm = 1240 eV ≈ 1.24 keV, which exactly matches the claim.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "claude-6": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "The CODATA recommended value for the electron mass energy equivalent is approximately 0.510999 MeV, which translates to 510.999 keV. Standard physics notation rounds this constant to 511 keV, which is mathematically equivalent to 511,000 eV.",
+        "sources": []
+      },
+      "gemini-7": {
+        "verdict": "supported",
+        "confidence": 0.98,
+        "reasoning": "For a 1.0 nm photon, E = hc/\\lambda \\approx 1240 eV. An electron with the same wavelength has kinetic energy from p = h/\\lambda, giving total energy \\sqrt{(pc)^2 + (m_ec^2)^2} \\approx 511001.5 eV, and the ratio 511001.5/1240 \\approx 412.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "grok-2": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "Multiple authoritative physics sources (LibreTexts, Lumen Learning, University of Tennessee, UCF) consistently confirm that for a photon, E = hc/λ (from Planck's relation) and E = pc (derived from the relativistic energy-momentum relation E² = (pc)² + (mc²)² with m=0), making the full chain E = pc = hc/λ correct and experimentally validated.",
+        "sources": [
+          {
+            "url": "https://www.askiitians.com/forums/Modern-Physics/1-how-e-pc-is-valid-for-ph0tons-only-as-the-above_93888.htm",
+            "title": "1)how E=pc is valid for ph0tons onlyas the above eqn comes by using b - askIITians"
+          },
+          {
+            "url": "https://courses.lumenlearning.com/suny-physics/chapter/29-4-photon-momentum/",
+            "title": "Photon Momentum | Physics"
+          },
+          {
+            "url": "https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_(OpenStax)/29:_Introduction_to_Quantum_Physics/29.04:_Photon_Momentum",
+            "title": "29.4: Photon Momentum - Physics LibreTexts"
+          },
+          {
+            "url": "https://pressbooks.online.ucf.edu/phy2053bc/chapter/photon-momentum/",
+            "title": "29.4 Photon Momentum – College Physics - UCF Pressbooks"
+          },
+          {
+            "url": "https://pressbooks.bccampus.ca/test3/chapter/photon-momentum/",
+            "title": "Photon Momentum – College Physics"
+          },
+          {
+            "url": "https://www.firgelliauto.com/blogs/engineering-calculators/energy-to-wavelength-calculator",
+            "title": "Energy To Wavelength Interactive Calculator | FIRGELLI"
+          },
+          {
+            "url": "http://electron6.phys.utk.edu/phys250/modules/module%201/photons.htm",
+            "title": "Photons"
+          },
+          {
+            "url": "https://www.omnicalculator.com/physics/photon-energy",
+            "title": "Photon Energy Calculator"
+          },
+          {
+            "url": "https://www.vedantu.com/formula/photon-energy-formula",
+            "title": "Photon Energy Formula - Equation, Graph, Applications and FAQs"
+          },
+          {
+            "url": "https://www.firgelliauto.com/blogs/engineering-calculators/energy-to-wavelength-calculator",
+            "title": "Energy To Wavelength Interactive Calculator | FIRGELLI"
+          },
+          {
+            "url": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/8174688",
+            "title": "Method of determining number of light sources"
+          },
+          {
+            "url": "https://www.vaia.com/en-us/explanations/physics/wave-optics/energy-of-a-photon/",
+            "title": "Energy of a Photon: Equation & Units | Vaia"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/Photon_energy",
+            "title": "Photon energy - Wikipedia"
+          },
+          {
+            "url": "https://sinovoltaics.com/learning-center/basics/energy-of-photon/",
+            "title": "Energy of Photon"
+          },
+          {
+            "url": "https://www.calctool.org/quantum-mechanics/photon-energy",
+            "title": "Photon Energy Calculator"
+          },
+          {
+            "url": "https://study.com/skill/learn/how-to-calculate-the-energy-of-a-photon-explanation.html",
+            "title": "How to Calculate the Energy of a Photon | Physics | Study.com"
+          }
+        ]
+      },
+      "gemini-1": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "Well-established physics sources consistently show that the energy E of a photon is given by E = h c / λ, where h is Planck's constant, c is the speed of light in vacuum, and λ is the photon's wavelength. This formula comes from combining the relations E = h ν and ν = c / λ. There is no ambiguity or major caveat that undermines the formula in its usual domain (electromagnetic photon in vacuum).",
+        "sources": [
+          {
+            "url": "https://en.wikipedia.org/wiki/Photon_energy?utm_source=openai",
+            "title": "Photon energy"
+          }
+        ]
+      },
+      "claude-1": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple authoritative sources, including Wikipedia's Matter wave page and chemistry/physics textbooks/educational sites (e.g., LibreTexts, Omni Calculator), explicitly state the de Broglie wavelength as λ = h/p, where p is momentum (often expanded as h/(mv) for non-relativistic cases). This matches the claim precisely, with no contradictions found in searches.",
+        "sources": []
+      },
+      "gemini-2": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "hc = (4.135667662e-15 eV s) * (2.99792458e8 m/s) yields 1.2398e-6 eV m; multiplying by 1e9 nm/m produces 1239.8 eV nm, confirming the ≈1240 eV nm approximation.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "claude-4": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Multiple authoritative physics sources (e.g., Lumen Learning, DESY, Stack Exchange) confirm that the relativistic energy-momentum relation E² = (pc)² + (mc²)² reduces to E = pc for massless photons (m=0). This is presented as a standard result, with p = E/c equivalently stated, and no counter-evidence found.",
+        "sources": []
+      },
+      "gpt-2": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Using the relation E = hc/λ with the standard approximation hc ≈ 1240 eV·nm, a photon of wavelength 1.0 nm has an energy of E = 1240 eV·nm / 1.0 nm = 1240 eV, which indeed equals 1.24 keV.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "gemini-5": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Multiple authoritative sources, including Wikipedia (citing CODATA), NIST, and physics references, confirm the electron rest energy m_e c² is 0.51099895069(16) MeV, which is precisely ≈511 keV or 511,000 eV. The claim uses the standard rounded value widely accepted in particle physics.",
+        "sources": []
+      },
+      "grok-3": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "Planck's constant (h) multiplied by the speed of light (c) is a standard physical constant combination used to relate a photon's energy to its wavelength. Converting the product of these constants from SI units (joule-meters) to electronvolt-nanometers (eV·nm) yields approximately 1239.84 eV·nm, which is widely rounded to 1240 eV·nm in physics textbooks.",
+        "sources": [
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGnfyjtbR0gK1bmoCzACHj-2k19gx_UNcAr-tBKyLsAJ4nQDtu-KLC1NdGKY2x5uB_A0POuNCuuD6QsfWDMxrq0Po4qyHug5oM3c-YQQd90myMDLwxL1GDXjs6Smt3KTYSA",
+            "title": "youtube.com"
+          },
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGR11Nt26G31KAqOigIKEtVy4E1DcvJNYsozIeq_h1srOsPfwwKwQLcJ18MZgeZaOjRQ0n_fXmcvrW9LUEAZCiCGSNjyOyutW6ujz4qnTX16Yl0NjVFEbHnb44pbT_bw96p",
+            "title": "youtube.com"
+          },
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGU4cKGQuN_KQGFJhQe5ZVdmBJ4OzwYr0sIb_UFBSkW4jHooF2jh-yFuiRqcju1J1gBkXKx58Gupe_Y8T6DRvMXibXC9GqQlhAQMajNW4OiQNQIV1r0cMVYG6p1",
+            "title": "brainly.com"
+          },
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHQiQxozs0s5V9alnoGzFE3PO0_MThZsyyeCVKwWmVf1MCB4zy_W2_FuIUXtjEq1YrPrd2gpGDqr73MFvW7xvHyhF_wmXW9ZdlRCdjt_EbpCoiQQB9AF6MdfHAmjaTma5Dw810VpKuVeujUfe1e3X8VrdItoapkZkimpIkJhDd0sI0k69xw-DWl-1DtjKUpRoc=",
+            "title": "libretexts.org"
+          },
+          {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFkVtz2xuaRG_0XVHw3EiPg39-dIxuCHwfVy3xHVaNHE3jGK_qM-SSz6fXVfgqt5XxiAgom5YFXvwwlZhJX9njX0NjZHiOAYzACE-EfjQOL-sj8ypaWZeDtuqg83XQHm_BNfCMQp1NGf0XG3zwuZV6QXx5ghf8=",
+            "title": "uky.edu"
+          }
+        ]
+      },
+      "grok-5": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "The rest energy of an electron is widely cited in physics sources as approximately 0.511 MeV, which is equivalent to 511 keV. Multiple reliable references show that mₑc² ≈ 511 keV. The exact value from CODATA is about 0.51099895 MeV, rounding to 511 keV. ([hellenicaworld.com](https://www.hellenicaworld.com/Science/Physics/en/ElectronRestMass.html?utm_source=openai))",
+        "sources": [
+          {
+            "url": "https://www.hellenicaworld.com/Science/Physics/en/ElectronRestMass.html?utm_source=openai",
+            "title": "Electron rest mass"
+          },
+          {
+            "url": "https://www.hellenicaworld.com/Science/Physics/en/ElectronRestMass.html?utm_source=openai",
+            "title": "Electron rest mass"
+          }
+        ]
+      },
+      "gemini-8": {
+        "verdict": "refuted",
+        "confidence": 0.95,
+        "reasoning": "The stated ratio 1240/1.50 evaluates to 826.67 (not 824); the arithmetic step in the claim is therefore false regardless of the physical context that supplied the two energy values.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "gpt-3": {
+        "verdict": "supported",
+        "confidence": 0.9,
+        "reasoning": "De Broglie gives p = h/λ directly; thus pc = hc/λ. With the standard conversion hc ≈ 1240 eV·nm and λ = 1 nm, pc evaluates to 1240 eV.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "gpt-5": {
+        "verdict": "supported",
+        "confidence": 1,
+        "reasoning": "The total energy is calculated as E = sqrt(1240^2 + 511000^2) ≈ 511001.5 eV, which differs from the rest energy of 511000 eV by approximately 0.00029%, well under the claimed 0.001%.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "grok-7": {
+        "verdict": "partially_supported",
+        "confidence": 0.6,
+        "reasoning": "The formula E_total = mc² + K is correct, and mc² = 5.10999 × 10⁵ eV, so the claim implies K ≈ 2.55 eV of kinetic energy. The arithmetic is self-consistent, but without knowing the specified kinetic energy K from context, the exact numerical value 5.110015 × 10⁵ eV cannot be fully independently verified — it is plausible but depends on an unstated K.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "gpt-8": {
+        "verdict": "partially_supported",
+        "confidence": 0.3,
+        "reasoning": "Reasoning verifier unparseable; provisionally partial.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "gpt-6": {
+        "verdict": "supported",
+        "confidence": 0.95,
+        "reasoning": "Both particles share p = h/λ so pc = hc/λ = 1240 eV; electron total energy is then sqrt((pc)^2 + (mc^2)^2) ≈ mc^2 = 511 keV (pc ≪ mc^2), yielding the stated ratio ≈412.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "gpt-7": {
+        "verdict": "refuted",
+        "confidence": 0.99,
+        "reasoning": "For λ = 1.0 nm, the photon energy is hc/λ ≈ 1240 eV ≈ 1.24 keV, but the electron's non-relativistic kinetic energy KE = p²/2m = h²/(2mλ²) ≈ 1.5 eV ≈ 0.0015 keV — roughly 830 times smaller, not approximately equal.",
+        "sources": [
+          {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        ]
+      },
+      "grok-1": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "The de Broglie relation p = h/λ is a fundamental, universally applicable equation in quantum mechanics that directly and unambiguously links a particle's momentum magnitude to its de Broglie wavelength, independent of the particle's mass or identity. Multiple physics sources — from textbooks to peer-reviewed papers — confirm this. Two particles sharing the same λ must therefore share the same momentum magnitude p = h/λ, even if they differ in mass, velocity, or kinetic energy.",
+        "sources": [
+          {
+            "url": "http://electron6.phys.utk.edu/phys250/modules/module%202/matter_waves.htm",
+            "title": "Matter Waves"
+          },
+          {
+            "url": "https://arxiv.org/pdf/2403.15555",
+            "title": "Galilean relativity and wave-particle duality imply the Schr\\\"odinger   equation"
+          },
+          {
+            "url": "https://arxiv.org/pdf/1208.0119",
+            "title": "Relativistic Derivations of de Broglie and Planck-Einstein Equations"
+          },
+          {
+            "url": "https://fiveable.me/lists/de-broglie-wavelength-formula",
+            "title": "De Broglie Wavelength Formula to Know for College Physics IV – Optics and Modern Physics"
+          },
+          {
+            "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4803490/",
+            "title": "Universal diffraction of atoms and molecules from a quantum reflection grating"
+          },
+          {
+            "url": "https://physics.weber.edu/schroeder/quantum/EinsteinDeBroglie.pdf",
+            "title": "1. Einstein and de Broglie Copyright c⃝2015, Daniel V. Schroeder"
+          }
+        ]
+      },
+      "gemini-6": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "The claim accurately reflects a foundational result of special relativity: the total relativistic energy of any massive free particle equals its kinetic energy plus its rest-mass energy (E = K + m_e c²). This is confirmed by multiple authoritative physics sources including Fermilab lecture notes, OpenStax College Physics, peer-reviewed arXiv papers, and traces directly back to Einstein's own 1907 formulation. The relation K = (γ−1)m_e c² means rearranging gives E_total = γm_e c² = K + m_e c².",
+        "sources": [
+          {
+            "url": "https://uspas.fnal.gov/materials/10MIT/Review_of_Relativity.pdf",
+            "title": "Review of formulas for relativistic motion"
+          },
+          {
+            "url": "https://www.firgelliauto.com/blogs/calculators/relativistic-energy-calculator",
+            "title": "Relativistic Energy Interactive Calculator | FIRGELLI"
+          },
+          {
+            "url": "https://pressbooks.online.ucf.edu/phy2053bc/chapter/relativistic-energy/",
+            "title": "28.6 Relativistic Energy – College Physics"
+          },
+          {
+            "url": "https://arxiv.org/pdf/1108.5977",
+            "title": "Relativistic Electron Experiment for the Undergraduate Laboratory"
+          },
+          {
+            "url": "https://arxiv.org/pdf/physics/0206061",
+            "title": "Fundamental Disagreement of Wave Mechanics with Relativity"
+          },
+          {
+            "url": "https://arxiv.org/pdf/1801.06453",
+            "title": "The virial theorem and the kinetic energy of particles of a macroscopic   system in the general field concept"
+          }
+        ]
+      },
+      "gpt-4": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "The claim is confirmed by the official CODATA/NIST recommended values across multiple editions (2002, 2014, 2022), Wikipedia, and independent physics sources. The precise value is 0.51099895069(16) MeV = 510.99895 keV, making '511 keV' or '511,000 eV' an accurate and universally accepted approximation used throughout physics.",
+        "sources": [
+          {
+            "url": "https://en.wikipedia.org/wiki/Electron_mass",
+            "title": "Electron mass - Wikipedia"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/Electron_mass",
+            "title": "Electron mass - Wikipedia"
+          },
+          {
+            "url": "https://arxiv.org/pdf/2409.03787",
+            "title": "CODATA Recommended Values of the Fundamental Physical Constants: 2022"
+          },
+          {
+            "url": "https://physics.nist.gov/cuu/pdf/chart1.pdf",
+            "title": "CODATA RECOMMENDED VALUES OF THE FUNDAMENTAL PHYSICAL CONSTANTS: 2002"
+          },
+          {
+            "url": "https://www.askiitians.com/forums/10-grade-science/what-is-the-rest-energy-of-electrons-a-510-kev-b-25_479862.htm",
+            "title": "What is the rest energy of electrons? A. 510 KeV B. 931 ..."
+          },
+          {
+            "url": "https://arxiv.org/pdf/hep-ph/0602037",
+            "title": "The Concept of Mass in the Einstein Year"
+          },
+          {
+            "url": "https://arxiv.org/pdf/physics/0503206",
+            "title": "Neutrinos in the Electron"
+          }
+        ]
+      },
+      "gpt-1": {
+        "verdict": "supported",
+        "confidence": 0.99,
+        "reasoning": "The formula E = hc/λ is a well-established result from quantum mechanics, confirmed by Planck's and Einstein's foundational work. The value hc = 1239.84 eV·nm is verified by direct computation from the accepted values of h and c, and is universally rounded to ≈ 1240 eV·nm in physics education and practice. Multiple independent academic and scientific sources confirm both the formula and the numerical constant.",
+        "sources": [
+          {
+            "url": "https://sinovoltaics.com/learning-center/basics/energy-of-photon/",
+            "title": "Energy of Photon"
+          },
+          {
+            "url": "https://www.firgelliauto.com/blogs/engineering-calculators/energy-to-wavelength-calculator",
+            "title": "Energy To Wavelength Interactive Calculator | FIRGELLI"
+          },
+          {
+            "url": "https://getacademy.blog/plancks-constant-speed-light-hc-value",
+            "title": "Planck's Constant Times Speed of Light (hc) Explained [Value] - GetAcademy.blog"
+          },
+          {
+            "url": "https://www.vedantu.com/physics/value-of-hc",
+            "title": "Value of hc in Physics: Definition, Formula & Uses"
+          },
+          {
+            "url": "https://brainly.com/question/36118536",
+            "title": "[FREE] Given that the Planck constant h = 6.626 \\times 10^{-34} \\, \\text{J} \\cdot \\text{s} and the speed of light - brainly.com"
+          },
+          {
+            "url": "https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/8791470",
+            "title": "Nano structured LEDs"
+          },
+          {
+            "url": "https://sinovoltaics.com/learning-center/basics/energy-of-photon/",
+            "title": "Energy of Photon"
+          },
+          {
+            "url": "https://courses.lumenlearning.com/suny-physics/chapter/29-3-photon-energies-and-the-electromagnetic-spectrum/",
+            "title": "Photon Energies and the Electromagnetic Spectrum | Physics"
+          }
+        ]
+      }
+    },
+    "scores": {
+      "grok": {
+        "total_claims": 8,
+        "verified": 7,
+        "partially_supported": 1,
+        "refuted": 0,
+        "unverifiable": 0,
+        "score": 93.8
+      },
+      "claude": {
+        "total_claims": 8,
+        "verified": 8,
+        "partially_supported": 0,
+        "refuted": 0,
+        "unverifiable": 0,
+        "score": 100
+      },
+      "gemini": {
+        "total_claims": 8,
+        "verified": 7,
+        "partially_supported": 0,
+        "refuted": 1,
+        "unverifiable": 0,
+        "score": 87.5
+      },
+      "gpt": {
+        "total_claims": 8,
+        "verified": 6,
+        "partially_supported": 1,
+        "refuted": 1,
+        "unverifiable": 0,
+        "score": 81.3
+      }
+    },
+    "synthesis": {
+      "answer": "## Comparing Energies of a Photon and a Free Electron at λ = 1.0 nm\n\n**Step 1: Establish equal momenta**\n\nWhen two particles share the same de Broglie wavelength λ, they carry the same momentum magnitude, since λ = h/p [1][8]. For λ = 1.0 nm, both particles have p = h/λ = 6.626 × 10⁻³⁴ J·s / 1.0 × 10⁻⁹ m = 6.626 × 10⁻²⁵ kg·m/s [9][10]. In energy units, this corresponds to pc = hc/λ ≈ 1240 eV·nm / 1.0 nm = **1240 eV** [2][17].\n\n**Step 2: Energy of the photon**\n\nA photon's total energy is entirely kinetic — it has no rest mass — and is given by E = pc = hc/λ [11][16][23]. Therefore:\n\n> **E_photon = 1240 eV ≈ 1.24 keV** [3][24]\n\n**Step 3: Energy of the free electron**\n\nFor a massive particle, the relativistic total energy is E² = (pc)² + (m_e c²)² [14]. The electron's rest energy is m_e c² = 511,000 eV [4][13][26]. Since pc = 1240 eV is vastly smaller than m_e c² = 511,000 eV, the electron is firmly in the non-relativistic regime [5][29]. Its kinetic energy is:\n\n> K = (pc)² / (2 m_e c²) = (1240 eV)² / (2 × 511,000 eV) ≈ **1.5 eV** [5][15][19]\n\nIts total relativistic energy — rest energy plus kinetic energy — is therefore [21]:\n\n> **E_electron = 511,000 eV + 1.5 eV ≈ 511,001.5 eV ≈ 511 keV** [6][14][27]\n\n**Step 4: The ratio**\n\nThe electron carries far more total energy than the photon. The ratio is [22][28]:\n\n> E_electron / E_photon ≈ 511,001.5 eV / 1,240 eV ≈ **412**\n\n**Summary:** The free electron carries approximately **412 times** more total energy than the photon at the same de Broglie wavelength of 1.0 nm [7][22][28]. The decisive reason is that the electron's enormous rest-mass energy (511 keV) dominates its total energy budget, while the photon's energy is only 1.24 keV. Note that if one compared only kinetic energies, the situation reverses: the photon's 1240 eV dwarfs the electron's mere ~1.5 eV of kinetic energy [15][19] — a vivid illustration of how rest mass energy changes the comparison entirely.",
+      "citations": [
+        {
+          "index": 1,
+          "claim": "If two particles have the same de Broglie wavelength λ, they have the same momentum magnitude p = h/λ.",
+          "source": {
+            "url": "http://electron6.phys.utk.edu/phys250/modules/module%202/matter_waves.htm",
+            "title": "Matter Waves"
+          }
+        },
+        {
+          "index": 2,
+          "claim": "hc ≈ 1240 eV·nm.",
+          "source": {
+            "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGnfyjtbR0gK1bmoCzACHj-2k19gx_UNcAr-tBKyLsAJ4nQDtu-KLC1NdGKY2x5uB_A0POuNCuuD6QsfWDMxrq0Po4qyHug5oM3c-YQQd90myMDLwxL1GDXjs6Smt3KTYSA",
+            "title": "youtube.com"
+          }
+        },
+        {
+          "index": 3,
+          "claim": "For a photon with de Broglie wavelength λ = 1.0 nm, the total energy is E_γ = 1240 eV.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 4,
+          "claim": "The rest energy of an electron is mc² = 511 keV.",
+          "source": {
+            "url": "https://www.hellenicaworld.com/Science/Physics/en/ElectronRestMass.html?utm_source=openai",
+            "title": "Electron rest mass"
+          }
+        },
+        {
+          "index": 5,
+          "claim": "For a free electron with pc = 1240 eV, since mc² = 511 keV greatly exceeds pc, the electron is in the non-relativistic regime and its kinetic energy is K = (pc)²/(2mc²) ≈ 1.505 eV.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 6,
+          "claim": "The total energy of the electron is E_e = mc² + K ≈ 5.110015 × 10⁵ eV.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 7,
+          "claim": "The ratio of the electron's total energy to the photon's total energy is approximately 412 when both have de Broglie wavelength 1.0 nm.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 8,
+          "claim": "The de Broglie wavelength formula is λ = h/p, where h is Planck's constant and p is momentum.",
+          "source": null
+        },
+        {
+          "index": 9,
+          "claim": "Planck's constant h = 6.626 × 10⁻³⁴ J·s.",
+          "source": {
+            "url": "https://www.nist.gov/si-redefinition/meet-constants?utm_source=openai",
+            "title": "Meet the Constants | NIST"
+          }
+        },
+        {
+          "index": 10,
+          "claim": "For a de Broglie wavelength of 1.0 nm = 1.0 × 10⁻⁹ m, the momentum is p = 6.626 × 10⁻²⁵ kg·m/s.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 11,
+          "claim": "The energy of a photon with momentum p is E = pc.",
+          "source": null
+        },
+        {
+          "index": 12,
+          "claim": "A photon with momentum 6.626 × 10⁻²⁵ kg·m/s has energy approximately 1240 eV.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 13,
+          "claim": "The electron rest energy m_e c² = 511 keV = 511,000 eV.",
+          "source": null
+        },
+        {
+          "index": 14,
+          "claim": "Using the relativistic energy-momentum relation E² = (pc)² + (m_e c²)², an electron with pc = 1240 eV has total energy approximately 511,001 eV.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 15,
+          "claim": "The kinetic energy of the electron (total energy minus rest mass energy) is approximately 1.5 eV when its de Broglie wavelength is 1.0 nm.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 16,
+          "claim": "A photon's energy is given by E_p = hc/λ, where h is Planck's constant, c is the speed of light, and λ is the wavelength.",
+          "source": {
+            "url": "https://en.wikipedia.org/wiki/Photon_energy?utm_source=openai",
+            "title": "Photon energy"
+          }
+        },
+        {
+          "index": 17,
+          "claim": "The product hc ≈ 1240 eV·nm.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 18,
+          "claim": "A photon with wavelength 1.0 nm has energy approximately 1240 eV (1.24 keV).",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 19,
+          "claim": "An electron with de Broglie wavelength 1.0 nm has kinetic energy K_e = h²/(2m_e λ²) ≈ 2.41 × 10⁻¹⁹ J ≈ 1.50 eV.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 20,
+          "claim": "The rest-mass energy of an electron is m_e c² ≈ 511,000 eV (511 keV).",
+          "source": null
+        },
+        {
+          "index": 21,
+          "claim": "The total relativistic energy of a free electron equals its kinetic energy plus its rest-mass energy: E_e = K_e + m_e c².",
+          "source": {
+            "url": "https://uspas.fnal.gov/materials/10MIT/Review_of_Relativity.pdf",
+            "title": "Review of formulas for relativistic motion"
+          }
+        },
+        {
+          "index": 22,
+          "claim": "The ratio of the electron's total energy to the photon's energy for the same 1.0 nm wavelength is approximately 511,001.5 eV / 1240 eV ≈ 412.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 23,
+          "claim": "For a photon, the energy is given by E = hc/λ, where hc ≈ 1240 eV·nm.",
+          "source": {
+            "url": "https://sinovoltaics.com/learning-center/basics/energy-of-photon/",
+            "title": "Energy of Photon"
+          }
+        },
+        {
+          "index": 24,
+          "claim": "A photon with wavelength λ = 1.0 nm has energy E_photon = 1240 eV·nm / 1.0 nm = 1240 eV ≈ 1.24 keV.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 25,
+          "claim": "For a free electron with de Broglie wavelength λ = 1.0 nm, the momentum satisfies p = h/λ, giving pc = hc/λ ≈ 1240 eV.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 26,
+          "claim": "The rest mass energy of an electron is m_e c² ≈ 511,000 eV (511 keV).",
+          "source": {
+            "url": "https://en.wikipedia.org/wiki/Electron_mass",
+            "title": "Electron mass - Wikipedia"
+          }
+        },
+        {
+          "index": 27,
+          "claim": "The relativistic total energy of the electron with pc ≈ 1240 eV and rest energy 511,000 eV is E_electron = sqrt((1240 eV)² + (511,000 eV)²) ≈ 511,000 eV (≈ 511 keV), differing from the rest energy by less than 0.001%.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 28,
+          "claim": "The ratio of the electron's total energy to the photon's energy for the same de Broglie wavelength of 1.0 nm is approximately 511,000 / 1,240 ≈ 412.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        },
+        {
+          "index": 29,
+          "claim": "For an electron with λ = 1.0 nm, the rest mass energy dominates over the kinetic energy contribution, making the total energy approximately equal to the rest mass energy.",
+          "source": {
+            "title": "Independent reasoning re-derivation",
+            "url": null
+          }
+        }
+      ]
+    },
+    "duration_ms": 58884
+  }
+}
