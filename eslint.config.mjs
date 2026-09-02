@@ -11,6 +11,8 @@ export default [
       "runs/**",
       "generated-runs/**",
       "logs/**",
+      "artifacts/**", // local QA/build evidence (gitignored), not source
+      "evaluation/**", // local competitive-intel corpus (gitignored)
       "client/**" // React UI lints via its own Vite/React tooling
     ]
   },
