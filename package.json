@@ -20,6 +20,7 @@
     "ui:fixture": "node scripts/fixture_ui_server.mjs",
     "ui:live:preflight": "node scripts/live_preflight.mjs",
     "live:feedback": "node scripts/live_feedback_loop.mjs",
+    "eval:fixture": "node eval/run_eval.mjs --suite eval/suites/smoke-5.jsonl --mode fixture --out eval/runs/fixture",
     "build:client": "npm --prefix client run build",
     "live:install": "npm --prefix server install && npm --prefix shadow-council install && npm --prefix client install",
     "live:server": "npm --prefix server start",

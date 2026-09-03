@@ -28,6 +28,7 @@ IMPORTANTKAGGLE.txt
 *.log
 logs/
 runs/
+eval/runs/
 generated-runs/
 private/
 _private_course_alignment/
