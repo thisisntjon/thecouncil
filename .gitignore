@@ -28,6 +28,7 @@ IMPORTANTKAGGLE.txt
 *.log
 logs/
 runs/
+eval/runs/
 generated-runs/
 private/
 _private_course_alignment/
@@ -91,3 +92,17 @@ PRE_COMMIT_PACKAGING_REHEARSAL.md
 PUBLIC_RELEASE_DECISION_DRAFT.md
 UI_OVERHAUL_BRIEF.md
 docs/process/
+
+# Competitive-intel probe (local corpus, scores, cloned repos — never publish)
+evaluation/
+
+# Local-only process/forecast notes and tool dumps — reference other entries/people or
+# internal workflow paths; never part of the public repo
+FORECAST.md
+forecast_data.json
+REAL_JUDGE_EVALUATION.md
+REAL_JUDGE_GAPS.md
+SUBMISSION_CHECKLIST.md
+docs/research/
+mcps/
+artifacts/
