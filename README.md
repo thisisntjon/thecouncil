@@ -1,16 +1,14 @@
-# The Council: Multi-Agent Verification Swarm
-
-![The Council — four independent agents, peer critique, hidden cross-vendor verification, auditable final answer](docs/img/cover.png)
-
-**The Council turns one AI answer into a transparent deliberation: four frontier models answer a question independently, peer-critique each other, and then a hidden cross-vendor swarm re-checks every claim against a *different* model vendor — producing an evidence-backed final answer with a full audit trail.**
-
-Track: Freestyle · Submission writeup: [`KAGGLE_WRITEUP.md`](KAGGLE_WRITEUP.md)
-
+# The Council
 ![Fixture demo: npm run demo:fixture, offline, no keys](docs/img/demo-fixture.gif)
 
-*25-second recording of the offline fixture run: council, peer critique, verification swarm, synthesis. No API keys required.*
+The Council is a heterogeneous multi-model verification system that separates answer generation, peer critique, cross-vendor claim verification, and synthesis, using four vendors' fast-tier models (Claude Haiku 4.5, GPT-5.4 mini, Gemini 3.5 Flash, Grok 4.3) so that the verifier of a claim is never its author.
 
-The model is only ~10% of this system; the other ~90% is the **harness** — input redaction, role-separated orchestration, a tool allowlist, cross-vendor claim verification, and synthesis — that turns a single model into an auditable deliberation. **The project is the live agent.** A deterministic offline mode (no keys) exists too, but only as a reproducibility/CI fallback — see below.
+- **Status:** PUBLIC working system · fixture evidence is simulated · live evidence is captured, not a benchmark ([`sample_outputs/live_runs/`](sample_outputs/live_runs/)).
+- **Research question:** Can heterogeneous models independently verify one another's claims better than peer review alone?
+- **One result (one question, one run):** In the 2026-06-30 physics run, peers scored a GPT-5.4 mini answer 92, 95, and 98 and none flagged a wrong intermediate claim (electron kinetic energy stated as about 1.24 keV; it is about 1.5 eV). Cross-vendor re-derivation refuted that claim at 0.99 confidence and the synthesis dropped it. See [the receipt](#one-deliberation-receipt) and the [JSON audit trail](sample_outputs/live_runs/2026-06-30_writeup_run/q1_physics_photon_vs_electron.json).
+- **Reproduce:** `npm run demo:fixture` (no keys, no network; simulated evidence). Live run with your own keys: [Quickstart](#quickstart).
+- **Limitations:** one question is not an error rate; these are fast-tier models; no benchmark ships in this repository; cost was not recorded in the 2026-06-30 capture.
+- **Deeper documentation:** [`KAGGLE_WRITEUP.md`](KAGGLE_WRITEUP.md) (Track: Freestyle), [`ARCHITECTURE.md`](ARCHITECTURE.md), [`eval/README.md`](eval/README.md), [`docs/mode-matrix.md`](docs/mode-matrix.md).
 
 ## Quickstart
 
@@ -162,3 +160,5 @@ tests/                          Smoke tests (run on the offline engine)
 ## License Status
 
 An MIT-style `LICENSE` is included (OSI-approved, compatible with the competition's CC-BY-4.0 winner license). See `LICENSE_REVIEW.md`.
+
+**Part of the Simone Systems Research program.** [SEED](https://github.com/thisisntjon/seed-protocol) measures whether agent-driven work constitutes verified progress. [BigBoss](https://github.com/thisisntjon/bigboss-approval-plane) controls which autonomous actions can occur and preserves human decision authority. The Council tests independent verification through heterogeneous model families. [The Bus](https://github.com/thisisntjon/thebus) shows adversarial review terminating a bad architecture before further implementation. [Godot Methodology](https://github.com/thisisntjon/godot-ai-methodology) tests whether the same verification principles generalize into software architecture. Founder-led, independent: [simoneresearch.com](https://simoneresearch.com). Independent reproductions: file one with the [reproduction issue template](.github/ISSUE_TEMPLATE/independent-reproduction.md).
