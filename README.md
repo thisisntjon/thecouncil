@@ -6,6 +6,10 @@
 
 Track: Freestyle · Submission writeup: [`KAGGLE_WRITEUP.md`](KAGGLE_WRITEUP.md)
 
+![Fixture demo: npm run demo:fixture, offline, no keys](docs/img/demo-fixture.gif)
+
+*25-second recording of the offline fixture run: council, peer critique, verification swarm, synthesis. No API keys required.*
+
 The model is only ~10% of this system; the other ~90% is the **harness** — input redaction, role-separated orchestration, a tool allowlist, cross-vendor claim verification, and synthesis — that turns a single model into an auditable deliberation. **The project is the live agent.** A deterministic offline mode (no keys) exists too, but only as a reproducibility/CI fallback — see below.
 
 ## Quickstart
@@ -42,6 +46,23 @@ npm run demo:fixture        # deterministic CLI dashboard; writes JSON + Markdow
 ```
 
 On Windows: `launch.bat fixture`. Reports land in `sample_outputs/`.
+
+## One deliberation receipt
+
+A single row from a real run, so you can see what the Council does that a single answer or a peer review does not. Every value below is copied from the shipped audit trail at [`sample_outputs/live_runs/2026-06-30_writeup_run/q1_physics_photon_vs_electron.json`](sample_outputs/live_runs/2026-06-30_writeup_run/q1_physics_photon_vs_electron.json); open it rather than taking this table's word.
+
+| | |
+|---|---|
+| **Question** | A photon and a free electron each have a de Broglie wavelength of exactly 1.0 nm. Which carries more total energy, and by what factor? |
+| **Single-model answer (GPT-5.4 mini, Round 1)** | Reached the right conclusion: electron total energy about 511 keV, photon about 1.24 keV, ratio about 412. On the way it also asserted that the electron's kinetic energy is "approximately equal to the photon's energy of ~1.24 keV". That intermediate claim is wrong by a factor of about 830. |
+| **Peer review (Round 2)** | The three other models scored GPT's answer 92, 95, and 98 out of 100. None flagged the kinetic-energy claim. |
+| **Claim-level verification (Round 3)** | The answer was split into 8 claims. Claim `gpt-7`, the kinetic-energy statement, was routed to a different vendor for independent re-derivation (no web search; it is a reasoning claim) and came back **refuted at 0.99 confidence**: KE = p²/2m ≈ 1.5 eV, about 830 times smaller than the photon's energy. |
+| **Per-model verification score** | Claude 100 (8/8 supported), Grok 93.8, Gemini 87.5 (1 refuted), GPT 81.3 (6 supported, 1 partial, 1 refuted). |
+| **Synthesis** | Carried the correct 1.5 eV kinetic energy and the 511 keV total, with footnoted sources; the wrong intermediate did not survive. |
+| **Latency** | Round 1 answers: 7.7 s (GPT), 9.9 s (Claude), 10.0 s (Grok), 19.5 s (Gemini). Round 3 verification and synthesis: 58.9 s. |
+| **Cost** | Not recorded in this capture. The [eval CLI](eval/README.md) reports per-vendor token cost on live runs. |
+
+What this shows: a fluent, correct-looking answer with a wrong step inside it passed peer review and failed claim-level verification. What it does not show: a general error rate. It is one question. Suite-level numbers come from `eval/run_eval.mjs`, which prints a Failures section for every row rather than only the catches.
 
 ## Validation
 
