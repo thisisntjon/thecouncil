@@ -81,7 +81,7 @@ kinetic-energy claim at **0.99 confidence** that peer review had missed.
 
 ### Why a council, not a single agent?
 
-Multi-agent adds coordination cost, so it has to earn its place. It does here because the task is **high-stakes verification**: the value is exactly the disagreement, critique, and claim-checking a single prompt collapses. The pipeline "slices the elephant" — generation, critique, fact-checking, and synthesis are separate roles — so no single context has to generate *and* police itself, avoiding the context rot that degrades a monolithic prompt. A live run demonstrates this vividly: models often split on the answer, and the cross-vendor verification resolves it.
+Multi-agent adds coordination cost, so it has to earn its place. It does here because the task is **high-stakes verification**: the value is exactly the disagreement, critique, and claim-checking a single prompt collapses. The pipeline "slices the elephant" — generation, critique, fact-checking, and synthesis are separate roles — so no single context has to generate *and* police itself, avoiding the context rot that degrades a monolithic prompt. In the captured 2026-06-30 run the models split on an intermediate claim and cross-vendor verification resolved it; one run is not a rate.
 
 ## Architecture
 
@@ -154,7 +154,7 @@ tests/                          Smoke tests (run on the offline engine)
 ## Known Limitations
 
 - Live mode needs your own provider keys and provider availability; it costs money per run.
-- The offline fixture mode is **simulated** — it proves the architecture and powers CI, not live model quality.
+- The offline fixture mode is **simulated** — it exercises the architecture and powers CI, not live model quality.
 - The MCP server is a small dependency-free stub, not a production MCP SDK server.
 
 ## License Status
