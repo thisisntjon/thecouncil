@@ -6,7 +6,7 @@
 - [x] No work/customer/employer data found in fixture assets.
 - [x] Offline mode uses only public-safe simulated fixture data (clearly labeled, never shown as live results).
 - [x] Live agent is the headline demo; `launch.bat live` documented and shown in the video.
-- [~] License reviewed; human comfort with publishing the MIT-style license still needed.
+- [x] License reviewed; MIT, copyright held by Jonathan Simone. Assignment to Simone Systems Research LLC is a separate, unexecuted step.
 - [x] README complete.
 - [x] No-key reproducibility command works (`npm run demo:fixture`).
 - [x] Tests pass.
