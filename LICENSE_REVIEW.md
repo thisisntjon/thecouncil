@@ -12,7 +12,7 @@ This repository ships an MIT license (`LICENSE`).
 
 ## Before Public Release
 
-- Confirm you are comfortable publishing the existing MIT-style license.
+- Confirm you are comfortable publishing under the MIT License.
 - Confirm no archived third-party code or copied app bundles are included.
 - Confirm screenshots and sample outputs are original/public-safe.
 - Keep package lockfiles only if you want reproducible installs.
