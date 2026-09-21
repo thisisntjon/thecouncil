@@ -159,6 +159,6 @@ tests/                          Smoke tests (run on the offline engine)
 
 ## License Status
 
-An MIT-style `LICENSE` is included (OSI-approved, compatible with the competition's CC-BY-4.0 winner license). See `LICENSE_REVIEW.md`.
+The `LICENSE` is the MIT License (OSI-approved, compatible with the competition's CC-BY-4.0 winner license). See `LICENSE_REVIEW.md`.
 
 **Part of the Simone Systems Research program.** [SEED](https://github.com/thisisntjon/seed-protocol) measures whether agent-driven work constitutes verified progress. [BigBoss](https://github.com/thisisntjon/bigboss-approval-plane) controls which autonomous actions can occur and preserves human decision authority. The Council tests independent verification through heterogeneous model families. [The Bus](https://github.com/thisisntjon/thebus) shows adversarial review terminating a bad architecture before further implementation. [Godot Methodology](https://github.com/thisisntjon/godot-ai-methodology) tests whether the same verification principles generalize into software architecture. Founder-led, independent: [simoneresearch.com](https://simoneresearch.com). Independent reproductions: file one with the [reproduction issue template](.github/ISSUE_TEMPLATE/independent-reproduction.md).
