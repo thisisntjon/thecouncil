@@ -9,6 +9,7 @@ import { listDemoQuestions, runFixtureCouncil, writeReport } from '../lib/fixtur
 import { withTimeout, retry, isTransient } from '../lib/ops.mjs';
 import { isReasoningClaim, claimAuthorId } from '../lib/claims.mjs';
 import { normalizeProviderKeys } from '../lib/providerKeys.mjs';
+import { allowedHostGate } from '../lib/security.mjs';
 
 // Load .env from server/ first, fall back to project root
 dotenv.config();
@@ -18,6 +19,10 @@ dotenv.config({ path: '../.env' });
 normalizeProviderKeys();
 
 const app = express();
+// Do not trust X-Forwarded-For. proxy-addr's critical advisory is an IP-spoof
+// in the trust-proxy path (GHSA-jqcg-44mw-7w3h); the lockfile pins 2.0.8.
+app.set('trust proxy', false);
+app.use(allowedHostGate('COUNCIL_ALLOWED_HOSTS', 'COUNCIL_HOST'));
 const DEFAULT_ALLOWED_ORIGINS = [
   'http://localhost:3001',
   'http://127.0.0.1:3001',
@@ -97,19 +102,10 @@ function requestToken(req) {
   return match?.[1] || req.get('x-council-token') || '';
 }
 
-function isLoopbackAddress(addr) {
-  return Boolean(addr) && (addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1' || addr.startsWith('127.'));
-}
-
 function requireCouncilAuth(req, res, next) {
   if (!liveAuthRequired()) return next();
-  // Local-dev convenience: trust same-machine (loopback) requests ONLY when no explicit
-  // token is configured. The server binds 127.0.0.1 by default, so this never exposes the
-  // keyed API to the network. If an operator deliberately set COUNCIL_API_TOKEN, enforce it
-  // even on loopback (so the configured token is a real control, not a no-op).
-  if (process.env.COUNCIL_REQUIRE_AUTH !== 'true' && !LIVE_API_TOKEN && isLoopbackAddress(req.socket?.remoteAddress || req.ip)) {
-    return next();
-  }
+  // 127.0.0.1 is not an exemption. With provider keys and no COUNCIL_API_TOKEN,
+  // live routes refuse every caller, including loopback.
   if (!LIVE_API_TOKEN) {
     return res.status(503).json({
       error: 'COUNCIL_API_TOKEN is required before live provider routes can run with configured keys.',
