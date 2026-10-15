@@ -5,6 +5,7 @@ import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { ROOT } from "../lib/fixtureCouncil.mjs";
+import { allowedHostGate } from "../lib/security.mjs";
 
 const COUNCIL_TOKEN = "test-council-token";
 const SHADOW_TOKEN = "test-shadow-token";
@@ -127,6 +128,33 @@ if (liveDepsInstalled) await withCouncilServer(async (base) => {
   assert.equal(noAuthAsk.status, 401, "provider-backed ask route must reject missing auth before streaming");
 });
 
+if (liveDepsInstalled) {
+  const port = await freePort();
+  const fakeKey = "test-offline-not-a-real-key";
+  const env = {
+    PORT: String(port),
+    COUNCIL_HOST: "127.0.0.1",
+    COUNCIL_API_TOKEN: "",
+    LOCAL_API_TOKEN: "",
+    SHADOW_COUNCIL_TOKEN: "",
+    COUNCIL_REQUIRE_AUTH: "",
+    ANTHROPIC_API_KEY: fakeKey,
+    OPENAI_API_KEY: fakeKey,
+    XAI_API_KEY: fakeKey,
+    GOOGLE_API_KEY: fakeKey,
+    GROK_API_KEY: "",
+    BRAVE_SEARCH_API_KEY: ""
+  };
+  const child = startNode(["server/index.js"], env);
+  try {
+    await waitForHealth(`http://127.0.0.1:${port}/api/health`, child);
+    const skipped = await postJson(`http://127.0.0.1:${port}/api/config`, { models: { claude: "claude-sonnet-4-6" } });
+    assert.equal(skipped.status, 503, "loopback must not skip auth when keys are set and no token is");
+  } finally {
+    await stop(child);
+  }
+}
+
 if (liveDepsInstalled) await withShadowServer(async (base) => {
   const noAuthVerify = await postJson(`${base}/api/verify`, {
     question_number: 1,
@@ -138,6 +166,42 @@ if (liveDepsInstalled) await withShadowServer(async (base) => {
   const authConfig = await postJson(`${base}/api/config`, { model: "claude-sonnet-4-6" }, SHADOW_TOKEN);
   assert.equal(authConfig.status, 200, "Shadow config should accept the shared local bearer token");
 });
+
+for (const rel of ["server/package-lock.json", "shadow-council/package-lock.json"]) {
+  const lock = JSON.parse(fs.readFileSync(path.join(ROOT, rel), "utf8"));
+  assert.equal(lock.packages["node_modules/proxy-addr"].version, "2.0.8", rel);
+}
+for (const rel of ["server/index.js", "shadow-council/index.js"]) {
+  const source = fs.readFileSync(path.join(ROOT, rel), "utf8");
+  assert.match(source, /allowedHostGate\(/, rel);
+  assert.equal(source.includes("isLoopbackAddress("), false, rel);
+}
+
+const savedHost = process.env.HOST;
+delete process.env.HOST;
+try {
+  const gate = allowedHostGate("COUNCIL_ALLOWED_HOSTS_TEST", "COUNCIL_HOST_TEST_UNSET");
+  const statusFor = (host) => {
+    let code = 200;
+    const headers = host === undefined ? {} : { host };
+    gate({ headers }, { status(n) { code = n; return this; }, json() { return this; } }, () => {});
+    return code;
+  };
+  assert.equal(statusFor("127.0.0.1:3000"), 200);
+  assert.equal(statusFor("[::1]:3000"), 200);
+  assert.equal(statusFor("LocalHost:3000"), 200);
+  assert.equal(statusFor("LOCALHOST"), 200);
+  assert.equal(statusFor("localhost:evil"), 403);
+  assert.equal(statusFor("[::1]:evil"), 403);
+  assert.equal(statusFor("localhost."), 403);
+  assert.equal(statusFor("localhost.:3000"), 403);
+  assert.equal(statusFor(""), 403);
+  assert.equal(statusFor(undefined), 403);
+  assert.equal(statusFor("evil.example"), 403);
+} finally {
+  if (savedHost === undefined) delete process.env.HOST;
+  else process.env.HOST = savedHost;
+}
 
 const dashboard = fs.readFileSync(path.join(ROOT, "shadow-council", "dashboard.html"), "utf8");
 assert.match(dashboard, /function escapeHtml/);

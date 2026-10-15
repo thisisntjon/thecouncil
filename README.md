@@ -154,6 +154,7 @@ tests/                          Smoke tests (run on the offline engine)
 ## Known Limitations
 
 - Live mode needs your own provider keys and provider availability; it costs money per run.
+- Live routes require `COUNCIL_API_TOKEN` (Shadow: `SHADOW_COUNCIL_TOKEN`) when a provider key is configured. Loopback is not exempt. `trust proxy` is off. `Host` must be `localhost`, `127.0.0.1`, `::1`, the bind host, or a name in `COUNCIL_ALLOWED_HOSTS` / `SHADOW_ALLOWED_HOSTS`.
 - The offline fixture mode is **simulated** — it exercises the architecture and powers CI, not live model quality.
 - The MCP server is a small dependency-free stub, not a production MCP SDK server.
 

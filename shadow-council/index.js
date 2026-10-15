@@ -10,6 +10,7 @@ import { dirname, join } from 'path';
 import { withTimeout, retry, isTransient } from '../lib/ops.mjs';
 import { isReasoningClaim } from '../lib/claims.mjs';
 import { normalizeProviderKeys } from '../lib/providerKeys.mjs';
+import { allowedHostGate } from '../lib/security.mjs';
 
 // Load .env from shadow-council/ first, fall back to project root
 dotenv.config();
@@ -18,6 +19,8 @@ normalizeProviderKeys();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
+app.set('trust proxy', false);
+app.use(allowedHostGate('SHADOW_ALLOWED_HOSTS', 'SHADOW_HOST'));
 const DEFAULT_ALLOWED_ORIGINS = [
   'http://localhost:3001',
   'http://127.0.0.1:3001',
@@ -105,18 +108,10 @@ function requestToken(req) {
   return match?.[1] || req.get('x-shadow-council-token') || req.get('x-council-token') || '';
 }
 
-function isLoopbackAddress(addr) {
-  return Boolean(addr) && (addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1' || addr.startsWith('127.'));
-}
-
 function requireShadowAuth(req, res, next) {
   if (!shadowAuthRequired()) return next();
-  // Local-dev convenience: trust same-machine (loopback) requests ONLY when no explicit
-  // token is configured. Bound to 127.0.0.1 by default, so not network-exposed. If an
-  // operator deliberately set SHADOW_COUNCIL_TOKEN, enforce it even on loopback.
-  if (process.env.SHADOW_REQUIRE_AUTH !== 'true' && !SHADOW_API_TOKEN && isLoopbackAddress(req.socket?.remoteAddress || req.ip)) {
-    return next();
-  }
+  // 127.0.0.1 is not an exemption. With a provider key and no token, Shadow
+  // refuses every caller, including loopback.
   if (!SHADOW_API_TOKEN) {
     return res.status(503).json({
       error: 'SHADOW_COUNCIL_TOKEN is required before Shadow provider routes can run with configured keys.',
