@@ -183,12 +183,21 @@ try {
   const gate = allowedHostGate("COUNCIL_ALLOWED_HOSTS_TEST", "COUNCIL_HOST_TEST_UNSET");
   const statusFor = (host) => {
     let code = 200;
-    gate({ headers: { host } }, { status(n) { code = n; return this; }, json() { return this; } }, () => {});
+    const headers = host === undefined ? {} : { host };
+    gate({ headers }, { status(n) { code = n; return this; }, json() { return this; } }, () => {});
     return code;
   };
   assert.equal(statusFor("127.0.0.1:3000"), 200);
   assert.equal(statusFor("[::1]:3000"), 200);
-  assert.equal(statusFor("evil.example"), 400);
+  assert.equal(statusFor("LocalHost:3000"), 200);
+  assert.equal(statusFor("LOCALHOST"), 200);
+  assert.equal(statusFor("localhost:evil"), 403);
+  assert.equal(statusFor("[::1]:evil"), 403);
+  assert.equal(statusFor("localhost."), 403);
+  assert.equal(statusFor("localhost.:3000"), 403);
+  assert.equal(statusFor(""), 403);
+  assert.equal(statusFor(undefined), 403);
+  assert.equal(statusFor("evil.example"), 403);
 } finally {
   if (savedHost === undefined) delete process.env.HOST;
   else process.env.HOST = savedHost;
