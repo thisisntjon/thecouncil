@@ -27,10 +27,19 @@ ANTHROPIC_API_KEY=...
 OPENAI_API_KEY=...
 GOOGLE_API_KEY=...
 XAI_API_KEY=...            # (GROK_API_KEY is accepted as an alias)
-# Optional hardening for a shared instance:
+# REQUIRED for any instance reachable by anyone but you (including behind a reverse proxy):
 COUNCIL_API_TOKEN=...      # require a bearer token on the API
 SHADOW_COUNCIL_TOKEN=...   # require a bearer token on the verifier
+# Only if a same-host proxy forwards a public hostname to the loopback-bound servers:
+COUNCIL_ALLOWED_HOSTS=council.example.com
+SHADOW_ALLOWED_HOSTS=verifier.example.com
 ```
+
+> Without a token, the servers trust only *direct* same-machine requests: loopback socket, a
+> `localhost`/`127.0.0.1` Host header, and no `X-Forwarded-For`/`Forwarded`/`X-Real-IP`. Proxied
+> traffic never gets that pass, so a proxied instance with keys and no token refuses live routes
+> (503) instead of spending your keys. Loopback requests naming any other Host are rejected (421)
+> to block DNS rebinding, and requests from origins outside `*_ALLOWED_ORIGINS` are rejected (403).
 
 > Grok runs through the OpenAI SDK pointed at `https://api.x.ai/v1`, so the three SDK packages
 > (`@anthropic-ai/sdk`, `openai`, `@google/generative-ai`) cover all four vendors.
