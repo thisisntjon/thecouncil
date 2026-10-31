@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
+import http from "node:http";
 import net from "node:net";
 import path from "node:path";
 import { ROOT } from "../lib/fixtureCouncil.mjs";
@@ -20,10 +21,17 @@ function freePort() {
   });
 }
 
+// The OpenAI SDK throws at construction without a key, so keyless runs pass the servers'
+// recognised placeholders (PLACEHOLDER_KEYS), which do not count as configured live keys.
+const PLACEHOLDER_ENV = {
+  OPENAI_API_KEY: "your-openai-key-here",
+  XAI_API_KEY: "your-xai-key-here"
+};
+
 function startNode(args, env) {
   const child = spawn(process.execPath, args, {
     cwd: ROOT,
-    env: { ...process.env, ...env },
+    env: { ...PLACEHOLDER_ENV, ...process.env, ...env },
     stdio: ["ignore", "pipe", "pipe"]
   });
   child.output = "";
@@ -69,14 +77,36 @@ async function postJson(url, body, token) {
   });
 }
 
-async function withCouncilServer(testFn) {
+// fetch() forbids overriding Host, so header-spoofing checks use node:http directly.
+function rawPost(base, pathname, body, headers = {}) {
+  const url = new URL(pathname, base);
+  const payload = JSON.stringify(body);
+  return new Promise((resolve, reject) => {
+    const req = http.request({
+      hostname: url.hostname,
+      port: url.port,
+      path: url.pathname,
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": Buffer.byteLength(payload), ...headers }
+    }, (res) => {
+      res.resume();
+      res.on("end", () => resolve(res.statusCode));
+    });
+    req.on("error", reject);
+    req.end(payload);
+  });
+}
+
+async function withCouncilServer(testFn, env = {
+  COUNCIL_API_TOKEN: COUNCIL_TOKEN,
+  SHADOW_COUNCIL_TOKEN: SHADOW_TOKEN
+}) {
   const port = await freePort();
   const child = startNode(["server/index.js"], {
     PORT: String(port),
     COUNCIL_HOST: "127.0.0.1",
-    COUNCIL_API_TOKEN: COUNCIL_TOKEN,
-    SHADOW_COUNCIL_TOKEN: SHADOW_TOKEN,
-    SHADOW_COUNCIL_URL: "http://127.0.0.1:65535"
+    SHADOW_COUNCIL_URL: "http://127.0.0.1:65535",
+    ...env
   });
   try {
     await waitForHealth(`http://127.0.0.1:${port}/api/health`, child);
@@ -125,6 +155,27 @@ if (liveDepsInstalled) await withCouncilServer(async (base) => {
 
   const noAuthAsk = await postJson(`${base}/api/ask`, { question: "Will this spend keys?", models: [] });
   assert.equal(noAuthAsk.status, 401, "provider-backed ask route must reject missing auth before streaming");
+
+  const badOrigin = await rawPost(base, "/api/fixture/run", { question: "x" }, { origin: "http://evil.example" });
+  assert.equal(badOrigin, 403, "requests from a non-allowlisted Origin must be rejected, not just denied CORS headers");
+
+  const rebound = await rawPost(base, "/api/fixture/run", { question: "x" }, { host: "evil.example" });
+  assert.equal(rebound, 421, "loopback requests naming a foreign Host (DNS rebinding) must be rejected");
+});
+
+// Keys configured but no token: only direct same-machine requests get the local-dev pass.
+if (liveDepsInstalled) await withCouncilServer(async (base) => {
+  const direct = await rawPost(base, "/api/config", { models: { claude: "claude-sonnet-4-6" } });
+  assert.equal(direct, 200, "direct loopback request keeps the tokenless local-dev convenience");
+
+  const proxied = await rawPost(base, "/api/config", { models: { claude: "claude-sonnet-4-6" } }, { "x-forwarded-for": "203.0.113.7" });
+  assert.notEqual(proxied, 200, "proxied traffic arriving via loopback must not inherit the local-dev pass");
+
+  const allowedForeignHost = await rawPost(base, "/api/config", { models: { claude: "claude-sonnet-4-6" } }, { host: "council.example" });
+  assert.notEqual(allowedForeignHost, 200, "an operator-allowed public Host is not a local request");
+}, {
+  ANTHROPIC_API_KEY: "test-not-a-real-key",
+  COUNCIL_ALLOWED_HOSTS: "council.example"
 });
 
 if (liveDepsInstalled) await withShadowServer(async (base) => {
@@ -137,6 +188,12 @@ if (liveDepsInstalled) await withShadowServer(async (base) => {
 
   const authConfig = await postJson(`${base}/api/config`, { model: "claude-sonnet-4-6" }, SHADOW_TOKEN);
   assert.equal(authConfig.status, 200, "Shadow config should accept the shared local bearer token");
+
+  const badOrigin = await rawPost(base, "/api/config", { model: "claude-sonnet-4-6" }, { origin: "http://evil.example", authorization: `Bearer ${SHADOW_TOKEN}` });
+  assert.equal(badOrigin, 403, "Shadow must reject a non-allowlisted Origin");
+
+  const rebound = await rawPost(base, "/api/config", { model: "claude-sonnet-4-6" }, { host: "evil.example", authorization: `Bearer ${SHADOW_TOKEN}` });
+  assert.equal(rebound, 421, "Shadow must reject loopback requests naming a foreign Host");
 });
 
 const dashboard = fs.readFileSync(path.join(ROOT, "shadow-council", "dashboard.html"), "utf8");

@@ -36,6 +36,24 @@ const allowedOrigins = new Set([
   ...splitEnvList(process.env.SHADOW_ALLOWED_ORIGINS),
 ]);
 
+const allowedHosts = new Set(splitEnvList(process.env.SHADOW_ALLOWED_HOSTS).map(hostName));
+
+// DNS-rebinding guard: a request arriving over loopback must also name a loopback host (or an
+// operator-allowed one). A rebinding page reaches 127.0.0.1 but still sends its own domain in Host.
+app.use((req, res, next) => {
+  if (!isLoopbackAddress(req.socket?.remoteAddress)) return next();
+  const host = req.get('host');
+  if (isLoopbackHostHeader(host) || allowedHosts.has(hostName(host))) return next();
+  return res.status(421).json({ error: 'Host not allowed' });
+});
+
+// Reject disallowed cross-origin requests outright; withholding CORS headers alone still runs the handler.
+app.use((req, res, next) => {
+  const origin = req.get('origin');
+  if (!origin || allowedOrigins.has(origin) || origin === `${req.protocol}://${req.get('host')}`) return next();
+  return res.status(403).json({ error: 'Origin not allowed' });
+});
+
 app.use(cors({
   origin(origin, callback) {
     callback(null, !origin || allowedOrigins.has(origin));
@@ -109,12 +127,32 @@ function isLoopbackAddress(addr) {
   return Boolean(addr) && (addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1' || addr.startsWith('127.'));
 }
 
+function hostName(hostHeader) {
+  const host = (hostHeader || '').trim().toLowerCase();
+  if (host.startsWith('[')) return host.slice(0, host.indexOf(']') + 1);
+  return host.split(':')[0];
+}
+
+function isLoopbackHostHeader(hostHeader) {
+  return ['localhost', '127.0.0.1', '[::1]'].includes(hostName(hostHeader));
+}
+
+function hasForwardingHeaders(req) {
+  return Boolean(req.get('x-forwarded-for') || req.get('forwarded') || req.get('x-real-ip'));
+}
+
+// A direct same-machine request: loopback socket, loopback Host, and no reverse-proxy headers.
+// Behind a same-host proxy every client arrives from 127.0.0.1, so the socket alone proves nothing.
+function isDirectLoopbackRequest(req) {
+  return isLoopbackAddress(req.socket?.remoteAddress) && isLoopbackHostHeader(req.get('host')) && !hasForwardingHeaders(req);
+}
+
 function requireShadowAuth(req, res, next) {
   if (!shadowAuthRequired()) return next();
-  // Local-dev convenience: trust same-machine (loopback) requests ONLY when no explicit
-  // token is configured. Bound to 127.0.0.1 by default, so not network-exposed. If an
-  // operator deliberately set SHADOW_COUNCIL_TOKEN, enforce it even on loopback.
-  if (process.env.SHADOW_REQUIRE_AUTH !== 'true' && !SHADOW_API_TOKEN && isLoopbackAddress(req.socket?.remoteAddress || req.ip)) {
+  // Local-dev convenience: trust direct same-machine requests ONLY when no explicit token is
+  // configured. Proxied traffic never qualifies (see isDirectLoopbackRequest). If an operator
+  // deliberately set SHADOW_COUNCIL_TOKEN, enforce it even on loopback.
+  if (process.env.SHADOW_REQUIRE_AUTH !== 'true' && !SHADOW_API_TOKEN && isDirectLoopbackRequest(req)) {
     return next();
   }
   if (!SHADOW_API_TOKEN) {
